@@ -62,7 +62,7 @@ const Footer = () => {
       <footer className="bg-gray-900 text-white">
         {/* Main Footer Content */}
         <motion.div
-          className="container mx-auto px-5 lg:px-20 py-12 lg:py-16"
+          className="container mx-auto px-5 lg:px-12 py-12 lg:py-16"
           initial="hidden"
           whileInView="visible"
           variants={footerVariants}

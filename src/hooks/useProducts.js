@@ -42,6 +42,51 @@ export const useProduct = (id) => {
   });
 };
 
+export const useFilteredProductsByCategory = (categoryId, filters = {}, options = {}) => {
+  const queryParams = new URLSearchParams();
+  
+  // Add filter parameters
+  if (filters.minPrice !== undefined) {
+    queryParams.append('minPrice', filters.minPrice);
+  }
+  
+  if (filters.maxPrice !== undefined) {
+    queryParams.append('maxPrice', filters.maxPrice);
+  }
+  
+  if (filters.inStock) {
+    queryParams.append('inStock', 'true');
+  }
+  
+  if (filters.onSale) {
+    queryParams.append('onSale', 'true');
+  }
+  
+  if (filters.ratings && filters.ratings.length > 0) {
+    queryParams.append('ratings', filters.ratings.join(','));
+  }
+  
+  if (filters.sortBy) {
+    queryParams.append('sortBy', filters.sortBy);
+  }
+
+  if (filters.page) {
+    queryParams.append('page', filters.page);
+  }
+
+  if (filters.limit) {
+    queryParams.append('limit', filters.limit);
+  }
+
+  return useQuery({
+    queryKey: ['filteredProducts', categoryId, filters],
+    queryFn: () => productService.getFilteredProductsByCategory(categoryId, queryParams.toString()),
+    enabled: !!categoryId,
+    staleTime: 2 * 60 * 1000, // 2 minutes
+    ...options,
+  });
+};
+
 // Create product mutation
 export const useCreateProduct = () => {
   const queryClient = useQueryClient();

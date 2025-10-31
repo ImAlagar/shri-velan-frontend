@@ -1,8 +1,9 @@
-import React from 'react'
+import React from "react";
 import heroImage from "../../assets/heroImage.webp";
-import { Helmet } from 'react-helmet';
-import { motion } from 'framer-motion';
-
+import { Helmet } from "react-helmet";
+import { motion } from "framer-motion";
+import CategorySection from "../../components/Home/CategorySection"; // ✅ new import
+import HeroSlider from "../../components/Home/HeroSlider";
 
 const Home = () => {
   const Content = [
@@ -28,7 +29,6 @@ const Home = () => {
     },
   ];
 
-
   // Animation variants for grid items
   const itemVariants = {
     hidden: { opacity: 0, y: 40 },
@@ -37,7 +37,7 @@ const Home = () => {
 
   return (
     <section
-      className="bg-gradient-to-tr from-primary/50 to-white px-5 lg:px-20 pt-16"
+      className="bg-gradient-to-tr from-primary/50 to-white px-5 lg:px-12 pt-4"
       id="home"
     >
       {/* --- SEO Meta Tags --- */}
@@ -61,7 +61,6 @@ const Home = () => {
         <meta property="og:image" content={heroImage} />
       </Helmet>
 
-      {/* --- Hero Section --- */}
       <motion.div
         className="flex flex-col-reverse lg:flex-row items-center gap-10"
         initial={{ opacity: 0, y: 50 }}
@@ -108,46 +107,31 @@ const Home = () => {
           <img
             src={heroImage}
             alt="Healthy organic food - noodles, malt, porridge, and muesli"
-            // className="rounded-3xl shadow-xl"
             loading="lazy"
           />
         </motion.div>
-      </motion.div>
-
-      {/* --- Features Grid --- */}
+      </motion.div>      
       <motion.div
-        className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 mt-16"
-        initial="hidden"
-        whileInView="visible"
-        variants={{
-          visible: { transition: { staggerChildren: 0.2 } },
-        }}
-        viewport={{ once: true }}
+        initial={{ opacity: 0, y: 50 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 1, ease: "easeOut" }}
+        className="mb-5"
       >
-        {Content.map((content, i) => (
-          <motion.div
-            key={i}
-            variants={itemVariants}
-            transition={{ duration: 0.1, ease: "easeOut" }}
-            className={`${content.color} flex flex-col items-center justify-center text-center p-8 shadow-md hover:shadow-xl transition duration-300`}
-            whileHover={{ scale: 1.05, rotate: 1 }}
-          >
-            <motion.span
-              className="text-5xl mb-3"
-              initial={{ rotate: -10, opacity: 0 }}
-              animate={{ rotate: 0, opacity: 1 }}
-              transition={{ duration: 0.5, delay: i * 0.2 }}
-            >
-              {content.img}
-            </motion.span>
-            <p className="text-lg font-SpaceGrotesk tracking-wide text-gray-800">
-              {content.para}
-            </p>
-          </motion.div>
-        ))}
+        <HeroSlider />
       </motion.div>
+      
+      <motion.div
+        initial={{ opacity: 0, y: 50 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 1, ease: "easeOut" }}
+        className="mb-5"
+      >
+        <CategorySection />
+
+      </motion.div>
+      
     </section>
   );
-}
+};
 
-export default Home
+export default Home;

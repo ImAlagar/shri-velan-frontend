@@ -4,6 +4,7 @@ import logo from "../../../assets/logo.png";
 import { motion, AnimatePresence } from "framer-motion";
 import { FiMenu, FiX, FiUser, FiSettings, FiLogOut } from "react-icons/fi";
 import { useAuth } from "../../../hooks/useAuth";
+import Topbar from "../Topbar";
 
 const MainHeader = () => {
   const navigate = useNavigate();
@@ -55,7 +56,8 @@ const MainHeader = () => {
 
   return (
     <nav className="bg-white text-gray-900 shadow-md sticky top-0 z-50 transition-all duration-300">
-      <div className="container mx-auto flex justify-between items-center px-5 md:px-20 py-4 relative">
+      <Topbar />
+      <div className="container mx-auto flex justify-between items-center px-5 md:px-12 py-4 relative">
         {/* Logo */}
         <a href="/" className="flex items-center">
           <img src={logo} alt="Company Logo" className="h-10 w-auto" />

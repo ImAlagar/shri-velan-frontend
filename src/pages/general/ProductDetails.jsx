@@ -1,3 +1,4 @@
+// src/pages/general/ProductDetails.js - UPDATED VERSION
 import React, { useContext, useState, useEffect } from 'react';
 import { useParams, useLocation, useNavigate } from 'react-router-dom';
 import Lottie from 'lottie-react';
@@ -20,10 +21,18 @@ const ProductDetails = () => {
   const [quantity, setQuantity] = useState(1);
   const [isLoading, setIsLoading] = useState(false);
 
-  // Use the product hook
+  // Use the product hook - this should fetch product by ID
   const { data: productData, isLoading: productLoading, error } = useProduct(id);
   
-  const product = location.state?.product || productData?.data?.product;
+  // Get product from location state OR from API response
+  const product = location.state?.product || productData?.data?.product || productData?.data;
+
+  console.log("🔍 ProductDetails Debug:", {
+    productId: id,
+    hasLocationState: !!location.state?.product,
+    hasProductData: !!productData?.data?.product,
+    product: product
+  });
 
   // Initialize quantity from cart if product is already in cart
   useEffect(() => {
@@ -97,6 +106,7 @@ const ProductDetails = () => {
   }
 
   if (error || !product) {
+    console.log("❌ ProductDetails Error:", { error, product, productData });
     return (
       <div className="flex flex-col justify-center items-center min-h-screen text-center px-5">
         <Lottie animationData={noProduct} loop={true} className="w-72 mb-6" />
@@ -112,6 +122,9 @@ const ProductDetails = () => {
       </div>
     );
   }
+
+  // Get product images safely
+  const productImages = product.images || (product.image ? [product.image] : ['/api/placeholder/600/600']);
 
   return (
     <section className="min-h-screen bg-gray-50 font-SpaceGrotesk">
@@ -139,7 +152,7 @@ const ProductDetails = () => {
               {/* Main Image */}
               <div className="aspect-square rounded-xl overflow-hidden bg-gray-100">
                 <img
-                  src={product.images?.[selectedImage] || '/api/placeholder/600/600'}
+                  src={productImages[selectedImage]}
                   alt={product.name}
                   className="w-full h-full object-cover"
                   onError={handleImageError}
@@ -147,9 +160,9 @@ const ProductDetails = () => {
               </div>
 
               {/* Thumbnail Images */}
-              {product.images && product.images.length > 1 && (
+              {productImages.length > 1 && (
                 <div className="flex gap-3 overflow-x-auto pb-2">
-                  {product.images.map((image, index) => (
+                  {productImages.map((image, index) => (
                     <button
                       key={index}
                       onClick={() => setSelectedImage(index)}
@@ -208,9 +221,9 @@ const ProductDetails = () => {
               <div className="space-y-2">
                 <div className="flex items-center gap-3">
                   <span className="text-3xl font-bold text-primary">
-                    ₹{product.offerPrice}
+                    ₹{product.offerPrice || product.normalPrice || 0}
                   </span>
-                  {product.normalPrice > product.offerPrice && (
+                  {product.normalPrice > (product.offerPrice || 0) && (
                     <span className="text-xl text-gray-400 line-through">
                       ₹{product.normalPrice}
                     </span>
@@ -218,18 +231,18 @@ const ProductDetails = () => {
                 </div>
                 
                 {/* Discount Badge */}
-                {product.normalPrice > product.offerPrice && (
+                {product.normalPrice > (product.offerPrice || 0) && (
                   <span className="inline-block bg-red-100 text-red-600 px-2 py-1 rounded text-sm font-medium">
-                    Save ₹{product.normalPrice - product.offerPrice}
+                    Save ₹{product.normalPrice - (product.offerPrice || 0)}
                   </span>
                 )}
               </div>
 
               {/* Stock Status */}
               <div className={`text-lg font-medium ${
-                product.stock > 0 ? 'text-green-600' : 'text-red-600'
+                (product.stock || 0) > 0 ? 'text-green-600' : 'text-red-600'
               }`}>
-                {product.stock > 0 
+                {(product.stock || 0) > 0 
                   ? `In Stock (${product.stock} available)`
                   : 'Out of Stock'
                 }
@@ -246,19 +259,19 @@ const ProductDetails = () => {
               )}
 
               {/* Features/Benefits */}
-              {product.features && product.features.length > 0 && (
+              {product.benefits && product.benefits.length > 0 && (
                 <div className="space-y-2">
-                  <h3 className="text-lg font-semibold text-gray-900">Key Features</h3>
+                  <h3 className="text-lg font-semibold text-gray-900">Key Benefits</h3>
                   <ul className="list-disc list-inside text-gray-600 space-y-1">
-                    {product.features.map((feature, index) => (
-                      <li key={index}>{feature}</li>
+                    {product.benefits.map((benefit, index) => (
+                      <li key={index}>{benefit}</li>
                     ))}
                   </ul>
                 </div>
               )}
 
               {/* Quantity Selector */}
-              {product.stock > 0 && (
+              {(product.stock || 0) > 0 && (
                 <div className="space-y-3">
                   <h3 className="text-lg font-semibold text-gray-900">Quantity</h3>
                   <div className="flex items-center gap-3">
@@ -292,7 +305,7 @@ const ProductDetails = () => {
               <div className="flex flex-col sm:flex-row gap-4 pt-4">
                 <button
                   onClick={handleAddToCart}
-                  disabled={product.stock === 0 || isLoading}
+                  disabled={(product.stock || 0) === 0 || isLoading}
                   className="flex-1 flex items-center justify-center gap-3 bg-primary hover:bg-green-700 disabled:bg-gray-400 disabled:cursor-not-allowed text-white py-3 px-6 rounded-lg font-semibold transition-colors"
                 >
                   <FaOpencart className="w-5 h-5" />
@@ -301,7 +314,7 @@ const ProductDetails = () => {
 
                 <button
                   onClick={handleBuyNow}
-                  disabled={product.stock === 0}
+                  disabled={(product.stock || 0) === 0}
                   className="flex-1 bg-orange-500 hover:bg-orange-600 disabled:bg-gray-400 disabled:cursor-not-allowed text-white py-3 px-6 rounded-lg font-semibold transition-colors"
                 >
                   Buy Now
@@ -340,9 +353,9 @@ const ProductDetails = () => {
             </div>
           </div>
         </motion.div>
-        <RelatedProducts />
-        {/* Related Products Section - You can add this later */}
-        {/* <RelatedProducts currentProductId={product.id} categoryId={product.category?.id} /> */}
+        
+        {/* Related Products */}
+        <RelatedProducts currentProductId={product.id} categoryId={product.category?.id} />
       </div>
     </section>
   );

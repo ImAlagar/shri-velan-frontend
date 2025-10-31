@@ -28,6 +28,12 @@ import Contact from "../pages/general/Contact";
 import Product from "../pages/general/Product";
 import ComboProduct from "../pages/general/ComboProduct";
 import ProductDetails from "../pages/general/ProductDetails";
+import Cart from "../pages/general/Cart";
+import Checkout from "../pages/general/Checkout";
+import Categories from "../pages/general/Categories";
+import CategoryProducts from "../pages/CategoryProducts/CategoryProducts";
+import Products from "../pages/general/Product";
+
 
 const router = createBrowserRouter([
     {
@@ -45,15 +51,23 @@ const router = createBrowserRouter([
             },
             {
                 path: 'products',
-                element: <Product />,
+                element: <Products />,
             },
-                        {
+            {
                 path: 'product-details/:id',
                 element: <ProductDetails />,
             },
             {
                 path: 'combo-products',
                 element: <ComboProduct />,
+            },
+            {
+                path: 'cart',
+                element: <Cart />,
+            },
+            {
+                path: 'checkout',
+                element: <Checkout />,
             },
             {
                 path: 'contact',
@@ -82,6 +96,14 @@ const router = createBrowserRouter([
             {
                 path: 'terms',
                 element: <TermsAndConditions />,
+            },
+            {
+                path: 'categories',
+                element: <Categories />,
+            },
+            {
+                path: 'category/:categoryId',
+                element: <CategoryProducts />,
             },
         ],
     },
@@ -121,11 +143,11 @@ const router = createBrowserRouter([
                         element: <AdminAddProduct />,
                     },
                     {
-                        path: 'edit/:id', // Add parameter here
+                        path: 'edit/:id',
                         element: <AdminEditProduct />,
                     },
                     {
-                        path: 'view/:id', // Add parameter here
+                        path: 'view/:id',
                         element: <AdminViewProduct />,
                     },
                 ],

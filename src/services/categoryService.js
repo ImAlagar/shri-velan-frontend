@@ -13,7 +13,7 @@ export const categoryService = {
     }
   },
 
-  // Get all categories (admin only)
+
   async getAllCategories() {
     try {
       console.log('Fetching all categories...');

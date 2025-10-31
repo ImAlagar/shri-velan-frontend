@@ -35,6 +35,8 @@ export const productService = {
     }
   },
 
+
+
   // Create product
 async createProduct (productData) {
   try {
@@ -96,6 +98,16 @@ async updateProduct(id, productData) {
     }
   },
 
+
+   async getFilteredProductsByCategory(categoryId, queryString) {
+    try {
+      const response = await apiService.get(`/products/category/${categoryId}/filter?${queryString}`);
+      return response.data;
+    } catch (error) {
+      console.error('Get filtered products error:', error);
+      throw error;
+    }
+  },
   // Add product images
   async addProductImages(id, images) {
     try {
