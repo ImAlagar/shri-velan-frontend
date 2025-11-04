@@ -234,7 +234,6 @@ const AdminEditProduct = () => {
     });
 
     // Debug: Log all FormData entries
-    console.log('🔍 FormData entries being sent:');
     const formDataEntries = {};
     for (let [key, value] of submitData.entries()) {
       if (value instanceof File) {
@@ -246,7 +245,6 @@ const AdminEditProduct = () => {
       }
     }
     
-    console.log('📦 FormData content:');
     Object.keys(formDataEntries).forEach(key => {
       if (formDataEntries[key].length === 1) {
         console.log(`  ${key}:`, formDataEntries[key][0]);
@@ -255,17 +253,6 @@ const AdminEditProduct = () => {
       }
     });
 
-    console.log('🚀 Updating product with data:', {
-      name: formData.name,
-      categoryId: formData.categoryId,
-      normalPrice: formData.normalPrice,
-      stock: formData.stock,
-      benefitsCount: formData.benefits.length,
-      ingredientsCount: formData.ingredients.length,
-      tagsCount: formData.tags.length,
-      existingImages: existingImages.length,
-      newImages: images.length
-    });
 
     // Call the mutation and wait for the response
     const result = await updateProductMutation.mutateAsync({
@@ -273,7 +260,6 @@ const AdminEditProduct = () => {
       data: submitData
     });
 
-    console.log('✅ Update mutation result:', result);
 
     // Check if the response indicates success
     if (result && result.success) {

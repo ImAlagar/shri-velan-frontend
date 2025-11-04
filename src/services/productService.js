@@ -40,7 +40,6 @@ export const productService = {
   // Create product
 async createProduct (productData) {
   try {
-    console.log('📤 Sending product data to API...');
     
     const response = await apiService.post('/products', productData, {
       headers: {
@@ -59,7 +58,6 @@ async createProduct (productData) {
   // Update product
 async updateProduct(id, productData) {
   try {
-    console.log('📤 Sending update request for product:', id);
     
     const response = await apiService.put(`/products/${id}`, productData, {
       headers: {
@@ -67,7 +65,6 @@ async updateProduct(id, productData) {
       },
     });
     
-    console.log('✅ Update API response:', response.data);
     return response.data;
   } catch (error) {
     console.error('❌ Update product error:', error);

@@ -36,14 +36,10 @@ export const AuthProvider = ({ children }) => {
       setError('');
       const response = await apiService.post('/auth/login', credentials);
       
-      console.log('Login API Response:', response.data); // Debug log
       
       if (response.data.success && response.data.data) {
         const { user: userData, accessToken, refreshToken } = response.data.data;
-        
-        console.log('User data from API:', userData); // Debug log
-        console.log('Required role:', requiredRole); // Debug log
-        
+
         // Check if user has the required role
         if (requiredRole) {
           if (requiredRole === 'ADMIN' && userData.role !== 'ADMIN') {
@@ -60,9 +56,7 @@ export const AuthProvider = ({ children }) => {
         
         // Set user state
         setUser(userData);
-        
-        console.log('Login successful, user set:', userData); // Debug log
-        
+                
         return response.data;
       } else {
         throw new Error(response.data.message || 'Login failed');

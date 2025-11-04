@@ -4,6 +4,7 @@ import { Helmet } from "react-helmet";
 import { motion } from "framer-motion";
 import CategorySection from "../../components/Home/CategorySection"; // ✅ new import
 import HeroSlider from "../../components/Home/HeroSlider";
+import Categories from "./Categories";
 
 const Home = () => {
   const Content = [
@@ -126,7 +127,7 @@ const Home = () => {
         transition={{ duration: 1, ease: "easeOut" }}
         className="mb-5"
       >
-        <CategorySection />
+        <Categories />
 
       </motion.div>
       

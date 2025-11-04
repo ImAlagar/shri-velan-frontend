@@ -199,21 +199,9 @@ const AdminAddProduct = () => {
         submitData.append('images', image.file);
       });
 
-      // Debug: Log what's being sent
-      console.log('🚀 Submitting product with FormData:');
-      console.log('📋 Form fields:');
-      console.log('  name:', formData.name);
-      console.log('  description:', formData.description);
-      console.log('  categoryId:', formData.categoryId);
-      console.log('  normalPrice:', formData.normalPrice);
-      console.log('  stock:', formData.stock);
-      console.log('  benefits:', formData.benefits);
-      console.log('  ingredients:', formData.ingredients);
-      console.log('  tags:', formData.tags);
-      console.log('🖼️ Images count:', images.length);
+
 
       // Log FormData entries for verification
-      console.log('📦 FormData entries:');
       for (let [key, value] of submitData.entries()) {
         if (key === 'images') {
           console.log(`  ${key}:`, (value instanceof File) ? `File: ${value.name}` : value);

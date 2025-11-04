@@ -229,11 +229,7 @@ const Cart = () => {
                     <span>Shipping</span>
                     <span>{shippingFee === 0 ? 'Free' : `₹${shippingFee}`}</span>
                   </div>
-                  {shippingFee > 0 && calculateSubtotal() < 500 && (
-                    <p className="text-sm text-green-600">
-                      Add ₹{500 - calculateSubtotal()} more for free shipping!
-                    </p>
-                  )}
+
                   <div className="border-t pt-4">
                     <div className="flex justify-between text-lg font-bold text-gray-900">
                       <span>Total</span>

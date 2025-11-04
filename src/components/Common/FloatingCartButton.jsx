@@ -5,11 +5,6 @@ import { useLocation } from 'react-router-dom';
 const FloatingCartButton = () => {
   const location = useLocation();
 
-  const openCart = () => {
-    // Your cart opening logic here
-    console.log('Open cart');
-  };
-
   const hideOnRoutes = ['/admin', '/login', '/register'];
   const shouldHide = hideOnRoutes.some(route => 
     location.pathname.startsWith(route)

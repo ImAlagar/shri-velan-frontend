@@ -15,11 +15,6 @@ const apiClient = axios.create({
 apiClient.interceptors.request.use(
   (config) => {
     const token = sessionStorage.getItem('auth_token'); // Use the same key as your login
-    console.log(`API Request to ${config.url}:`, { 
-      hasToken: !!token,
-      tokenLength: token?.length 
-    });
-    
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
@@ -33,7 +28,6 @@ apiClient.interceptors.request.use(
 // Response interceptor for error handling - FIXED
 apiClient.interceptors.response.use(
   (response) => {
-    console.log(`API Response from ${response.config.url}:`, response.status);
     return response;
   },
   (error) => {

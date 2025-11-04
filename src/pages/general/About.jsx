@@ -40,7 +40,7 @@ export default function About() {
 
   return (
     <section
-      className="bg-gradient-to-br from-primary/50 to-white px-5 lg:px-20 py-16 lg:py-24"
+      className="bg-gradient-to-br from-primary/50 to-white px-5 lg:px-12 py-16 lg:py-12"
       id="about"
     >
       {/* --- SEO Meta Tags --- */}

@@ -94,7 +94,7 @@ const CategorySection = () => {
 
   // Main Render
   return (
-    <section className="py-12 lg:py-16 ">
+    <section className="bg-primary/10 py-12 lg:py-16 ">
       <div className="container mx-auto px-4 sm:px-6">
         {/* Heading */}
         <motion.div

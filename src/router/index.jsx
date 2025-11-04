@@ -25,14 +25,13 @@ import ProtectedRoute from "../components/admin/auth/ProductedRoute";
 import AdminEditProduct from "../pages/dashboard/admin/AdminEditProduct";
 import AdminViewProduct from "../pages/dashboard/admin/AdminViewProduct";
 import Contact from "../pages/general/Contact";
-import Product from "../pages/general/Product";
 import ComboProduct from "../pages/general/ComboProduct";
 import ProductDetails from "../pages/general/ProductDetails";
 import Cart from "../pages/general/Cart";
 import Checkout from "../pages/general/Checkout";
 import Categories from "../pages/general/Categories";
 import CategoryProducts from "../pages/CategoryProducts/CategoryProducts";
-import Products from "../pages/general/Product";
+import Products from "../pages/general/Products";
 
 
 const router = createBrowserRouter([

@@ -88,7 +88,6 @@ const AdminOrders = () => {
   });
 
   const handleView = (order) => {
-    console.log('View order:', order);
     // Implement view functionality
   };
 

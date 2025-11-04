@@ -113,11 +113,9 @@ export const useUpdateProduct = () => {
   return useMutation({
     mutationFn: async ({ id, data }) => {
       const response = await productService.updateProduct(id, data);
-      console.log('🔄 Update service response:', response);
       return response; // Make sure to return the response
     },
     onSuccess: (data, variables) => {
-      console.log('🎯 Update mutation onSuccess:', data);
       queryClient.invalidateQueries({ queryKey: productKeys.lists() });
       queryClient.invalidateQueries({ queryKey: productKeys.detail(variables.id) });
       queryClient.invalidateQueries({ queryKey: productKeys.stats() });

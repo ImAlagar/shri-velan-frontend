@@ -74,47 +74,18 @@ const Contact = () => {
           backgroundPosition: "center",
           backgroundAttachment: "fixed",
         }}
-        className="flex flex-col lg:flex-row gap-10 relative items-center py-20 px-5 lg:px-20 text-white"
+        className="flex flex-col gap-10 relative items-center py-8 px-5 lg:px-12 text-white"
       >
         <div className="absolute inset-0 bg-black bg-opacity-70"></div>
 
-        {/* Left Content */}
-        <motion.div
-          className="lg:w-1/2 z-10 flex flex-col gap-4"
-          initial={{ opacity: 0, y: -40 }}
+        {/* Top Content - Moved inside background */}
+        <motion.div 
+          className="z-10 w-full text-center"
+          initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 1 }}
+          transition={{ duration: 0.8 }}
         >
-          <h1 className="text-3xl font-Italiana font-semibold">
-            Let's Connect with Shri Velan Organic Foods!
-          </h1>
-          <p className="text-lg">
-            🥣 <span className="font-medium font-SpaceGrotesk">Pure, Natural & Wholesome Malt Powders</span>
-          </p>
-          <p className="text-lg">
-            🌾 <span className="font-medium font-SpaceGrotesk">Healthy Organic Foods for a Better Lifestyle</span>
-          </p>
-
-          <h2 className="text-2xl font-semibold mt-4 font-SpaceGrotesk">
-            Have Questions or Need Assistance?
-          </h2>
-          <p className="text-lg font-SpaceGrotesk">
-            We're here to help you choose the right organic products for your family's health. From nutritious malt powders
-            to wholesome ingredients, Shri Velan Organic Foods is committed to your wellness.
-          </p>
-          <p className="text-lg font-SpaceGrotesk">
-            Fill out the form or give us a call — let's make healthy living a part of every meal!
-          </p>
-        </motion.div>
-
-        {/* Right Form */}
-        <motion.div
-          className="lg:w-1/2 z-10"
-          initial={{ opacity: 0, y: 40 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 1, delay: 0.5 }}
-        >
-          <div className="flex flex-col gap-5 text-center">
+          <div className="flex flex-col gap-5">
             <h1 style={{ letterSpacing: "3px" }} className="text-3xl font-Italiana font-semibold">
               Get in Touch with Us
             </h1>
@@ -129,75 +100,115 @@ const Contact = () => {
               </a>
             </div>
             <h1 className="text-xl font-SpaceGrotesk">💬 We'd Love to Hear From You!</h1>
-            <p className="font-SpaceGrotesk">
+            <p className="font-SpaceGrotesk max-w-3xl mx-auto">
               Whether you're exploring our organic malt powders, nutritional mixes, or
               natural products — your health journey begins here at Shri Velan Organic Foods.
             </p>
           </div>
-
-          {/* Contact Form */}
-          <form onSubmit={handleSubmit} className="flex flex-col gap-5 mt-5" aria-label="Contact Form">
-            {["name", "phone", "email", "message"].map((field, i) => (
-              <motion.div
-                key={field}
-                className="flex flex-col gap-2"
-                initial={{ opacity: 0, x: -20 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ duration: 0.5, delay: i * 0.2 }}
-              >
-                <label className="text-xl" htmlFor={field}>
-                  {field.charAt(0).toUpperCase() + field.slice(1)}
-                </label>
-                {field === "message" ? (
-                  <textarea
-                    id="message"
-                    className="outline-none border border-gray-500 bg-transparent focus:shadow-gray-500 lg:w-[60%] px-4 py-2 rounded-xl focus:border-gray-700 transition-all ease-in-out duration-300 focus:shadow-xl"
-                    onChange={handleInputChange}
-                    value={formData.message}
-                    name="message"
-                    placeholder="Type your message..."
-                    required
-                    rows="4"
-                  />
-                ) : (
-                  <input
-                    id={field}
-                    className="outline-none border border-gray-500 bg-transparent focus:shadow-gray-500 lg:w-[60%] px-4 py-2 rounded-xl focus:border-gray-700 transition-all ease-in-out duration-300 focus:shadow-lg"
-                    onChange={handleInputChange}
-                    value={formData[field]}
-                    name={field}
-                    type={
-                      field === "email"
-                        ? "email"
-                        : field === "phone"
-                        ? "tel"
-                        : "text"
-                    }
-                    placeholder={field.charAt(0).toUpperCase() + field.slice(1)}
-                    required
-                  />
-                )}
-              </motion.div>
-            ))}
-
-            <motion.button
-              className="bg-gradient-to-r hover:bg-gradient-to-l transition-all duration-700 ease-in-out from-primary to-gray-600 w-fit px-8 py-2 rounded-full text-white font-semibold flex items-center justify-center"
-              disabled={isSubmitting}
-              type="submit"
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-            >
-              {isSubmitting ? "Sending..." : "Send Message"}
-            </motion.button>
-          </form>
-          {responseMessage && (
-            <p className="text-white font-SpaceGrotesk lg:text-xl mt-4">
-              {responseMessage}
-            </p>
-          )}
         </motion.div>
-      </div>
 
+        {/* Main Content Container */}
+        <div className=" flex flex-col lg:flex-row gap-10 z-10 w-full">
+
+          {/* Left Content */}
+          <motion.div
+            className="lg:w-1/2 flex flex-col gap-4"
+            initial={{ opacity: 0, y: -40 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 1 }}
+          >
+            <h1 className="text-3xl font-Italiana font-semibold">
+              Let's Connect with Shri Velan Organic Foods!
+            </h1>
+            <p className="text-lg">
+              🥣 <span className="font-medium font-SpaceGrotesk">Pure, Natural & Wholesome Malt Powders</span>
+            </p>
+            <p className="text-lg">
+              🌾 <span className="font-medium font-SpaceGrotesk">Healthy Organic Foods for a Better Lifestyle</span>
+            </p>
+
+            <h2 className="text-2xl font-semibold mt-4 font-SpaceGrotesk">
+              Have Questions or Need Assistance?
+            </h2>
+            <p className="text-lg font-SpaceGrotesk">
+              We're here to help you choose the right organic products for your family's health. From nutritious malt powders
+              to wholesome ingredients, Shri Velan Organic Foods is committed to your wellness.
+            </p>
+            <p className="text-lg font-SpaceGrotesk">
+              Fill out the form or give us a call — let's make healthy living a part of every meal!
+            </p>
+          </motion.div>
+
+          {/* Right Form */}
+          <motion.div
+            className="lg:w-1/2 lg:pl-64"
+            initial={{ opacity: 0, y: 40 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 1, delay: 0.5 }}
+          >
+            {/* Contact Form */}
+            <form onSubmit={handleSubmit} className="flex flex-col gap-5" aria-label="Contact Form">
+              {["name", "phone", "email", "message"].map((field, i) => (
+                <motion.div
+                  key={field}
+                  className="flex flex-col gap-2"
+                  initial={{ opacity: 0, x: -20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ duration: 0.5, delay: i * 0.2 }}
+                >
+                  <label className="text-xl" htmlFor={field}>
+                    {field.charAt(0).toUpperCase() + field.slice(1)}
+                  </label>
+                  {field === "message" ? (
+                    <textarea
+                      id="message"
+                      className="outline-none border border-gray-500 bg-transparent focus:shadow-gray-500 lg:w-[60%] px-4 py-2 rounded-xl focus:border-gray-700 transition-all ease-in-out duration-300 focus:shadow-xl"
+                      onChange={handleInputChange}
+                      value={formData.message}
+                      name="message"
+                      placeholder="Type your message..."
+                      required
+                      rows="4"
+                    />
+                  ) : (
+                    <input
+                      id={field}
+                      className="outline-none border border-gray-500 bg-transparent focus:shadow-gray-500 lg:w-[60%] px-4 py-2 rounded-xl focus:border-gray-700 transition-all ease-in-out duration-300 focus:shadow-lg"
+                      onChange={handleInputChange}
+                      value={formData[field]}
+                      name={field}
+                      type={
+                        field === "email"
+                          ? "email"
+                          : field === "phone"
+                          ? "tel"
+                          : "text"
+                      }
+                      placeholder={field.charAt(0).toUpperCase() + field.slice(1)}
+                      required
+                    />
+                  )}
+                </motion.div>
+              ))}
+
+              <motion.button
+                className="bg-gradient-to-r hover:bg-gradient-to-l transition-all duration-700 ease-in-out from-primary to-gray-600 w-fit px-8 py-2 rounded-full text-white font-semibold flex items-center justify-center"
+                disabled={isSubmitting}
+                type="submit"
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+              >
+                {isSubmitting ? "Sending..." : "Send Message"}
+              </motion.button>
+            </form>
+            {responseMessage && (
+              <p className="text-white font-SpaceGrotesk lg:text-xl mt-4">
+                {responseMessage}
+              </p>
+            )}
+          </motion.div>
+        </div>
+      </div>
     </section>
   );
 }

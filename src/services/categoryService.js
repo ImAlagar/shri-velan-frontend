@@ -16,9 +16,7 @@ export const categoryService = {
 
   async getAllCategories() {
     try {
-      console.log('Fetching all categories...');
       const response = await apiService.get('/categories');
-      console.log('Categories response:', response.data);
       return response.data;
     } catch (error) {
       console.error('Get all categories error:', error);
