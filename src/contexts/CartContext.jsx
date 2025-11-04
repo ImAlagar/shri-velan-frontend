@@ -86,11 +86,27 @@ export const CartProvider = ({ children }) => {
     return item ? item.quantity : 0;
   };
 
+  const getSafeItems = (items) => {
+    return items.map(item => ({
+      id: item.id || '',
+      name: item.name || 'Unknown Product',
+      price: item.price || 0,
+      offerPrice: item.offerPrice || item.price || 0,
+      quantity: item.quantity || 1,
+      image: item.image || item.images?.[0] || '/images/placeholder.jpg',
+      stock: item.stock || 0,
+      inStock: item.inStock !== false,
+      weight: item.weight || '1kg',
+      category: item.category || 'Uncategorized'
+    }));
+  };
+  
   return (
     <CartContext.Provider
       value={{
         cartItems,
         addToCart,
+        getSafeItems,
         updateQuantity,
         removeFromCart,
         clearCart,

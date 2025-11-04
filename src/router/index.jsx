@@ -32,6 +32,10 @@ import Checkout from "../pages/general/Checkout";
 import Categories from "../pages/general/Categories";
 import CategoryProducts from "../pages/CategoryProducts/CategoryProducts";
 import Products from "../pages/general/Products";
+import OrderSuccess from "../pages/general/OrderSuccess";
+import UserOrders from "../pages/dashboard/user/UserOrders";
+import OrderDetails from "../pages/dashboard/admin/OrderDetails";
+import AdminCoupons from "../pages/dashboard/admin/AdminCoupons";
 
 
 const router = createBrowserRouter([
@@ -67,6 +71,14 @@ const router = createBrowserRouter([
             {
                 path: 'checkout',
                 element: <Checkout />,
+            },
+            {
+                path: 'order-success',
+                element: <OrderSuccess />,
+            },
+            {
+                path: 'orders',
+                element: <UserOrders />,
             },
             {
                 path: 'contact',
@@ -160,12 +172,20 @@ const router = createBrowserRouter([
                 element: <AdminOrders />,
             },
             {
+                path: '/admin/orders/:id',
+                element: <OrderDetails />,
+            },
+            {
                 path: 'users',
                 element: <AdminUsers />,
             },
             {
                 path: 'contact',
                 element: <AdminContact />,
+            },
+            {
+                path: 'coupons',
+                element: <AdminCoupons />,
             },
             {
                 path: 'settings',

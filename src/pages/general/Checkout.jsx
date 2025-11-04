@@ -1,74 +1,372 @@
-import React, { useContext, useState } from 'react';
+// src/pages/Checkout.jsx
+import React, { useContext, useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { FaLock, FaMapMarkerAlt, FaCreditCard, FaMoneyBill, FaWallet, FaArrowLeft, FaTruck } from 'react-icons/fa';
+import { FaLock, FaMapMarkerAlt, FaCreditCard, FaMoneyBill, FaWallet, FaArrowLeft, FaTruck, FaTag } from 'react-icons/fa';
 import { Link, useNavigate } from 'react-router-dom';
-import { toast } from 'react-toastify';
+import { toast } from 'react-hot-toast';
 import { CartContext } from '../../contexts/CartContext';
+import { AuthContext } from '../../contexts/AuthContext';
+import { useCreateRazorpayOrder, useVerifyPayment } from '../../hooks/useOrders';
+import { useValidateCoupon } from '../../hooks/useCoupons';
+import { useCalculateShipping } from '../../hooks/useShipping';
 import { FolderLock } from 'lucide-react';
 
 const Checkout = () => {
   const { cartItems, getCartTotal, clearCart } = useContext(CartContext);
+  const { user } = useContext(AuthContext);
   const navigate = useNavigate();
   
   const [loading, setLoading] = useState(false);
+  const [couponCode, setCouponCode] = useState('');
+  const [appliedCoupon, setAppliedCoupon] = useState(null);
+  const [couponLoading, setCouponLoading] = useState(false);
+  const [shippingRate, setShippingRate] = useState(0);
+  const [shippingLoading, setShippingLoading] = useState(false);
+  
+  const createRazorpayOrderMutation = useCreateRazorpayOrder();
+  const verifyPaymentMutation = useVerifyPayment();
+  const validateCouponMutation = useValidateCoupon();
+  const calculateShippingMutation = useCalculateShipping();
+
+  // Pre-fill form with user data if available
   const [formData, setFormData] = useState({
-    firstName: '',
-    lastName: '',
-    email: '',
-    phone: '',
-    address: '',
-    city: '',
-    state: '',
-    pincode: '',
+    firstName: user?.firstName || '',
+    lastName: user?.lastName || '',
+    email: user?.email || '',
+    phone: user?.phone || '',
+    address: user?.address || '',
+    city: user?.city || '',
+    state: user?.state || '',
+    pincode: user?.pincode || '',
     paymentMethod: 'card'
   });
 
-  const calculateSubtotal = () => getCartTotal();
-  const shippingFee = calculateSubtotal() > 500 ? 0 : 49;
-  const tax = calculateSubtotal() * 0.05; // 5% tax
-  const total = calculateSubtotal() + shippingFee + tax;
+  // Safe cart items processing
+  const getSafeCartItems = () => {
+    if (!cartItems || !Array.isArray(cartItems)) {
+      return [];
+    }
+    
+    return cartItems
+      .filter(item => item && item.inStock !== false && (item.stock > 0 || item.stock === undefined))
+      .map(item => ({
+        id: item.id || Math.random().toString(36).substr(2, 9),
+        name: item.name || 'Unknown Product',
+        price: item.price || 0,
+        offerPrice: item.offerPrice || item.price || 0,
+        quantity: item.quantity || 1,
+        image: item.image || item.images?.[0] || '/images/placeholder.jpg',
+        stock: item.stock || 0,
+        inStock: item.inStock !== false,
+        weight: item.weight || '1kg',
+        category: item.category || 'Uncategorized'
+      }));
+  };
 
-  const inStockItems = cartItems.filter(item => item.inStock !== false);
+  const inStockItems = getSafeCartItems();
+
+  // Calculate shipping when state changes
+  useEffect(() => {
+    if (formData.state && formData.state.trim().length > 0) {
+      calculateShippingForState();
+    } else {
+      setShippingRate(0);
+    }
+  }, [formData.state]);
+
+  const calculateShippingForState = async () => {
+    if (!formData.state.trim()) {
+      setShippingRate(0);
+      return;
+    }
+
+    setShippingLoading(true);
+    try {
+      const result = await calculateShippingMutation.mutateAsync({
+        state: formData.state.toUpperCase()
+      });
+      
+      if (result.success && result.data) {
+        setShippingRate(result.data.rate || 0);
+      } else {
+        setShippingRate(0);
+        toast.error('Failed to calculate shipping');
+      }
+    } catch (error) {
+      console.error('Shipping calculation failed:', error);
+      setShippingRate(0);
+      toast.error('Failed to calculate shipping rate');
+    } finally {
+      setShippingLoading(false);
+    }
+  };
+
+  const calculateSubtotal = () => {
+    try {
+      return getCartTotal();
+    } catch (error) {
+      console.error('Error calculating subtotal:', error);
+      return 0;
+    }
+  };
+
+  const discount = appliedCoupon ? 
+    (appliedCoupon.type === 'percentage' 
+      ? (calculateSubtotal() * appliedCoupon.value) / 100 
+      : Math.min(appliedCoupon.value, calculateSubtotal())
+    ) : 0;
+  
+  const total = calculateSubtotal() + shippingRate - discount;
 
   const handleInputChange = (e) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value
+    const { name, value } = e.target;
+    setFormData(prev => ({
+      ...prev,
+      [name]: value
+    }));
+  };
+
+  const handleApplyCoupon = async () => {
+    if (!couponCode.trim()) {
+      toast.error('Please enter a coupon code');
+      return;
+    }
+
+    setCouponLoading(true);
+    try {
+      const result = await validateCouponMutation.mutateAsync(couponCode);
+      if (result.success) {
+        setAppliedCoupon(result.data);
+        toast.success('Coupon applied successfully!');
+      } else {
+        toast.error(result.message || 'Invalid coupon code');
+      }
+    } catch (error) {
+      toast.error(error.response?.data?.message || 'Failed to apply coupon');
+    } finally {
+      setCouponLoading(false);
+    }
+  };
+
+  const removeCoupon = () => {
+    setAppliedCoupon(null);
+    setCouponCode('');
+    toast.success('Coupon removed');
+  };
+
+  const loadRazorpayScript = () => {
+    return new Promise((resolve) => {
+      if (window.Razorpay) {
+        resolve(true);
+        return;
+      }
+
+      const script = document.createElement('script');
+      script.src = 'https://checkout.razorpay.com/v1/checkout.js';
+      script.onload = () => resolve(true);
+      script.onerror = () => resolve(false);
+      document.body.appendChild(script);
     });
+  };
+
+  const handleRazorpayPayment = async (orderData) => {
+    const isScriptLoaded = await loadRazorpayScript();
+    if (!isScriptLoaded) {
+      toast.error('Razorpay SDK failed to load. Please check your internet connection.');
+      return;
+    }
+
+    const options = {
+      key: import.meta.env.VITE_APP_RAZORPAY_KEY_ID,
+      amount: orderData.amount,
+      currency: orderData.currency,
+      name: 'Organic Store',
+      description: 'Order Payment',
+      order_id: orderData.razorpayOrderId, // Use the order ID from backend
+      handler: async function (response) {
+        try {
+          console.log('Razorpay payment response:', response);
+          
+          // Map Razorpay response to our expected format
+          const verificationData = {
+            razorpay_order_id: response.razorpay_order_id,
+            razorpay_payment_id: response.razorpay_payment_id,
+            razorpay_signature: response.razorpay_signature,
+            orderData: {
+              ...formData,
+              items: inStockItems.map(item => ({
+                productId: item.id,
+                quantity: item.quantity
+              })),
+              subtotal: calculateSubtotal(),
+              shipping: shippingRate,
+              discount: discount,
+              total: total,
+              couponCode: appliedCoupon ? appliedCoupon.code : null,
+              userId: user.id
+            }
+          };
+
+          console.log('Sending verification data:', verificationData);
+          
+          await verifyPaymentMutation.mutateAsync(verificationData);
+          
+          clearCart();
+          navigate('/order-success');
+        } catch (error) {
+          console.error('Payment verification error:', error);
+          toast.error(error.response?.data?.message || 'Payment verification failed. Please contact support.');
+        }
+      },
+      prefill: {
+        name: `${formData.firstName} ${formData.lastName}`,
+        email: formData.email,
+        contact: formData.phone
+      },
+      theme: {
+        color: '#10B981'
+      },
+      modal: {
+        ondismiss: function() {
+          toast.error('Payment cancelled');
+        }
+      }
+    };
+
+    const razorpay = new window.Razorpay(options);
+    razorpay.open();
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     
+    if (!user) {
+      toast.error('Please login to place an order');
+      navigate('/login', { state: { from: '/checkout' } });
+      return;
+    }
+
     if (inStockItems.length === 0) {
       toast.error('Please add items to cart before checkout');
       return;
     }
 
     // Basic validation
-    if (!formData.firstName || !formData.phone || !formData.address || !formData.city || !formData.pincode) {
+    const requiredFields = ['firstName', 'phone', 'address', 'city', 'state', 'pincode'];
+    const missingFields = requiredFields.filter(field => !formData[field]);
+    
+    if (missingFields.length > 0) {
       toast.error('Please fill all required fields');
+      return;
+    }
+
+    // Phone number validation
+    const phoneRegex = /^[6-9]\d{9}$/;
+    if (!phoneRegex.test(formData.phone)) {
+      toast.error('Please enter a valid 10-digit phone number');
+      return;
+    }
+
+    // Pincode validation
+    const pincodeRegex = /^\d{6}$/;
+    if (!pincodeRegex.test(formData.pincode)) {
+      toast.error('Please enter a valid 6-digit PIN code');
+      return;
+    }
+
+    // State validation
+    if (!formData.state.trim()) {
+      toast.error('Please enter your state');
       return;
     }
 
     setLoading(true);
 
     try {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 2000));
+    if (formData.paymentMethod === 'card' || formData.paymentMethod === 'upi') {
+      // Create Razorpay order for both card and UPI
+      const orderData = {
+        items: inStockItems.map(item => ({
+          productId: item.id,
+          quantity: item.quantity
+        })),
+        state: formData.state,
+        couponCode: appliedCoupon ? appliedCoupon.code : null,
+        userId: user.id,
+        // Include shipping details for calculation
+        shipping: shippingRate,
+        subtotal: calculateSubtotal(),
+        discount: discount,
+        total: total
+      };
+
+      console.log('Creating Razorpay order with data:', orderData);
+      const result = await createRazorpayOrderMutation.mutateAsync(orderData);
+      console.log('Razorpay order created:', result);
       
-      // Success
-      toast.success('Order placed successfully!');
+      if (result.data) {
+        // Pass the razorpayOrderId to the payment handler
+        await handleRazorpayPayment({
+          ...result.data,
+          razorpayOrderId: result.data.razorpayOrderId
+        });
+      } else {
+        throw new Error('No order data received from server');
+      }
+        } else if (formData.paymentMethod === 'cod') {
+      // Handle Cash on Delivery - create order directly
+      const orderData = {
+        ...formData,
+        items: inStockItems.map(item => ({
+          productId: item.id,
+          quantity: item.quantity
+        })),
+        subtotal: calculateSubtotal(),
+        shipping: shippingRate,
+        discount: discount,
+        total: total,
+        couponCode: appliedCoupon ? appliedCoupon.code : null,
+        userId: user.id,
+        paymentMethod: 'cod'
+      };
+
+      console.log('Creating COD order:', orderData);
+      
+      // Call verify payment with COD flag
+      await verifyPaymentMutation.mutateAsync({
+        orderData: orderData,
+        isCOD: true
+      });
+      
       clearCart();
+      toast.success('Order placed successfully! Cash on Delivery selected.');
       navigate('/order-success');
+      }
     } catch (error) {
-      toast.error('Failed to place order. Please try again.');
+      console.error('Order error details:', error);
+      const errorMessage = error.response?.data?.message || error.message || 'Failed to process order. Please try again.';
+      toast.error(errorMessage);
     } finally {
       setLoading(false);
     }
   };
 
-  if (cartItems.length === 0) {
+  // Redirect if not logged in
+  useEffect(() => {
+    if (!user) {
+      toast.error('Please login to access checkout');
+      navigate('/login', { state: { from: '/checkout' } });
+      return;
+    }
+  }, [user, navigate]);
+
+  // Debug cart items
+  useEffect(() => {
+    console.log('Cart items in checkout:', cartItems);
+    console.log('In-stock items:', inStockItems);
+  }, [cartItems]);
+
+  if (!cartItems || cartItems.length === 0) {
     return (
       <div className="min-h-screen bg-gray-50 py-12">
         <div className="container mx-auto px-4">
@@ -103,18 +401,21 @@ const Checkout = () => {
           className="max-w-6xl mx-auto"
         >
           {/* Header */}
-          <div className="flex items-center justify-between mb-8">
-            <div className="flex items-center space-x-4">
+          <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-4 mb-8">
+            {/* Left Side (Back + Title) */}
+            <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4">
               <Link
                 to="/cart"
-                className="flex items-center space-x-2 text-gray-600 hover:text-gray-900 transition-colors"
+                className="flex items-center gap-2 text-gray-600 hover:text-gray-900 transition-colors"
               >
                 <FaArrowLeft className="w-4 h-4" />
-                <span>Back to Cart</span>
+                <span className="text-sm sm:text-base">Back to Cart</span>
               </Link>
-              <h1 className="text-3xl font-bold text-gray-900">Checkout</h1>
+              <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">Checkout</h1>
             </div>
-            <div className="flex items-center space-x-2 text-sm text-gray-600">
+
+            {/* Right Side (Secure Checkout) */}
+            <div className="flex items-center gap-2 text-sm text-gray-600">
               <FolderLock className="w-4 h-4" />
               <span>Secure Checkout</span>
             </div>
@@ -184,6 +485,8 @@ const Checkout = () => {
                         onChange={handleInputChange}
                         className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
                         required
+                        maxLength="10"
+                        pattern="[6-9]{1}[0-9]{9}"
                       />
                     </div>
                   </div>
@@ -227,6 +530,7 @@ const Checkout = () => {
                         onChange={handleInputChange}
                         className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
                         required
+                        placeholder="Enter your state"
                       />
                     </div>
                     <div>
@@ -240,10 +544,86 @@ const Checkout = () => {
                         onChange={handleInputChange}
                         className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
                         required
+                        maxLength="6"
+                        pattern="[0-9]{6}"
                       />
                     </div>
                   </div>
+
+                  {/* Shipping Rate Display */}
+                  {formData.state && (
+                    <div className="mt-4 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <p className="font-medium text-blue-800">Shipping to {formData.state}</p>
+                          {shippingLoading ? (
+                            <p className="text-sm text-blue-600">Calculating shipping...</p>
+                          ) : (
+                            <p className="text-sm text-blue-600">
+                              Shipping rate: <span className="font-semibold">₹{shippingRate}</span>
+                            </p>
+                          )}
+                        </div>
+                        <FaTruck className="w-5 h-5 text-blue-600" />
+                      </div>
+                    </div>
+                  )}
                 </form>
+              </div>
+
+              {/* Coupon Section */}
+              <div className="bg-white rounded-xl shadow-sm p-6">
+                <h2 className="text-xl font-bold text-gray-900 mb-6 flex items-center gap-2">
+                  <FaTag className="w-5 h-5 text-green-600" />
+                  <span>Apply Coupon</span>
+                </h2>
+
+                <div className="flex flex-col sm:flex-row gap-3">
+                  <input
+                    type="text"
+                    value={couponCode}
+                    onChange={(e) => setCouponCode(e.target.value.toUpperCase())}
+                    placeholder="Enter coupon code"
+                    className="w-full sm:flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                    disabled={!!appliedCoupon}
+                  />
+
+                  {appliedCoupon ? (
+                    <button
+                      type="button"
+                      onClick={removeCoupon}
+                      className="w-full sm:w-auto px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
+                    >
+                      Remove
+                    </button>
+                  ) : (
+                    <button
+                      type="button"
+                      onClick={handleApplyCoupon}
+                      disabled={couponLoading || !couponCode.trim()}
+                      className="w-full sm:w-auto px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed"
+                    >
+                      {couponLoading ? 'Applying...' : 'Apply'}
+                    </button>
+                  )}
+                </div>
+
+                {appliedCoupon && (
+                  <div className="mt-3 p-3 bg-green-50 border border-green-200 rounded-lg">
+                    <p className="text-green-800 font-medium">
+                      Coupon applied: {appliedCoupon.code}
+                    </p>
+                    <p className="text-green-600 text-sm">
+                      {appliedCoupon.description}
+                    </p>
+                    <p className="text-green-700 font-semibold">
+                      Discount:{' '}
+                      {appliedCoupon.type === 'percentage'
+                        ? `${appliedCoupon.value}% (₹${discount.toFixed(2)})`
+                        : `₹${appliedCoupon.value}`}
+                    </p>
+                  </div>
+                )}
               </div>
 
               {/* Payment Method */}
@@ -255,21 +635,26 @@ const Checkout = () => {
 
                 <div className="space-y-4">
                   {[
-                    { id: 'card', name: 'Credit/Debit Card', icon: FaCreditCard },
-                    { id: 'upi', name: 'UPI Payment', icon: FaWallet },
-                    { id: 'cod', name: 'Cash on Delivery', icon: FaMoneyBill },
+                    { id: 'card', name: 'Credit/Debit Card', icon: FaCreditCard, description: 'Pay securely with your card' },
+                    { id: 'upi', name: 'UPI Payment', icon: FaWallet, description: 'Pay using any UPI app' },
+                    { id: 'cod', name: 'Cash on Delivery', icon: FaMoneyBill, description: 'Pay when you receive your order' },
                   ].map((method) => (
-                    <label key={method.id} className="flex items-center space-x-3 p-4 border border-gray-200 rounded-lg cursor-pointer hover:bg-gray-50 transition-colors">
+                    <label key={method.id} className="flex items-start space-x-3 p-4 border border-gray-200 rounded-lg cursor-pointer hover:bg-gray-50 transition-colors">
                       <input
                         type="radio"
                         name="paymentMethod"
                         value={method.id}
                         checked={formData.paymentMethod === method.id}
                         onChange={handleInputChange}
-                        className="w-4 h-4 text-green-600 focus:ring-green-500"
+                        className="w-4 h-4 text-green-600 focus:ring-green-500 mt-1"
                       />
-                      <method.icon className="w-5 h-5 text-gray-600" />
-                      <span className="font-medium text-gray-900">{method.name}</span>
+                      <div className="flex-1">
+                        <div className="flex items-center space-x-2 mb-1">
+                          <method.icon className="w-5 h-5 text-gray-600" />
+                          <span className="font-medium text-gray-900">{method.name}</span>
+                        </div>
+                        <p className="text-sm text-gray-600">{method.description}</p>
+                      </div>
                     </label>
                   ))}
                 </div>
@@ -286,9 +671,12 @@ const Checkout = () => {
                   {inStockItems.map((item) => (
                     <div key={item.id} className="flex items-center space-x-3">
                       <img
-                        src={item.image || '/images/placeholder.jpg'}
+                        src={item.image}
                         alt={item.name}
                         className="w-12 h-12 object-cover rounded-lg"
+                        onError={(e) => {
+                          e.target.src = '/images/placeholder.jpg';
+                        }}
                       />
                       <div className="flex-1 min-w-0">
                         <h4 className="font-medium text-gray-900 text-sm truncate">
@@ -299,7 +687,7 @@ const Checkout = () => {
                         </p>
                       </div>
                       <p className="font-semibold text-gray-900">
-                        ₹{item.offerPrice * item.quantity}
+                        ₹{(item.offerPrice * item.quantity).toFixed(2)}
                       </p>
                     </div>
                   ))}
@@ -308,21 +696,38 @@ const Checkout = () => {
                 {/* Price Breakdown */}
                 <div className="space-y-3 border-t pt-4">
                   <div className="flex justify-between text-gray-600">
-                    <span>Subtotal</span>
-                    <span>₹{calculateSubtotal()}</span>
+                    <span>Subtotal ({inStockItems.length} items)</span>
+                    <span>₹{calculateSubtotal().toFixed(2)}</span>
                   </div>
+                  
+                  {discount > 0 && (
+                    <div className="flex justify-between text-green-600">
+                      <span>Discount</span>
+                      <span>-₹{discount.toFixed(2)}</span>
+                    </div>
+                  )}
+                  
                   <div className="flex justify-between text-gray-600">
                     <span>Shipping</span>
-                    <span>{shippingFee === 0 ? 'Free' : `₹${shippingFee}`}</span>
+                    <span>
+                      {shippingLoading ? (
+                        <span className="text-sm text-gray-500">Calculating...</span>
+                      ) : (
+                        `₹${shippingRate}`
+                      )}
+                    </span>
                   </div>
-                  <div className="flex justify-between text-gray-600">
-                    <span>Tax (5%)</span>
-                    <span>₹{tax.toFixed(2)}</span>
-                  </div>
+
                   <div className="border-t pt-3">
                     <div className="flex justify-between text-lg font-bold text-gray-900">
                       <span>Total</span>
-                      <span>₹{total.toFixed(2)}</span>
+                      <span>
+                        {shippingLoading ? (
+                          <span className="text-sm text-gray-500">Calculating...</span>
+                        ) : (
+                          `₹${total.toFixed(2)}`
+                        )}
+                      </span>
                     </div>
                   </div>
                 </div>
@@ -330,9 +735,9 @@ const Checkout = () => {
                 {/* Place Order Button */}
                 <button
                   onClick={handleSubmit}
-                  disabled={loading || inStockItems.length === 0}
+                  disabled={loading || inStockItems.length === 0 || shippingLoading || !formData.state}
                   className={`w-full mt-6 py-4 rounded-lg font-semibold transition-colors flex items-center justify-center space-x-2 ${
-                    loading || inStockItems.length === 0
+                    loading || inStockItems.length === 0 || shippingLoading || !formData.state
                       ? 'bg-gray-400 cursor-not-allowed'
                       : 'bg-green-600 hover:bg-green-700 text-white'
                   }`}
@@ -345,10 +750,18 @@ const Checkout = () => {
                   ) : (
                     <>
                       <FaLock className="w-5 h-5" />
-                      <span>Place Order</span>
+                      <span>
+                        {formData.paymentMethod === 'cod' ? 'Place Order (COD)' : `Pay ₹${total.toFixed(2)}`}
+                      </span>
                     </>
                   )}
                 </button>
+
+                {!formData.state && (
+                  <p className="text-sm text-orange-600 text-center mt-3">
+                    Please enter your state to calculate shipping
+                  </p>
+                )}
 
                 {inStockItems.length === 0 && (
                   <p className="text-sm text-orange-600 text-center mt-3">

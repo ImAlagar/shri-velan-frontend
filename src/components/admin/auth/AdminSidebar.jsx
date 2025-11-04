@@ -13,7 +13,8 @@ import {
   FiShoppingBag,
   FiUsers,
   FiChevronLeft,
-  FiChevronRight
+  FiChevronRight,
+  FiCode
 } from "react-icons/fi";
 import { RxCross2 } from "react-icons/rx";
 import logo from '../../../assets/logo.png';
@@ -75,6 +76,11 @@ const AdminSidebar = ({ isOpen, setIsOpen }) => {
       name: "Contact", 
       icon: <FiMail size={20} />, 
       path: "/admin/contact" 
+    },
+        { 
+      name: "Coupons", 
+      icon: <FiCode size={20} />, 
+      path: "/admin/coupons" 
     },
   ];
 
