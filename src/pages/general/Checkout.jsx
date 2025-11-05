@@ -637,7 +637,6 @@ const Checkout = () => {
                   {[
                     { id: 'card', name: 'Credit/Debit Card', icon: FaCreditCard, description: 'Pay securely with your card' },
                     { id: 'upi', name: 'UPI Payment', icon: FaWallet, description: 'Pay using any UPI app' },
-                    { id: 'cod', name: 'Cash on Delivery', icon: FaMoneyBill, description: 'Pay when you receive your order' },
                   ].map((method) => (
                     <label key={method.id} className="flex items-start space-x-3 p-4 border border-gray-200 rounded-lg cursor-pointer hover:bg-gray-50 transition-colors">
                       <input
