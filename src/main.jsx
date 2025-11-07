@@ -1,3 +1,4 @@
+// main.jsx
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import './index.css'
@@ -13,6 +14,7 @@ import { CartProvider } from './contexts/CartContext'
 import { CouponProvider } from './contexts/CouponContext'
 import { OrderProvider } from './contexts/OrderContext'
 import { ShippingProvider } from './contexts/ShippingContext'
+import { RatingProvider } from './contexts/RatingContext' // Add this
 import router from './router/index.jsx'
 
 // Create a client
@@ -37,28 +39,30 @@ createRoot(document.getElementById('root')).render(
                   <CouponProvider>
                     <OrderProvider>
                       <ShippingProvider>
-                        <RouterProvider router={router} />
-                        {/* Global Toaster */}
-                        <Toaster
-                          position="top-right"
-                          toastOptions={{
-                            duration: 4000,
-                            style: {
-                              background: '#363636',
-                              color: '#fff',
-                            },
-                            success: {
-                              duration: 3000,
-                              theme: {
-                                primary: 'green',
-                                secondary: 'black',
+                        <RatingProvider> {/* Add this */}
+                          <RouterProvider router={router} />
+                          {/* Global Toaster */}
+                          <Toaster
+                            position="top-right"
+                            toastOptions={{
+                              duration: 4000,
+                              style: {
+                                background: '#363636',
+                                color: '#fff',
                               },
-                            },
-                            error: {
-                              duration: 5000,
-                            },
-                          }}
-                        />
+                              success: {
+                                duration: 3000,
+                                theme: {
+                                  primary: 'green',
+                                  secondary: 'black',
+                                },
+                              },
+                              error: {
+                                duration: 5000,
+                              },
+                            }}
+                          />
+                        </RatingProvider> {/* Close RatingProvider */}
                       </ShippingProvider>
                     </OrderProvider>
                   </CouponProvider>

@@ -1,3 +1,4 @@
+// components/UserForgotPassword.jsx
 import React, { useState } from 'react';
 import { useAuth } from '../../../hooks/useAuth';
 import { Helmet } from 'react-helmet';
@@ -9,7 +10,7 @@ const UserForgotPassword = () => {
   const [message, setMessage] = useState('');
   const [errors, setErrors] = useState({});
 
-  const { loading, error, setError } = useAuth();
+  const { loading, error, setError, forgotPassword } = useAuth();
 
   const handleChange = (e) => {
     const emailValue = e.target.value;
@@ -46,12 +47,20 @@ const UserForgotPassword = () => {
     setMessage('');
 
     try {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 2000));
-      setMessage('Password reset instructions have been sent to your email!');
-      setEmail('');
+      // Call the actual API
+      const result = await forgotPassword(email);
+      
+      if (result.success) {
+        setMessage(result.message || 'Password reset instructions have been sent to your email!');
+        setEmail('');
+      } else {
+        setError(result.message || 'Failed to send reset instructions. Please try again.');
+      }
     } catch (err) {
-      setError('Failed to send reset instructions. Please try again.');
+      // Error is already set in the context, but we can add a fallback
+      if (!error) {
+        setError('Failed to send reset instructions. Please try again.');
+      }
     }
   };
 

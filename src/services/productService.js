@@ -35,43 +35,39 @@ export const productService = {
     }
   },
 
-
-
   // Create product
-async createProduct (productData) {
-  try {
-    
-    const response = await apiService.post('/products', productData, {
-      headers: {
-        'Content-Type': 'multipart/form-data',
-      },
-    });
-    
-    return response.data;
-  } catch (error) {
-    console.error('❌ Create product error:', error);
-    console.error('Error response:', error.response?.data);
-    throw error;
-  }
-},
+  async createProduct(productData) {
+    try {
+      const response = await apiService.post('/products', productData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      });
+      
+      return response.data;
+    } catch (error) {
+      console.error('❌ Create product error:', error);
+      console.error('Error response:', error.response?.data);
+      throw error;
+    }
+  },
 
   // Update product
-async updateProduct(id, productData) {
-  try {
-    
-    const response = await apiService.put(`/products/${id}`, productData, {
-      headers: {
-        'Content-Type': 'multipart/form-data',
-      },
-    });
-    
-    return response.data;
-  } catch (error) {
-    console.error('❌ Update product error:', error);
-    console.error('Error response:', error.response?.data);
-    throw error;
-  }
-},
+  async updateProduct(id, productData) {
+    try {
+      const response = await apiService.put(`/products/${id}`, productData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      });
+      
+      return response.data;
+    } catch (error) {
+      console.error('❌ Update product error:', error);
+      console.error('Error response:', error.response?.data);
+      throw error;
+    }
+  },
 
   // Delete product
   async deleteProduct(id) {
@@ -95,8 +91,8 @@ async updateProduct(id, productData) {
     }
   },
 
-
-   async getFilteredProductsByCategory(categoryId, queryString) {
+  // Get filtered products by category
+  async getFilteredProductsByCategory(categoryId, queryString) {
     try {
       const response = await apiService.get(`/products/category/${categoryId}/filter?${queryString}`);
       return response.data;
@@ -105,6 +101,62 @@ async updateProduct(id, productData) {
       throw error;
     }
   },
+
+  // Get featured products
+  async getFeaturedProducts(params = {}) {
+    try {
+      const response = await apiService.get('/products/featured/products', { params });
+      return response.data;
+    } catch (error) {
+      console.error('Get featured products error:', error);
+      throw error;
+    }
+  },
+
+  // Get combo products
+  async getComboProducts(params = {}) {
+    try {
+      const response = await apiService.get('/products/combo/products', { params });
+      return response.data;
+    } catch (error) {
+      console.error('Get combo products error:', error);
+      throw error;
+    }
+  },
+
+  // Get products by tags
+  async getProductsByTags(params = {}) {
+    try {
+      const response = await apiService.get('/products/tagged/products', { params });
+      return response.data;
+    } catch (error) {
+      console.error('Get products by tags error:', error);
+      throw error;
+    }
+  },
+
+  // Get best selling products
+  async getBestSellingProducts(params = {}) {
+    try {
+      const response = await apiService.get('/products/bestselling/products', { params });
+      return response.data;
+    } catch (error) {
+      console.error('Get best selling products error:', error);
+      throw error;
+    }
+  },
+
+  // Toggle featured status
+  async toggleFeatured(id, isFeatured) {
+    try {
+      const response = await apiService.patch(`/products/${id}/featured`, { isFeatured });
+      return response.data;
+    } catch (error) {
+      console.error('Toggle featured error:', error);
+      throw error;
+    }
+  },
+
   // Add product images
   async addProductImages(id, images) {
     try {

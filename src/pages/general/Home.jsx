@@ -2,9 +2,11 @@ import React from "react";
 import heroImage from "../../assets/heroImage.webp";
 import { Helmet } from "react-helmet";
 import { motion } from "framer-motion";
-import CategorySection from "../../components/Home/CategorySection"; // ✅ new import
+import CategorySection from "../../components/Home/CategorySection";
 import HeroSlider from "../../components/Home/HeroSlider";
 import Categories from "./Categories";
+import FeaturedProducts from "../../components/Home/FeaturedProducts";
+import ComboDeals from "../../components/Home/ComboDeals";
 
 const Home = () => {
   const Content = [
@@ -62,13 +64,14 @@ const Home = () => {
         <meta property="og:image" content={heroImage} />
       </Helmet>
 
+      {/* Hero Section */}
       <motion.div
         className="flex flex-col-reverse lg:flex-row items-center gap-10"
         initial={{ opacity: 0, y: 50 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 1, ease: "easeOut" }}
       >
-        {/* --- Left Content --- */}
+        {/* Left Content */}
         <div className="lg:w-1/2 flex flex-col gap-6">
           <h1 className="font-Italiana text-lg font-semibold tracking-widest uppercase text-primary">
             Shri Velan Organic Foods
@@ -98,7 +101,7 @@ const Home = () => {
           </a>
         </div>
 
-        {/* --- Right Image --- */}
+        {/* Right Image */}
         <motion.div
           className="lg:w-1/2"
           initial={{ opacity: 0, scale: 0.9 }}
@@ -111,26 +114,48 @@ const Home = () => {
             loading="lazy"
           />
         </motion.div>
-      </motion.div>      
+      </motion.div>
+
+      {/* Hero Slider */}
       <motion.div
         initial={{ opacity: 0, y: 50 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 1, ease: "easeOut" }}
-        className="mb-5"
+        className="mb-16"
       >
         <HeroSlider />
       </motion.div>
-      
+
+      {/* Categories Section */}
       <motion.div
         initial={{ opacity: 0, y: 50 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 1, ease: "easeOut" }}
-        className="mb-5"
+        className="mb-16"
       >
         <Categories />
-
       </motion.div>
-      
+
+      {/* Featured Products Section */}
+      <motion.div
+        initial={{ opacity: 0, y: 50 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 1, ease: "easeOut", delay: 0.2 }}
+        className="mb-16"
+      >
+        <FeaturedProducts />
+      </motion.div>
+
+      {/* Combo Deals Section */}
+      <motion.div
+        initial={{ opacity: 0, y: 50 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 1, ease: "easeOut", delay: 0.4 }}
+        className="mb-16"
+      >
+        <ComboDeals />
+      </motion.div>
+
     </section>
   );
 };

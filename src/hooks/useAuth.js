@@ -13,12 +13,15 @@ export const useAuth = () => {
 
   return {
     user,
-    isLoading: loading,
+    loading,
     isAuthenticated: !!user,
     isAdmin: user?.role === 'ADMIN',
     error,
+    register: context.register,
     login: context.login,
     logout: context.logout,
+    forgotPassword: context.forgotPassword, // ADD THIS
+    resetPassword: context.resetPassword,   // ADD THIS
     setError: context.setError
   };
 };

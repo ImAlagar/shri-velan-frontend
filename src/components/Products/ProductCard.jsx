@@ -4,7 +4,7 @@ import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import { CartContext } from "../../contexts/CartContext";
 import { toast } from "react-hot-toast";
-import { FaOpencart } from "react-icons/fa";
+import { FaOpencart, FaStar, FaRegStar, FaStarHalfAlt } from "react-icons/fa";
 
 const ProductCard = ({ product }) => {
   const navigate = useNavigate();
@@ -60,8 +60,59 @@ const ProductCard = ({ product }) => {
     return "/images/placeholder-product.jpg";
   };
 
+  // Calculate average rating
+  const getAverageRating = () => {
+    if (product.rating) {
+      return product.rating;
+    }
+    if (product.ratings && product.ratings.length > 0) {
+      const total = product.ratings.reduce((sum, rating) => sum + rating.rating, 0);
+      return total / product.ratings.length;
+    }
+    return 0;
+  };
+
+  // Get rating count
+  const getRatingCount = () => {
+    if (product.ratingCount) {
+      return product.ratingCount;
+    }
+    if (product.ratings) {
+      return product.ratings.length;
+    }
+    return 0;
+  };
+
+  // Render star rating
+  const renderStarRating = (rating) => {
+    const stars = [];
+    const fullStars = Math.floor(rating);
+    const hasHalfStar = rating % 1 >= 0.5;
+    
+    // Full stars
+    for (let i = 0; i < fullStars; i++) {
+      stars.push(<FaStar key={`full-${i}`} className="text-yellow-400" />);
+    }
+    
+    // Half star
+    if (hasHalfStar) {
+      stars.push(<FaStarHalfAlt key="half" className="text-yellow-400" />);
+    }
+    
+    // Empty stars
+    const emptyStars = 5 - stars.length;
+    for (let i = 0; i < emptyStars; i++) {
+      stars.push(<FaRegStar key={`empty-${i}`} className="text-yellow-400" />);
+    }
+    
+    return stars;
+  };
+
   const productImage = getProductImage();
   const isOutOfStock = product.stock === 0;
+  const averageRating = getAverageRating();
+  const ratingCount = getRatingCount();
+  const hasRatings = averageRating > 0;
 
   return (
     <motion.div
@@ -103,6 +154,16 @@ const ProductCard = ({ product }) => {
             Out of Stock
           </div>
         )}
+
+        {/* Rating Badge on Image */}
+        {hasRatings && (
+          <div className="absolute top-3 right-3 bg-white/90 backdrop-blur-sm px-2 py-1 rounded-full flex items-center gap-1 shadow-md">
+            <FaStar className="text-yellow-400 text-sm" />
+            <span className="text-sm font-semibold text-gray-800">
+              {averageRating.toFixed(1)}
+            </span>
+          </div>
+        )}
       </div>
 
       {/* Product Info */}
@@ -110,6 +171,33 @@ const ProductCard = ({ product }) => {
       
       {product.weight && (
         <span className="text-sm text-gray-600 mb-2">{product.weight}</span>
+      )}
+
+      {/* Rating Section */}
+      {hasRatings && (
+        <div className="flex items-center gap-2 mb-2">
+          <div className="flex items-center gap-1">
+            {renderStarRating(averageRating)}
+          </div>
+          <span className="text-sm text-gray-600">
+            ({averageRating.toFixed(1)})
+          </span>
+          <span className="text-sm text-gray-500">
+            {ratingCount} {ratingCount === 1 ? 'review' : 'reviews'}
+          </span>
+        </div>
+      )}
+
+      {/* No Ratings Message */}
+      {!hasRatings && (
+        <div className="flex items-center gap-2 mb-2">
+          <div className="flex items-center gap-1">
+            {[1, 2, 3, 4, 5].map((star) => (
+              <FaRegStar key={star} className="text-gray-300" />
+            ))}
+          </div>
+          <span className="text-sm text-gray-500">No reviews yet</span>
+        </div>
       )}
 
       {/* Price */}

@@ -3,7 +3,6 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../../hooks/useAuth';
 import { Helmet } from 'react-helmet';
 import Input from '../../../components/ui/Input';
-import Button from '../../../components/ui/Button';
 import { Eye, EyeOff, User, Mail, Lock, CheckCircle, ArrowLeft, Rocket } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
@@ -15,6 +14,7 @@ const UserRegister = () => {
     confirmPassword: '',
   });
   const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [errors, setErrors] = useState({});
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -233,48 +233,64 @@ const UserRegister = () => {
             variants={itemVariants}
             className="bg-white/10 backdrop-blur-lg border border-white/20 rounded-2xl shadow-2xl w-full max-w-md p-8 hover:shadow-3xl transition-all duration-500"
           >
-            {/* Header */}
+          {/* Header */}
+          <motion.div 
+            variants={itemVariants}
+            className="text-center mb-6 sm:mb-8 md:mb-10"
+          >
+            {/* Icon Container */}
             <motion.div 
-              variants={itemVariants}
-              className="text-center mb-8"
+              className="
+                w-16 h-16 sm:w-20 sm:h-20 md:w-24 md:h-24 
+                bg-gradient-to-br from-primary to-primary/80 
+                rounded-xl sm:rounded-2xl 
+                flex items-center justify-center 
+                mx-auto mb-3 sm:mb-4 md:mb-6 
+                shadow-lg
+              "
+              whileHover={{ scale: 1.05, rotate: 5 }}
+              transition={{ type: "spring", stiffness: 300 }}
             >
-              <motion.div 
-                className="w-20 h-20 bg-gradient-to-br from-primary to-primary/80 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg"
-                whileHover={{ scale: 1.05, rotate: 5 }}
-                transition={{ type: "spring", stiffness: 300 }}
+              <motion.span 
+                className="text-2xl sm:text-3xl md:text-4xl"
+                animate={{ 
+                  scale: [1, 1.1, 1],
+                  y: [0, -5, 0]
+                }}
+                transition={{ 
+                  duration: 3, 
+                  repeat: Infinity, 
+                  repeatType: "reverse" 
+                }}
               >
-                <motion.span 
-                  className="text-3xl"
-                  animate={{ 
-                    scale: [1, 1.1, 1],
-                    y: [0, -5, 0]
-                  }}
-                  transition={{ 
-                    duration: 3, 
-                    repeat: Infinity, 
-                    repeatType: "reverse" 
-                  }}
-                >
-                  🚀
-                </motion.span>
-              </motion.div>
-              <motion.h2 
-                className="text-3xl font-bold text-white mb-2"
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.2 }}
-              >
-                Create Account
-              </motion.h2>
-              <motion.p 
-                className="text-gray-300"
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.3 }}
-              >
-                Join us for a healthier lifestyle
-              </motion.p>
+                🚀
+              </motion.span>
             </motion.div>
+
+            {/* Title */}
+            <motion.h2 
+              className="
+                text-2xl sm:text-3xl md:text-4xl 
+                font-bold text-white mb-1 sm:mb-2
+              "
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.2 }}
+            >
+              Create Account
+            </motion.h2>
+
+            {/* Subtitle */}
+            <motion.p 
+              className="text-gray-300 text-sm sm:text-base md:text-lg"
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.3 }}
+            >
+              Join us for a healthier lifestyle
+            </motion.p>
+          </motion.div>
+
 
             {/* Error Message */}
             <AnimatePresence>
@@ -357,7 +373,7 @@ const UserRegister = () => {
               <motion.div variants={itemVariants}>
                 <Input
                   label="Confirm Password"
-                  type={showPassword ? "text" : "password"}
+                  type={showConfirmPassword ? "text" : "password"}
                   name="confirmPassword"
                   value={formData.confirmPassword}
                   onChange={handleChange}
@@ -365,10 +381,25 @@ const UserRegister = () => {
                   error={errors.confirmPassword}
                   required
                   icon={<CheckCircle className="w-4 h-4" />}
+                                    rightIcon={
+                    <motion.button
+                      type="button"
+                      onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                      className="text-gray-400 hover:text-white transition-colors p-1"
+                      whileHover={{ scale: 1.1 }}
+                      whileTap={{ scale: 0.9 }}
+                    >
+                      {showConfirmPassword ? (
+                        <EyeOff className="w-5 h-5" />
+                      ) : (
+                        <Eye className="w-5 h-5" />
+                      )}
+                    </motion.button>
+                  }
                 />
               </motion.div>
 
-              <motion.div variants={itemVariants}>
+              <motion.div variants={itemVariants} className="w-full">
                 <motion.button
                   type="submit"
                   disabled={loading || isSubmitting}
@@ -376,7 +407,19 @@ const UserRegister = () => {
                   initial="initial"
                   whileHover={!(loading || isSubmitting) ? "hover" : "loading"}
                   whileTap="tap"
-                  className="w-full py-4 bg-gradient-to-r from-primary to-primary/90 hover:from-primary/90 hover:to-primary text-white font-semibold rounded-xl transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed relative overflow-hidden group"
+                  className="
+                    w-full 
+                    py-3 sm:py-3.5 md:py-4        
+                    text-sm sm:text-base md:text-lg  
+                    bg-gradient-to-r from-primary to-primary/90 
+                    hover:from-primary/90 hover:to-primary 
+                    text-white font-semibold 
+                    rounded-lg sm:rounded-xl md:rounded-2xl 
+                    transition-all duration-300 
+                    disabled:opacity-50 disabled:cursor-not-allowed 
+                    relative overflow-hidden group
+                    shadow-md hover:shadow-lg
+                  "
                 >
                   {/* Animated background */}
                   <motion.div 
@@ -385,13 +428,13 @@ const UserRegister = () => {
                     whileHover={{ x: "100%" }}
                     transition={{ duration: 0.6 }}
                   />
-                  
+
                   {/* Button content */}
-                  <div className="relative z-10 flex items-center justify-center space-x-3">
+                  <div className="relative z-10 flex items-center justify-center gap-2 sm:gap-3 md:gap-4">
                     {(loading || isSubmitting) ? (
                       <>
                         {/* Professional loading animation */}
-                        <div className="flex items-center justify-center space-x-1">
+                        <div className="flex items-center justify-center gap-1.5 sm:gap-2">
                           <motion.div
                             animate={{
                               scale: [1, 1.3, 1],
@@ -402,7 +445,7 @@ const UserRegister = () => {
                               repeat: Infinity,
                               ease: "easeInOut",
                             }}
-                            className="w-2 h-2 bg-white rounded-full"
+                            className="w-1.5 h-1.5 sm:w-2 sm:h-2 md:w-2.5 md:h-2.5 bg-white rounded-full"
                           />
                           <motion.div
                             animate={{
@@ -415,7 +458,7 @@ const UserRegister = () => {
                               ease: "easeInOut",
                               delay: 0.2,
                             }}
-                            className="w-2 h-2 bg-white rounded-full"
+                            className="w-1.5 h-1.5 sm:w-2 sm:h-2 md:w-2.5 md:h-2.5 bg-white rounded-full"
                           />
                           <motion.div
                             animate={{
@@ -428,20 +471,25 @@ const UserRegister = () => {
                               ease: "easeInOut",
                               delay: 0.4,
                             }}
-                            className="w-2 h-2 bg-white rounded-full"
+                            className="w-1.5 h-1.5 sm:w-2 sm:h-2 md:w-2.5 md:h-2.5 bg-white rounded-full"
                           />
                         </div>
-                        <span className="font-medium">Creating Account...</span>
+                        <span className="font-medium text-xs sm:text-sm md:text-base tracking-wide">
+                          Creating Account...
+                        </span>
                       </>
                     ) : (
                       <>
-                        <Rocket className="w-5 h-5" />
-                        <span className="font-medium">Create Your Account</span>
+                        <Rocket className="w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6" />
+                        <span className="font-medium text-xs sm:text-sm md:text-base tracking-wide">
+                          Create Your Account
+                        </span>
                       </>
                     )}
                   </div>
                 </motion.button>
               </motion.div>
+
 
               <motion.div 
                 className="text-center"

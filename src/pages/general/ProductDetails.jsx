@@ -21,13 +21,24 @@ import {
   Package,
   Sprout,
   ArrowRight,
-  ChevronRight
+  ChevronRight,
+  MessageSquare,
+  User,
+  Calendar,
+  ThumbsUp
 } from 'lucide-react';
 import { toast } from 'react-toastify';
 import { motion, AnimatePresence } from 'framer-motion';
 import RelatedProducts from './RelatedProducts';
 import { CartContext } from '../../contexts/CartContext';
+import { AuthContext } from '../../contexts/AuthContext';
 import { useProduct } from '../../hooks/useProducts';
+import { 
+  useProductRatings, 
+  useUserProductRating, 
+  useCreateRating,
+  useProductRatingStats 
+} from '../../hooks/useRatings';
 import Loader from '../../components/Loader/Loader';
 
 const ProductDetails = () => {
@@ -35,6 +46,7 @@ const ProductDetails = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const { addToCart, cartItems, updateQuantity } = useContext(CartContext);
+  const { user } = useContext(AuthContext);
   
   const [selectedImage, setSelectedImage] = useState(0);
   const [quantity, setQuantity] = useState(1);
@@ -42,10 +54,25 @@ const ProductDetails = () => {
   const [isWishlisted, setIsWishlisted] = useState(false);
   const [imageLoaded, setImageLoaded] = useState(false);
   const [activeTab, setActiveTab] = useState('description');
+  
+  // Review state
+  const [review, setReview] = useState({
+    rating: 0,
+    comment: '',
+    title: ''
+  });
+  const [isSubmittingReview, setIsSubmittingReview] = useState(false);
+  const [hoveredStar, setHoveredStar] = useState(0);
 
   // Use the product hook
   const { data: productData, isLoading: productLoading, error } = useProduct(id);
   
+  // Use rating hooks
+  const { data: ratingsData, isLoading: ratingsLoading } = useProductRatings(id);
+  const { data: userRatingData } = useUserProductRating(user?.id, id);
+  const { data: ratingStats } = useProductRatingStats(id);
+  const createRatingMutation = useCreateRating();
+
   // Get product from location state OR from API response
   const product = location.state?.product || productData?.data?.product || productData?.data;
 
@@ -58,6 +85,17 @@ const ProductDetails = () => {
       }
     }
   }, [product, cartItems]);
+
+  // Initialize user's existing rating
+  useEffect(() => {
+    if (userRatingData?.data) {
+      setReview({
+        rating: userRatingData.data.rating,
+        comment: userRatingData.data.review || '',
+        title: userRatingData.data.title || ''
+      });
+    }
+  }, [userRatingData]);
 
   const handleQuantityChange = (value) => {
     const newQty = Math.max(1, Math.min(value, product.stock || 1));
@@ -106,7 +144,7 @@ const ProductDetails = () => {
         });
         toast.success('Product shared successfully!');
       } catch (error) {
-        console.log('Error sharing:', error);
+        return error
       }
     } else {
       navigator.clipboard.writeText(window.location.href);
@@ -127,6 +165,56 @@ const ProductDetails = () => {
 
   const handleImageLoad = () => {
     setImageLoaded(true);
+  };
+
+  // Review handlers
+  const handleRatingChange = (newRating) => {
+    setReview(prev => ({ ...prev, rating: newRating }));
+  };
+
+  const handleReviewSubmit = async (e) => {
+    e.preventDefault();
+    
+    if (!user) {
+      toast.error('Please login to submit a review');
+      navigate('/login', { state: { from: location.pathname } });
+      return;
+    }
+
+    if (!review.rating) {
+      toast.error('Please select a rating');
+      return;
+    }
+
+    if (!review.comment.trim()) {
+      toast.error('Please write a review comment');
+      return;
+    }
+
+    setIsSubmittingReview(true);
+    try {
+      await createRatingMutation.mutateAsync({
+        productId: id,
+        rating: review.rating,
+        comment: review.comment,
+        title: review.title,
+        userId: user.id,
+        userName: user.name,
+        userEmail: user.email
+      });
+
+      // Reset form
+      setReview({
+        rating: 0,
+        comment: '',
+        title: ''
+      });
+      
+    } catch (error) {
+      // Error handled by mutation
+    } finally {
+      setIsSubmittingReview(false);
+    }
   };
 
   // Animation variants
@@ -173,6 +261,15 @@ const ProductDetails = () => {
     tap: { scale: 0.95 }
   };
 
+  // Get ratings data
+  const ratings = ratingsData?.data || [];
+  const stats = ratingStats?.data || {
+    averageRating: 0,
+    totalRatings: 0,
+    ratingBreakdown: { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 }
+  };
+  const userRating = userRatingData?.data;
+
   if (productLoading) {
     return (
       <div className="flex justify-center items-center min-h-screen">
@@ -182,7 +279,6 @@ const ProductDetails = () => {
   }
 
   if (error || !product) {
-    console.log("❌ ProductDetails Error:", { error, product, productData });
     return (
       <motion.div 
         initial={{ opacity: 0 }}
@@ -211,6 +307,10 @@ const ProductDetails = () => {
   const discount = product.normalPrice > (product.offerPrice || 0) 
     ? Math.round(((product.normalPrice - (product.offerPrice || 0)) / product.normalPrice) * 100)
     : 0;
+
+  // Calculate average rating from product data if stats are not available
+  const averageRating = stats.averageRating || product.rating || 0;
+  const totalRatings = stats.totalRatings || ratings.length;
 
   return (
     <section className="min-h-screen bg-gray-50 font-SpaceGrotesk">
@@ -356,38 +456,41 @@ const ProductDetails = () => {
                         </span>
                       )}
                       
-                      {product.weight && (
-                        <span className="flex items-center gap-1 bg-gray-100 px-3 py-1 rounded-full">
-                          <Weight size={14} />
-                          {product.weight}
-                        </span>
-                      )}
+                        {product.weight && (
+                          <span className="flex items-center gap-1 bg-gray-100 px-3 py-1 rounded-full">
+                            <Weight size={14} />
+                            {product.weight < 1000
+                              ? `${product.weight} g`
+                              : `${(product.weight / 1000).toFixed(
+                                  product.weight % 1000 === 0 ? 0 : 1
+                                )} kg`}
+                          </span>
+                        )}
+
                     </div>
                     
                     {/* Rating */}
-                    {product.rating && (
-                      <div className="flex items-center gap-3">
-                        <div className="flex items-center gap-1 bg-yellow-50 px-3 py-1 rounded-full">
-                          {[...Array(5)].map((_, i) => (
-                            <Star
-                              key={i}
-                              size={16}
-                              className={`${
-                                i < Math.floor(product.rating)
-                                  ? 'text-yellow-400 fill-current'
-                                  : 'text-gray-300'
-                              }`}
-                            />
-                          ))}
-                          <span className="text-sm font-semibold text-gray-700 ml-1">
-                            {product.rating}
-                          </span>
-                        </div>
-                        <span className="text-sm text-gray-500">
-                          (128 reviews)
+                    <div className="flex items-center gap-3">
+                      <div className="flex items-center gap-1 bg-yellow-50 px-3 py-1 rounded-full">
+                        {[...Array(5)].map((_, i) => (
+                          <Star
+                            key={i}
+                            size={16}
+                            className={`${
+                              i < Math.floor(averageRating)
+                                ? 'text-yellow-400 fill-current'
+                                : 'text-gray-300'
+                            }`}
+                          />
+                        ))}
+                        <span className="text-sm font-semibold text-gray-700 ml-1">
+                          {averageRating.toFixed(1)}
                         </span>
                       </div>
-                    )}
+                      <span className="text-sm text-gray-500">
+                        ({totalRatings} {totalRatings === 1 ? 'review' : 'reviews'})
+                      </span>
+                    </div>
                   </div>
 
                   {/* Action Buttons */}
@@ -511,10 +614,7 @@ const ProductDetails = () => {
 
               {/* Additional Info */}
               <motion.div variants={itemVariants} className="border-t pt-6 space-y-3 text-sm">
-                <div className="flex justify-between">
-                  <span className="text-gray-600">Product ID:</span>
-                  <span className="font-medium text-gray-900">{product.id}</span>
-                </div>
+
                 
                 {product.isCombo && (
                   <div className="flex justify-between">
@@ -526,18 +626,19 @@ const ProductDetails = () => {
             </div>
           </div>
 
-          {/* Tabs Section */}
+          {/* Tabs Section - UPDATED WITH REVIEWS TAB */}
           <motion.div variants={itemVariants} className="border-t border-gray-200">
-            <div className="flex border-b border-gray-200">
+            <div className="flex border-b border-gray-200 overflow-x-auto">
               {[
                 { id: 'description', label: 'Description', icon: null },
                 { id: 'benefits', label: 'Benefits', icon: <Check size={16} /> },
-                { id: 'ingredients', label: 'Ingredients', icon: <Package size={16} /> }
+                { id: 'ingredients', label: 'Ingredients', icon: <Package size={16} /> },
+                { id: 'reviews', label: 'Reviews', icon: <MessageSquare size={16} />, count: totalRatings }
               ].map((tab) => (
                 <button
                   key={tab.id}
                   onClick={() => setActiveTab(tab.id)}
-                  className={`flex items-center gap-2 flex-1 py-4 px-6 font-medium text-sm transition-all duration-300 ${
+                  className={`flex items-center gap-2 flex-1 min-w-max py-4 px-6 font-medium text-sm transition-all duration-300 ${
                     activeTab === tab.id
                       ? 'text-primary border-b-2 border-primary bg-blue-50/50'
                       : 'text-gray-600 hover:text-primary hover:bg-gray-50'
@@ -545,12 +646,18 @@ const ProductDetails = () => {
                 >
                   {tab.icon}
                   {tab.label}
+                  {tab.count !== undefined && (
+                    <span className="bg-gray-200 text-gray-700 px-2 py-0.5 rounded-full text-xs">
+                      {tab.count}
+                    </span>
+                  )}
                 </button>
               ))}
             </div>
             
             <div className="p-6">
               <AnimatePresence mode="wait">
+                {/* Existing tabs */}
                 {activeTab === 'description' && product.description && (
                   <motion.div
                     key="description"
@@ -607,6 +714,253 @@ const ProductDetails = () => {
                       </motion.li>
                     ))}
                   </motion.ul>
+                )}
+
+                {/* NEW REVIEWS TAB */}
+                {activeTab === 'reviews' && (
+                  <motion.div
+                    key="reviews"
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -10 }}
+                    className="space-y-8"
+                  >
+                    {/* Rating Summary */}
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                      {/* Overall Rating */}
+                      <div className="bg-gray-50 rounded-lg p-6 text-center">
+                        <div className="text-4xl font-bold text-gray-900 mb-2">
+                          {averageRating.toFixed(1)}
+                        </div>
+                        <div className="flex justify-center mb-2">
+                          {[1, 2, 3, 4, 5].map((star) => (
+                            <Star
+                              key={star}
+                              size={20}
+                              className={`${
+                                star <= Math.round(averageRating)
+                                  ? 'text-yellow-400 fill-current'
+                                  : 'text-gray-300'
+                              }`}
+                            />
+                          ))}
+                        </div>
+                        <p className="text-gray-600 text-sm">
+                          Based on {totalRatings} {totalRatings === 1 ? 'review' : 'reviews'}
+                        </p>
+                      </div>
+
+                      {/* Rating Breakdown */}
+                      <div className="space-y-2">
+                        {[5, 4, 3, 2, 1].map((rating) => {
+                          const count = stats.ratingBreakdown?.[rating] || 0;
+                          const percentage = totalRatings ? (count / totalRatings) * 100 : 0;
+                          
+                          return (
+                            <div key={rating} className="flex items-center gap-3">
+                              <div className="flex items-center gap-1 w-16">
+                                <span className="text-sm text-gray-600">{rating}</span>
+                                <Star size={14} className="text-yellow-400 fill-current" />
+                              </div>
+                              <div className="flex-1 bg-gray-200 rounded-full h-2">
+                                <div 
+                                  className="bg-yellow-400 h-2 rounded-full transition-all duration-500" 
+                                  style={{ width: `${percentage}%` }}
+                                />
+                              </div>
+                              <span className="text-sm text-gray-600 w-8 text-right">
+                                {count}
+                              </span>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </div>
+
+                    {/* Add Review Form */}
+                    {user ? (
+                      <motion.div
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        className="bg-white border border-gray-200 rounded-lg p-6"
+                      >
+                        <h3 className="text-lg font-semibold text-gray-900 mb-4">
+                          {userRating ? 'Update Your Review' : 'Write a Review'}
+                        </h3>
+                        <form onSubmit={handleReviewSubmit} className="space-y-4">
+                          {/* Rating Stars */}
+                          <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-2">
+                              Your Rating *
+                            </label>
+                            <div className="flex gap-1">
+                              {[1, 2, 3, 4, 5].map((star) => (
+                                <button
+                                  key={star}
+                                  type="button"
+                                  onClick={() => handleRatingChange(star)}
+                                  onMouseEnter={() => setHoveredStar(star)}
+                                  onMouseLeave={() => setHoveredStar(0)}
+                                  className="p-1 transition-transform hover:scale-110"
+                                >
+                                  <Star
+                                    size={32}
+                                    className={`${
+                                      star <= (hoveredStar || review.rating)
+                                        ? 'text-yellow-400 fill-current'
+                                        : 'text-gray-300'
+                                    }`}
+                                  />
+                                </button>
+                              ))}
+                            </div>
+                          </div>
+
+                          {/* Review Title */}
+                          <div>
+                            <label htmlFor="reviewTitle" className="block text-sm font-medium text-gray-700 mb-2">
+                              Review Title (Optional)
+                            </label>
+                            <input
+                              type="text"
+                              id="reviewTitle"
+                              value={review.title}
+                              onChange={(e) => setReview(prev => ({ ...prev, title: e.target.value }))}
+                              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
+                              placeholder="Summarize your experience"
+                            />
+                          </div>
+
+                          {/* Review Comment */}
+                          <div>
+                            <label htmlFor="reviewComment" className="block text-sm font-medium text-gray-700 mb-2">
+                              Your Review *
+                            </label>
+                            <textarea
+                              id="reviewComment"
+                              value={review.comment}
+                              onChange={(e) => setReview(prev => ({ ...prev, comment: e.target.value }))}
+                              rows={4}
+                              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
+                              placeholder="Share your experience with this product..."
+                              required
+                            />
+                          </div>
+
+                          <motion.button
+                            type="submit"
+                            disabled={isSubmittingReview || !review.rating || !review.comment}
+                            className="bg-primary text-white px-6 py-2 rounded-lg font-semibold disabled:opacity-50 disabled:cursor-not-allowed hover:bg-green-700 transition-colors flex items-center gap-2"
+                            whileHover={{ scale: 1.02 }}
+                            whileTap={{ scale: 0.98 }}
+                          >
+                            <ThumbsUp size={18} />
+                            {isSubmittingReview ? 'Submitting...' : userRating ? 'Update Review' : 'Submit Review'}
+                          </motion.button>
+                        </form>
+                      </motion.div>
+                    ) : (
+                      <motion.div 
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        className="bg-yellow-50 border border-yellow-200 rounded-lg p-6 text-center"
+                      >
+                        <MessageSquare size={32} className="mx-auto mb-3 text-yellow-600" />
+                        <p className="text-yellow-800 mb-4 font-medium">
+                          Please login to submit a review
+                        </p>
+                        <motion.button
+                          onClick={() => navigate('/login', { state: { from: location.pathname } })}
+                          className="bg-primary text-white px-6 py-2 rounded-lg font-semibold hover:bg-green-700 transition-colors"
+                          whileHover={{ scale: 1.05 }}
+                          whileTap={{ scale: 0.95 }}
+                        >
+                          Login to Review
+                        </motion.button>
+                      </motion.div>
+                    )}
+
+                    {/* Reviews List */}
+                    <div className="space-y-6">
+                      <h3 className="text-lg font-semibold text-gray-900">
+                        Customer Reviews ({ratings.length})
+                      </h3>
+                      
+                      {ratingsLoading ? (
+                        <div className="flex justify-center py-8">
+                          <div className="w-6 h-6 border-2 border-primary border-t-transparent rounded-full animate-spin" />
+                        </div>
+                      ) : ratings.length === 0 ? (
+                        <motion.div 
+                          initial={{ opacity: 0 }}
+                          animate={{ opacity: 1 }}
+                          className="text-center py-12 text-gray-500 bg-gray-50 rounded-lg"
+                        >
+                          <MessageSquare size={48} className="mx-auto mb-4 text-gray-300" />
+                          <p className="text-lg font-medium text-gray-600 mb-2">No reviews yet</p>
+                          <p className="text-sm">Be the first to review this product!</p>
+                        </motion.div>
+                      ) : (
+                        <div className="space-y-4">
+                          {ratings.map((rating, index) => (
+                            <motion.div
+                              key={rating.id}
+                              initial={{ opacity: 0, y: 10 }}
+                              animate={{ opacity: 1, y: 0 }}
+                              transition={{ delay: index * 0.1 }}
+                              className="bg-white border border-gray-200 rounded-lg p-6 hover:shadow-sm transition-shadow duration-300"
+                            >
+                              <div className="flex items-start justify-between mb-3">
+                                <div className="flex-1">
+                                  <div className="flex items-center gap-2 mb-1">
+                                    <User size={16} className="text-gray-400" />
+                                    <span className="font-semibold text-gray-900">
+                                      {rating.userName}
+                                    </span>
+                                  </div>
+                                  <div className="flex items-center gap-4 text-sm text-gray-600">
+                                    <div className="flex items-center gap-1">
+                                      {[1, 2, 3, 4, 5].map((star) => (
+                                        <Star
+                                          key={star}
+                                          size={14}
+                                          className={`${
+                                            star <= rating.rating
+                                              ? 'text-yellow-400 fill-current'
+                                              : 'text-gray-300'
+                                          }`}
+                                        />
+                                      ))}
+                                    </div>
+                                    <div className="flex items-center gap-1">
+                                      <Calendar size={14} />
+                                      <span>
+                                        {new Date(rating.createdAt).toLocaleDateString('en-US', {
+                                          year: 'numeric',
+                                          month: 'long',
+                                          day: 'numeric'
+                                        })}
+                                      </span>
+                                    </div>
+                                  </div>
+                                </div>
+                              </div>
+                              
+                              {rating.title && (
+                                <h4 className="font-semibold text-gray-900 mb-2 text-lg">
+                                  {rating.title}
+                                </h4>
+                              )}
+                              
+                              <p className="text-gray-700 leading-relaxed">
+                                {rating.review}
+                              </p>
+                            </motion.div>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  </motion.div>
                 )}
               </AnimatePresence>
             </div>

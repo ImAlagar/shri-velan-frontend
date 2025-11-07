@@ -167,12 +167,22 @@ const AdminViewProduct = () => {
                     ) : (
                       <FiX className="w-4 h-4 text-red-600" />
                     )}
-                    <span
-                      className={
-                        product.isCombo ? 'text-green-600' : 'text-red-600'
-                      }
-                    >
+                    <span className={product.isCombo ? 'text-green-600' : 'text-red-600'}>
                       {product.isCombo ? 'Yes' : 'No'}
+                    </span>
+                  </div>
+                </div>
+                {/* Add isFeatured display */}
+                <div>
+                  <label className="block text-gray-500 mb-1">Featured Product</label>
+                  <div className="flex items-center space-x-2">
+                    {product.isFeatured ? (
+                      <FiCheck className="w-4 h-4 text-green-600" />
+                    ) : (
+                      <FiX className="w-4 h-4 text-red-600" />
+                    )}
+                    <span className={product.isFeatured ? 'text-green-600' : 'text-red-600'}>
+                      {product.isFeatured ? 'Yes' : 'No'}
                     </span>
                   </div>
                 </div>

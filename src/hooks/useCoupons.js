@@ -80,6 +80,17 @@ export const useDeleteCoupon = () => {
   });
 };
 
+export const useAvailableCoupons = (subtotal = 0) => {
+  return useQuery({
+    queryKey: ['availableCoupons', subtotal],
+    queryFn: async () => {
+      const response = await couponService.getAvailableCoupons(subtotal);
+      return response.data;
+    },
+    enabled: subtotal > 0, // Only fetch if there's a subtotal
+    staleTime: 5 * 60 * 1000, // 5 minutes
+  });
+};
 // Validate coupon mutation (Public)
 export const useValidateCoupon = () => {
   return useMutation({

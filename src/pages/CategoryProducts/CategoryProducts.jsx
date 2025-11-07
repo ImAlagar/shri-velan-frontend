@@ -34,15 +34,7 @@ const CategoryProducts = () => {
     } else if (Array.isArray(productsResponse)) {
       products = productsResponse;
     } else {
-      console.log("Available structures:", {
-        hasData: !!productsResponse.data,
-        dataIsArray: Array.isArray(productsResponse.data),
-        hasProductsInData: !!productsResponse.data?.products,
-        productsInDataIsArray: Array.isArray(productsResponse.data?.products),
-        hasProductsRoot: !!productsResponse.products,
-        productsRootIsArray: Array.isArray(productsResponse.products),
-        responseIsArray: Array.isArray(productsResponse)
-      });
+
     }
     
     return products;

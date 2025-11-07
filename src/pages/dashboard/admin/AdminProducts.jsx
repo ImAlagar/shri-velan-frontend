@@ -15,6 +15,8 @@ import {
   useProductStats 
 } from '../../../hooks/useProducts';
 import { useProductContext } from '../../../contexts/ProductContext';
+import { useToggleFeatured } from '../../../hooks/useProducts';
+
 
 const AdminProducts = () => {
   const { 
@@ -45,7 +47,7 @@ const AdminProducts = () => {
   const { data: statsData } = useProductStats();
   const deleteMutation = useDeleteProduct();
   const toggleStatusMutation = useToggleProductStatus();
-
+  const toggleFeatured = useToggleFeatured();
   const products = productsData?.data?.products || [];
   const stats = statsData?.data || {};
 
@@ -98,6 +100,17 @@ const AdminProducts = () => {
     }
   };
 
+  const handleToggleFeatured = async (product) => {
+  try {
+    await toggleFeatured.mutateAsync({
+      id: product.id,
+      isFeatured: !product.isFeatured
+    });
+  } catch (error) {
+    // Error handled by mutation
+  }
+};
+
   const handleRefresh = () => {
     refetch();
     toast.success('Products refreshed');
@@ -129,16 +142,31 @@ const renderProductCard = (product) => (
           </div>
 
           {/* Status Button */}
-          <button
-            onClick={() => handleToggleStatus(product)}
-            className={`inline-flex items-center justify-center px-2 py-1 text-xs font-medium rounded-full ml-2 flex-shrink-0 ${
-              product.status
-                ? "bg-green-100 text-green-800 hover:bg-green-200"
-                : "bg-red-100 text-red-800 hover:bg-red-200"
-            }`}
-          >
-            {product.status ? "Active" : "Inactive"}
-          </button>
+          <div className='flex flex-col items-end space-y-1 ml-2'>
+             <button
+              onClick={() => handleToggleFeatured(product)}
+              className={`inline-flex items-center justify-center px-2 py-1 text-xs font-medium rounded-full ${
+                product.isFeatured
+                  ? "bg-yellow-100 text-yellow-800 hover:bg-yellow-200"
+                  : "bg-gray-100 text-gray-800 hover:bg-gray-200"
+              }`}
+            >
+              {product.isFeatured ? "Featured" : "Feature"}
+            </button>
+
+                        {/* Active Status */}
+            <button
+              onClick={() => handleToggleStatus(product)}
+              className={`inline-flex items-center justify-center px-2 py-1 text-xs font-medium rounded-full ${
+                product.status
+                  ? "bg-green-100 text-green-800 hover:bg-green-200"
+                  : "bg-red-100 text-red-800 hover:bg-red-200"
+              }`}
+            >
+              {product.status ? "Active" : "Inactive"}
+            </button>
+          </div>
+          
         </div>
 
         {/* Price + Stock + Actions */}

@@ -1,23 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from "framer-motion";
 import { Link, useLocation } from "react-router-dom";
-import { 
-  FiHome, 
-  FiPackage, 
-  FiPlusSquare, 
-  FiFolderPlus, 
-  FiMail,
-  FiLogOut,
-  FiSettings,
-  FiUser,
-  FiShoppingBag,
-  FiUsers,
-  FiChevronLeft,
-  FiChevronRight,
-  FiCode
-} from "react-icons/fi";
 import { RxCross2 } from "react-icons/rx";
 import logo from '../../../assets/logo.png';
+import { FolderPlus, Home, Mail, MessageSquare, Package, ShoppingBag, TicketPercent, Users } from 'lucide-react';
+import { FiChevronLeft, FiChevronRight, FiLogOut } from 'react-icons/fi';
 
 const AdminSidebar = ({ isOpen, setIsOpen }) => {
   const [isMobile, setIsMobile] = useState(window.innerWidth < 1024);
@@ -47,41 +34,14 @@ const AdminSidebar = ({ isOpen, setIsOpen }) => {
   }, [setIsOpen]);
 
   const menuItems = [
-    { 
-      name: "Dashboard", 
-      icon: <FiHome size={20} />, 
-      path: "/admin" 
-    },
-    { 
-      name: "Products", 
-      icon: <FiPackage size={20} />, 
-      path: "/admin/products" 
-    },
-    { 
-      name: "Categories", 
-      icon: <FiFolderPlus size={20} />, 
-      path: "/admin/categories" 
-    },
-    { 
-      name: "Orders", 
-      icon: <FiShoppingBag size={20} />, 
-      path: "/admin/orders" 
-    },
-    { 
-      name: "Users", 
-      icon: <FiUsers size={20} />, 
-      path: "/admin/users" 
-    },
-    { 
-      name: "Contact", 
-      icon: <FiMail size={20} />, 
-      path: "/admin/contact" 
-    },
-        { 
-      name: "Coupons", 
-      icon: <FiCode size={20} />, 
-      path: "/admin/coupons" 
-    },
+    { name: "Dashboard", icon: <Home size={20} />, path: "/admin" },
+    { name: "Products", icon: <Package size={20} />, path: "/admin/products" },
+    { name: "Categories", icon: <FolderPlus size={20} />, path: "/admin/categories" },
+    { name: "Orders", icon: <ShoppingBag size={20} />, path: "/admin/orders" },
+    { name: "Users", icon: <Users size={20} />, path: "/admin/users" },
+    { name: "Contact", icon: <Mail size={20} />, path: "/admin/contact" },
+    { name: "Review", icon: <MessageSquare size={20} />, path: "/admin/review" },
+    { name: "Coupons", icon: <TicketPercent size={20} />, path: "/admin/coupons" },
   ];
 
   const handleLogout = () => {
@@ -148,7 +108,7 @@ const AdminSidebar = ({ isOpen, setIsOpen }) => {
                   onClick={toggleSidebar}
                   className="p-2 rounded-lg hover:bg-gray-100 transition-colors hidden lg:block"
                 >
-                  <FiChevronLeft 
+                  <FiChevronLeft
                     size={16} 
                     className="text-gray-600" 
                   />
@@ -163,8 +123,6 @@ const AdminSidebar = ({ isOpen, setIsOpen }) => {
                 </button>
               )}
             </div>
-
-
 
             {/* Navigation Menu */}
             <nav className="flex-1 p-4 space-y-2 overflow-y-auto">
@@ -201,13 +159,6 @@ const AdminSidebar = ({ isOpen, setIsOpen }) => {
 
             {/* Sidebar Footer */}
             <div className="p-4 border-t border-gray-200 space-y-2 flex-shrink-0">
-              <Link 
-                to="/admin/settings"
-                className="w-full flex items-center justify-start space-x-3 px-4 py-3 rounded-xl text-gray-600 hover:bg-gray-50 hover:text-gray-900 transition-all duration-200 group"
-              >
-                <FiSettings size={20} className="text-gray-400 group-hover:text-current" />
-                <span className="font-medium">Settings</span>
-              </Link>
               <button
                 onClick={handleLogout}
                 className="w-full flex items-center justify-start space-x-3 px-4 py-3 rounded-xl text-red-600 hover:bg-red-50 transition-all duration-200 group"

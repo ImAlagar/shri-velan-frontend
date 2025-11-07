@@ -136,14 +136,7 @@ const AdminHeader = ({ onMenuClick, sidebarOpen }) => {
 
         {/* Right Section - Notifications & User Menu */}
         <div className="flex items-center space-x-2 sm:space-x-3 flex-shrink-0">
-          {/* Notifications */}
-          <button 
-            className="relative p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
-            aria-label="Notifications"
-          >
-            <div className="w-2 h-2 bg-red-500 rounded-full absolute top-1.5 right-1.5 sm:top-2 sm:right-2"></div>
-            <FiBell size={18} className="text-gray-600 dark:text-gray-400 sm:w-5 sm:h-5" />
-          </button>
+
 
           {/* User Menu */}
           <div className="relative">

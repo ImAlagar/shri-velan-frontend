@@ -34,6 +34,24 @@ export const couponService = {
     }
   },
 
+    async getAvailableCoupons(subtotal = 0) {
+    const response = await apiService.get(`/coupons/available?subtotal=${subtotal}`);
+    return response.data;
+  },
+
+    // Validate coupon (Public)
+  async validateCoupon(code, subtotal) {
+    try {
+      const response = await apiService.post('/coupons/validate', { 
+        code, 
+        subtotal 
+      });
+      return response.data;
+    } catch (error) {
+      console.error('Validate coupon error:', error);
+      throw error;
+    }
+  },
   // Update coupon (Admin)
   async updateCoupon(id, couponData) {
     try {
@@ -56,17 +74,5 @@ export const couponService = {
     }
   },
 
-  // Validate coupon (Public)
-  async validateCoupon(code, subtotal) {
-    try {
-      const response = await apiService.post('/coupons/validate', { 
-        code, 
-        subtotal 
-      });
-      return response.data;
-    } catch (error) {
-      console.error('Validate coupon error:', error);
-      throw error;
-    }
-  }
+
 };

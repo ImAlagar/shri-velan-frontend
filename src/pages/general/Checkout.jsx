@@ -7,7 +7,7 @@ import { toast } from 'react-hot-toast';
 import { CartContext } from '../../contexts/CartContext';
 import { AuthContext } from '../../contexts/AuthContext';
 import { useCreateRazorpayOrder, useVerifyPayment } from '../../hooks/useOrders';
-import { useValidateCoupon } from '../../hooks/useCoupons';
+import { useValidateCoupon, useAvailableCoupons } from '../../hooks/useCoupons';
 import { useCalculateShipping } from '../../hooks/useShipping';
 import { FolderLock } from 'lucide-react';
 
@@ -64,6 +64,13 @@ const Checkout = () => {
   };
 
   const inStockItems = getSafeCartItems();
+  const subtotal = getCartTotal();
+
+  // Use available coupons in checkout too
+  const { data: availableCouponsData } = useAvailableCoupons(subtotal);
+  const availableCoupons = Array.isArray(availableCouponsData) 
+    ? availableCouponsData 
+    : availableCouponsData?.data || availableCouponsData?.coupons || [];
 
   // Calculate shipping when state changes
   useEffect(() => {
@@ -93,7 +100,6 @@ const Checkout = () => {
         toast.error('Failed to calculate shipping');
       }
     } catch (error) {
-      console.error('Shipping calculation failed:', error);
       setShippingRate(0);
       toast.error('Failed to calculate shipping rate');
     } finally {
@@ -101,22 +107,43 @@ const Checkout = () => {
     }
   };
 
-  const calculateSubtotal = () => {
-    try {
-      return getCartTotal();
-    } catch (error) {
-      console.error('Error calculating subtotal:', error);
+  // FIXED: Safe discount calculation
+  const calculateDiscount = () => {
+    if (!appliedCoupon) return 0;
+    
+    // Extract coupon data - handle nested structure
+    const couponData = appliedCoupon.coupon || appliedCoupon;
+    
+    // Handle different coupon response structures safely
+    const discountType = couponData.discountType || couponData.type;
+    const discountValue = couponData.discountValue || couponData.value;
+    const maxDiscount = couponData.maxDiscount;
+
+
+    // Validate required fields
+    if (!discountType || discountValue === undefined || discountValue === null) {
+      console.error('Invalid coupon data:', appliedCoupon);
       return 0;
     }
+
+    let discountAmount = 0;
+
+    if (discountType === 'PERCENTAGE' || discountType === 'percentage') {
+      discountAmount = (subtotal * Number(discountValue)) / 100;
+      // Apply max discount limit if exists
+      if (maxDiscount && discountAmount > maxDiscount) {
+        discountAmount = Number(maxDiscount);
+      }
+    } else {
+      // Fixed amount discount
+      discountAmount = Math.min(Number(discountValue), subtotal);
+    }
+
+    return Number(discountAmount.toFixed(2));
   };
 
-  const discount = appliedCoupon ? 
-    (appliedCoupon.type === 'percentage' 
-      ? (calculateSubtotal() * appliedCoupon.value) / 100 
-      : Math.min(appliedCoupon.value, calculateSubtotal())
-    ) : 0;
-  
-  const total = calculateSubtotal() + shippingRate - discount;
+  const discount = calculateDiscount();
+  const total = Number((subtotal + shippingRate - discount).toFixed(2));
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -134,7 +161,11 @@ const Checkout = () => {
 
     setCouponLoading(true);
     try {
-      const result = await validateCouponMutation.mutateAsync(couponCode);
+      const result = await validateCouponMutation.mutateAsync({ 
+        code: couponCode, 
+        subtotal: subtotal 
+      });
+      
       if (result.success) {
         setAppliedCoupon(result.data);
         toast.success('Coupon applied successfully!');
@@ -180,14 +211,11 @@ const Checkout = () => {
       key: import.meta.env.VITE_APP_RAZORPAY_KEY_ID,
       amount: orderData.amount,
       currency: orderData.currency,
-      name: 'Organic Store',
+      name: 'Shri Velan Foods',
       description: 'Order Payment',
-      order_id: orderData.razorpayOrderId, // Use the order ID from backend
+      order_id: orderData.razorpayOrderId,
       handler: async function (response) {
         try {
-          console.log('Razorpay payment response:', response);
-          
-          // Map Razorpay response to our expected format
           const verificationData = {
             razorpay_order_id: response.razorpay_order_id,
             razorpay_payment_id: response.razorpay_payment_id,
@@ -198,23 +226,20 @@ const Checkout = () => {
                 productId: item.id,
                 quantity: item.quantity
               })),
-              subtotal: calculateSubtotal(),
+              subtotal: subtotal,
               shipping: shippingRate,
               discount: discount,
               total: total,
-              couponCode: appliedCoupon ? appliedCoupon.code : null,
+              couponCode: appliedCoupon ? (appliedCoupon.coupon?.code || appliedCoupon.code) : null,
               userId: user.id
             }
           };
 
-          console.log('Sending verification data:', verificationData);
-          
           await verifyPaymentMutation.mutateAsync(verificationData);
           
           clearCart();
           navigate('/order-success');
         } catch (error) {
-          console.error('Payment verification error:', error);
           toast.error(error.response?.data?.message || 'Payment verification failed. Please contact support.');
         }
       },
@@ -283,67 +308,57 @@ const Checkout = () => {
     setLoading(true);
 
     try {
-    if (formData.paymentMethod === 'card' || formData.paymentMethod === 'upi') {
-      // Create Razorpay order for both card and UPI
-      const orderData = {
-        items: inStockItems.map(item => ({
-          productId: item.id,
-          quantity: item.quantity
-        })),
-        state: formData.state,
-        couponCode: appliedCoupon ? appliedCoupon.code : null,
-        userId: user.id,
-        // Include shipping details for calculation
-        shipping: shippingRate,
-        subtotal: calculateSubtotal(),
-        discount: discount,
-        total: total
-      };
+      if (formData.paymentMethod === 'card' || formData.paymentMethod === 'upi') {
+        const orderData = {
+          items: inStockItems.map(item => ({
+            productId: item.id,
+            quantity: item.quantity
+          })),
+          state: formData.state,
+          couponCode: appliedCoupon ? (appliedCoupon.coupon?.code || appliedCoupon.code) : null,
+          userId: user.id,
+          shipping: shippingRate,
+          subtotal: subtotal,
+          discount: discount,
+          total: total
+        };
 
-      console.log('Creating Razorpay order with data:', orderData);
-      const result = await createRazorpayOrderMutation.mutateAsync(orderData);
-      console.log('Razorpay order created:', result);
-      
-      if (result.data) {
-        // Pass the razorpayOrderId to the payment handler
-        await handleRazorpayPayment({
-          ...result.data,
-          razorpayOrderId: result.data.razorpayOrderId
+        const result = await createRazorpayOrderMutation.mutateAsync(orderData);
+        
+        if (result.data) {
+          await handleRazorpayPayment({
+            ...result.data,
+            razorpayOrderId: result.data.razorpayOrderId
+          });
+        } else {
+          throw new Error('No order data received from server');
+        }
+      } else if (formData.paymentMethod === 'cod') {
+        const orderData = {
+          ...formData,
+          items: inStockItems.map(item => ({
+            productId: item.id,
+            quantity: item.quantity
+          })),
+          subtotal: subtotal,
+          shipping: shippingRate,
+          discount: discount,
+          total: total,
+          couponCode: appliedCoupon ? appliedCoupon.code : null,
+          userId: user.id,
+          paymentMethod: 'cod'
+        };
+
+        await verifyPaymentMutation.mutateAsync({
+          orderData: orderData,
+          isCOD: true
         });
-      } else {
-        throw new Error('No order data received from server');
-      }
-        } else if (formData.paymentMethod === 'cod') {
-      // Handle Cash on Delivery - create order directly
-      const orderData = {
-        ...formData,
-        items: inStockItems.map(item => ({
-          productId: item.id,
-          quantity: item.quantity
-        })),
-        subtotal: calculateSubtotal(),
-        shipping: shippingRate,
-        discount: discount,
-        total: total,
-        couponCode: appliedCoupon ? appliedCoupon.code : null,
-        userId: user.id,
-        paymentMethod: 'cod'
-      };
-
-      console.log('Creating COD order:', orderData);
-      
-      // Call verify payment with COD flag
-      await verifyPaymentMutation.mutateAsync({
-        orderData: orderData,
-        isCOD: true
-      });
-      
-      clearCart();
-      toast.success('Order placed successfully! Cash on Delivery selected.');
-      navigate('/order-success');
+        
+        clearCart();
+        toast.success('Order placed successfully! Cash on Delivery selected.');
+        navigate('/order-success');
       }
     } catch (error) {
-      console.error('Order error details:', error);
       const errorMessage = error.response?.data?.message || error.message || 'Failed to process order. Please try again.';
       toast.error(errorMessage);
     } finally {
@@ -359,12 +374,6 @@ const Checkout = () => {
       return;
     }
   }, [user, navigate]);
-
-  // Debug cart items
-  useEffect(() => {
-    console.log('Cart items in checkout:', cartItems);
-    console.log('In-stock items:', inStockItems);
-  }, [cartItems]);
 
   if (!cartItems || cartItems.length === 0) {
     return (
@@ -611,17 +620,38 @@ const Checkout = () => {
                 {appliedCoupon && (
                   <div className="mt-3 p-3 bg-green-50 border border-green-200 rounded-lg">
                     <p className="text-green-800 font-medium">
-                      Coupon applied: {appliedCoupon.code}
+                      Coupon applied: {appliedCoupon.coupon?.code || appliedCoupon.code}
                     </p>
                     <p className="text-green-600 text-sm">
-                      {appliedCoupon.description}
+                      {appliedCoupon.coupon?.description || appliedCoupon.description}
                     </p>
                     <p className="text-green-700 font-semibold">
                       Discount:{' '}
-                      {appliedCoupon.type === 'percentage'
-                        ? `${appliedCoupon.value}% (₹${discount.toFixed(2)})`
-                        : `₹${appliedCoupon.value}`}
+                      {((appliedCoupon.coupon?.discountType === 'PERCENTAGE' || appliedCoupon.coupon?.type === 'percentage' || appliedCoupon.discountType === 'PERCENTAGE' || appliedCoupon.type === 'percentage')
+                        ? `${appliedCoupon.coupon?.discountValue || appliedCoupon.coupon?.value || appliedCoupon.discountValue || appliedCoupon.value}% (₹${discount.toFixed(2)})`
+                        : `₹${appliedCoupon.coupon?.discountValue || appliedCoupon.coupon?.value || appliedCoupon.discountValue || appliedCoupon.value}`
+                      )}
                     </p>
+                  </div>
+                )}
+
+                {/* Show available coupons in checkout too */}
+                {availableCoupons.length > 0 && (
+                  <div className="mt-4">
+                    <p className="text-sm text-gray-600 mb-2">Available coupons:</p>
+                    <div className="space-y-2">
+                      {availableCoupons.map((coupon) => (
+                        <div key={coupon.id} className="flex items-center justify-between text-xs bg-gray-50 p-2 rounded">
+                          <span className="font-medium">{coupon.code}</span>
+                          <span>
+                            {coupon.discountType === 'PERCENTAGE' 
+                              ? `${coupon.discountValue}% OFF` 
+                              : `₹${coupon.discountValue} OFF`
+                            }
+                          </span>
+                        </div>
+                      ))}
+                    </div>
                   </div>
                 )}
               </div>
@@ -696,7 +726,7 @@ const Checkout = () => {
                 <div className="space-y-3 border-t pt-4">
                   <div className="flex justify-between text-gray-600">
                     <span>Subtotal ({inStockItems.length} items)</span>
-                    <span>₹{calculateSubtotal().toFixed(2)}</span>
+                    <span>₹{subtotal.toFixed(2)}</span>
                   </div>
                   
                   {discount > 0 && (

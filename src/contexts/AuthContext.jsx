@@ -31,11 +31,83 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
+  const register = async (userData) => {
+    try {
+      setError('');
+      setLoading(true);
+      
+      const response = await apiService.post('/auth/register', userData);
+      
+      if (response.data.success) {
+        return response.data;
+      } else {
+        throw new Error(response.data.message || 'Registration failed');
+      }
+    } catch (error) {
+      console.error('Registration error:', error);
+      const errorMessage = error.response?.data?.message || error.message || 'Registration failed';
+      setError(errorMessage);
+      throw new Error(errorMessage);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // ADD FORGOT PASSWORD METHOD
+  const forgotPassword = async (email) => {
+    try {
+      setError('');
+      setLoading(true);
+      
+      const response = await apiService.post('/auth/forgot-password', { email });
+      
+      if (response.data.success) {
+        return response.data;
+      } else {
+        throw new Error(response.data.message || 'Failed to send reset instructions');
+      }
+    } catch (error) {
+      console.error('Forgot password error:', error);
+      const errorMessage = error.response?.data?.message || error.message || 'Failed to send reset instructions';
+      setError(errorMessage);
+      throw new Error(errorMessage);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // ADD RESET PASSWORD METHOD
+  const resetPassword = async (token, userId, password) => {
+    try {
+      setError('');
+      setLoading(true);
+      
+      const response = await apiService.post('/auth/reset-password', {
+        token,
+        userId,
+        password
+      });
+      
+      if (response.data.success) {
+        return response.data;
+      } else {
+        throw new Error(response.data.message || 'Failed to reset password');
+      }
+    } catch (error) {
+      console.error('Reset password error:', error);
+      const errorMessage = error.response?.data?.message || error.message || 'Failed to reset password';
+      setError(errorMessage);
+      throw new Error(errorMessage);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const login = async (credentials, requiredRole = null) => {
     try {
       setError('');
+      setLoading(true);
       const response = await apiService.post('/auth/login', credentials);
-      
       
       if (response.data.success && response.data.data) {
         const { user: userData, accessToken, refreshToken } = response.data.data;
@@ -66,6 +138,8 @@ export const AuthProvider = ({ children }) => {
       const errorMessage = error.response?.data?.message || error.message || 'Login failed';
       setError(errorMessage);
       throw new Error(errorMessage);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -84,8 +158,11 @@ export const AuthProvider = ({ children }) => {
     user,
     loading,
     error,
+    register,
     login,
     logout,
+    forgotPassword, // ADD THIS
+    resetPassword,  // ADD THIS
     checkAuth,
     setError: clearError
   };

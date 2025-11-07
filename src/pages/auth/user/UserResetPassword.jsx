@@ -1,5 +1,6 @@
-import React, { useState } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+// components/UserResetPassword.jsx
+import React, { useState, useEffect } from 'react';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useAuth } from '../../../hooks/useAuth';
 import { Helmet } from 'react-helmet';
 import Input from '../../../components/ui/Input';
@@ -14,10 +15,31 @@ const UserResetPassword = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [message, setMessage] = useState('');
   const [errors, setErrors] = useState({});
+  const [token, setToken] = useState('');
+  const [userId, setUserId] = useState('');
+  const [isTokenValid, setIsTokenValid] = useState(true);
 
-  const { loading, error, setError } = useAuth();
+  const { loading, error, setError, resetPassword } = useAuth();
   const navigate = useNavigate();
-  const { token } = useParams();
+  const [searchParams] = useSearchParams();
+
+  useEffect(() => {
+    // Get token and userId from URL parameters
+    const urlToken = searchParams.get('token');
+    const urlUserId = searchParams.get('id');
+
+    if (!urlToken || !urlUserId) {
+      setIsTokenValid(false);
+      setError('Invalid or missing reset token. Please request a new password reset.');
+      return;
+    }
+
+    setToken(urlToken);
+    setUserId(urlUserId);
+
+    // You can add token validation API call here if needed
+    // validateResetToken(urlToken, urlUserId);
+  }, [searchParams, setError]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -56,22 +78,63 @@ const UserResetPassword = () => {
       return;
     }
 
+    if (!token || !userId) {
+      setError('Invalid reset token. Please request a new password reset.');
+      return;
+    }
+
     try {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 2000));
-      setMessage('Your password has been reset successfully! Redirecting to login...');
+      // Call the actual API
+      const result = await resetPassword(token, userId, formData.password);
       
-      setTimeout(() => {
-        navigate('/login', { replace: true });
-      }, 3000);
+      if (result.success) {
+        setMessage(result.message || 'Your password has been reset successfully! Redirecting to login...');
+        
+        setTimeout(() => {
+          navigate('/login', { replace: true });
+        }, 3000);
+      } else {
+        setError(result.message || 'Failed to reset password. Please try again.');
+      }
     } catch (err) {
-      setError('Failed to reset password. Please try again.');
+      // Error is already set in the context, but we can add a fallback
+      if (!error) {
+        setError('Failed to reset password. Please try again.');
+      }
     }
   };
 
   const handleReturnToHome = () => {
     window.location.href = '/';
   };
+
+  if (!isTokenValid) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-900 to-gray-800 text-white">
+        <div className="bg-white/10 backdrop-blur-sm border border-white/20 rounded-2xl shadow-2xl w-full max-w-md p-8 text-center">
+          <div className="w-16 h-16 bg-red-500 rounded-2xl flex items-center justify-center mx-auto mb-4">
+            <span className="text-2xl">❌</span>
+          </div>
+          <h2 className="text-2xl font-bold text-white mb-4">Invalid Reset Link</h2>
+          <p className="text-gray-300 mb-6">{error}</p>
+          <div className="space-y-3">
+            <a
+              href="/forgot-password"
+              className="block w-full py-3 bg-primary hover:bg-primary text-white font-semibold rounded-lg transition-all duration-200"
+            >
+              Request New Reset Link
+            </a>
+            <a
+              href="/login"
+              className="block w-full py-3 border border-white/30 hover:border-white/50 text-white font-semibold rounded-lg transition-all duration-200"
+            >
+              Back to Login
+            </a>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <>
@@ -189,7 +252,7 @@ const UserResetPassword = () => {
 
               <Button
                 type="submit"
-                disabled={loading}
+                disabled={loading || !token || !userId}
                 className="w-full py-3 bg-primary hover:bg-primary text-white font-semibold rounded-lg transition-all duration-200 transform hover:scale-[1.02] disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
               >
                 {loading ? (

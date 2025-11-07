@@ -36,6 +36,8 @@ import OrderSuccess from "../pages/general/OrderSuccess";
 import UserOrders from "../pages/dashboard/user/UserOrders";
 import OrderDetails from "../pages/dashboard/admin/OrderDetails";
 import AdminCoupons from "../pages/dashboard/admin/AdminCoupons";
+import AdminReviews from "../pages/dashboard/admin/AdminReviews";
+import AdminRatings from "../pages/dashboard/admin/AdminRatings";
 
 
 const router = createBrowserRouter([
@@ -182,6 +184,10 @@ const router = createBrowserRouter([
             {
                 path: 'contact',
                 element: <AdminContact />,
+            },
+            {
+                path: 'review',
+                element: <AdminRatings />,
             },
             {
                 path: 'coupons',

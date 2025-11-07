@@ -110,7 +110,7 @@ const Footer = () => {
                   { name: "About Us", path: "/about" },
                   { name: "Products", path: "/products" },
                   { name: "Combo Products", path: "/combo-products" },
-                  { name: "Contact Us", path: "/contact-us" }
+                  { name: "Contact Us", path: "/contact" }
                 ].map((link, index) => (
                   <li key={index}>
                     <motion.a

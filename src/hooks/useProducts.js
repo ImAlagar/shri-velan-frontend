@@ -12,6 +12,10 @@ export const productKeys = {
   details: () => [...productKeys.all, 'detail'],
   detail: (id) => [...productKeys.details(), id],
   stats: () => [...productKeys.all, 'stats'],
+  featured: () => [...productKeys.all, 'featured'],
+  combo: () => [...productKeys.all, 'combo'],
+  bestSelling: () => [...productKeys.all, 'bestSelling'],
+  tags: (tag) => [...productKeys.all, 'tags', tag],
 };
 
 // Get product statistics
@@ -39,6 +43,53 @@ export const useProduct = (id) => {
     queryFn: () => productService.getProductById(id),
     enabled: !!id,
     staleTime: 5 * 60 * 1000, // 5 minutes
+  });
+};
+
+// Get featured products
+export const useFeaturedProducts = (params = {}) => {
+  return useQuery({
+    queryKey: [...productKeys.featured(), params],
+    queryFn: () => productService.getFeaturedProducts(params),
+    staleTime: 2 * 60 * 1000, // 2 minutes
+  });
+};
+
+// Get combo products
+export const useComboProducts = (params = {}) => {
+  return useQuery({
+    queryKey: [...productKeys.combo(), params],
+    queryFn: () => productService.getComboProducts(params),
+    staleTime: 2 * 60 * 1000, // 2 minutes
+  });
+};
+
+// Get products by tags
+export const useProductsByTags = (params = {}) => {
+  return useQuery({
+    queryKey: [...productKeys.tags(params.tags), params],
+    queryFn: () => productService.getProductsByTags(params),
+    enabled: !!params.tags,
+    staleTime: 2 * 60 * 1000, // 2 minutes
+  });
+};
+
+// Get best selling products
+export const useBestSellingProducts = (params = {}) => {
+  return useQuery({
+    queryKey: [...productKeys.bestSelling(), params],
+    queryFn: () => productService.getBestSellingProducts(params),
+    staleTime: 2 * 60 * 1000, // 2 minutes
+  });
+};
+
+// Get products by category
+export const useProductsByCategory = (categoryId) => {
+  return useQuery({
+    queryKey: [...productKeys.lists(), 'category', categoryId],
+    queryFn: () => productService.getProductsByCategory(categoryId),
+    enabled: !!categoryId,
+    staleTime: 2 * 60 * 1000, // 2 minutes
   });
 };
 
@@ -90,13 +141,15 @@ export const useFilteredProductsByCategory = (categoryId, filters = {}, options 
 // Create product mutation
 export const useCreateProduct = () => {
   const queryClient = useQueryClient();
-  const navigate = useNavigate(); // You might need to use useNavigate in the component instead
+  const navigate = useNavigate();
 
   return useMutation({
     mutationFn: (productData) => productService.createProduct(productData),
     onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: productKeys.lists() });
       queryClient.invalidateQueries({ queryKey: productKeys.stats() });
+      queryClient.invalidateQueries({ queryKey: productKeys.featured() });
+      queryClient.invalidateQueries({ queryKey: productKeys.combo() });
       toast.success(data.message || 'Product created successfully');
     },
     onError: (error) => {
@@ -113,14 +166,15 @@ export const useUpdateProduct = () => {
   return useMutation({
     mutationFn: async ({ id, data }) => {
       const response = await productService.updateProduct(id, data);
-      return response; // Make sure to return the response
+      return response;
     },
     onSuccess: (data, variables) => {
       queryClient.invalidateQueries({ queryKey: productKeys.lists() });
       queryClient.invalidateQueries({ queryKey: productKeys.detail(variables.id) });
       queryClient.invalidateQueries({ queryKey: productKeys.stats() });
+      queryClient.invalidateQueries({ queryKey: productKeys.featured() });
+      queryClient.invalidateQueries({ queryKey: productKeys.combo() });
       
-      // Only show toast if we have a success message from backend
       if (data && data.message) {
         toast.success(data.message);
       } else {
@@ -144,10 +198,31 @@ export const useDeleteProduct = () => {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: productKeys.lists() });
       queryClient.invalidateQueries({ queryKey: productKeys.stats() });
+      queryClient.invalidateQueries({ queryKey: productKeys.featured() });
+      queryClient.invalidateQueries({ queryKey: productKeys.combo() });
       toast.success('Product deleted successfully');
     },
     onError: (error) => {
       toast.error(error.response?.data?.message || 'Failed to delete product');
+    },
+  });
+};
+
+// Toggle featured status mutation
+export const useToggleFeatured = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({ id, isFeatured }) => productService.toggleFeatured(id, isFeatured),
+    onSuccess: (data, variables) => {
+      queryClient.invalidateQueries({ queryKey: productKeys.lists() });
+      queryClient.invalidateQueries({ queryKey: productKeys.detail(variables.id) });
+      queryClient.invalidateQueries({ queryKey: productKeys.featured() });
+      queryClient.invalidateQueries({ queryKey: productKeys.stats() });
+      toast.success(`Product ${variables.isFeatured ? 'marked as' : 'removed from'} featured`);
+    },
+    onError: (error) => {
+      toast.error(error.response?.data?.message || 'Failed to update featured status');
     },
   });
 };
@@ -162,6 +237,7 @@ export const useToggleProductStatus = () => {
       queryClient.invalidateQueries({ queryKey: productKeys.lists() });
       queryClient.invalidateQueries({ queryKey: productKeys.detail(variables.id) });
       queryClient.invalidateQueries({ queryKey: productKeys.stats() });
+      queryClient.invalidateQueries({ queryKey: productKeys.featured() });
       toast.success(`Product ${variables.status ? 'activated' : 'deactivated'} successfully`);
     },
     onError: (error) => {

@@ -15,6 +15,7 @@ const AdminAddProduct = () => {
     categoryId: '',
     weight: '',
     isCombo: false,
+    isFeatured: false, // Add this line
     normalPrice: '',
     offerPrice: '',
     benefits: [],
@@ -204,7 +205,6 @@ const AdminAddProduct = () => {
       // Log FormData entries for verification
       for (let [key, value] of submitData.entries()) {
         if (key === 'images') {
-          console.log(`  ${key}:`, (value instanceof File) ? `File: ${value.name}` : value);
         } else {
           console.log(`  ${key}:`, value);
         }
@@ -320,6 +320,20 @@ const AdminAddProduct = () => {
                   />
                   <label className="text-sm font-medium text-gray-700">
                     This is a combo product
+                  </label>
+                </div>
+
+                {/* Add isFeatured checkbox */}
+                <div className="flex items-center space-x-2">
+                  <input
+                    type="checkbox"
+                    name="isFeatured"
+                    checked={formData.isFeatured}
+                    onChange={handleInputChange}
+                    className="w-4 h-4 text-blue-600 rounded focus:ring-blue-500"
+                  />
+                  <label className="text-sm font-medium text-gray-700">
+                    Mark as featured product
                   </label>
                 </div>
               </div>

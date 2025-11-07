@@ -251,7 +251,7 @@ const Categories = () => {
                     className="block group text-center"
                   >
                     {/* Icon/Image Container */}
-                    <div className={`${cardSize} flex items-center justify-center overflow-hidden rounded-2xl mb-4 bg-gradient-to-br from-green-100 to-blue-100 group-hover:from-green-200 group-hover:to-blue-200 transition-all duration-300 mx-auto shadow-lg hover:shadow-xl border-2 border-white group-hover:border-green-200`}>
+                    <div className={`flex items-center justify-center overflow-hidden  mb-4`}>
                       {category.image ? (
                         <img
                           src={category.image}
@@ -268,18 +268,18 @@ const Categories = () => {
                       <div className={`flex items-center justify-center w-full h-full ${category.image ? 'hidden' : 'flex'}`}>
                         <IconComponent 
                           size={iconSize} 
-                          className="text-green-600 group-hover:text-green-700 transition-colors duration-300" 
+                          className="text-green-800 group-hover:text-green-700 transition-colors duration-300" 
                         />
                       </div>
                     </div>
 
                     {/* Category Name */}
-                    <h3 className={`${textSize} text-gray-800 text-center group-hover:text-green-700 transition-colors duration-300 line-clamp-2 leading-tight px-2`}>
+                    <h3 className={`${textSize} capitalize text-green-800 text-center group-hover:text-green-700 transition-colors duration-300 line-clamp-2 leading-tight px-2`}>
                       {category.name}
                     </h3>
 
                     {/* View Products Indicator */}
-                    <p className="text-xs text-green-600 font-medium mt-2 opacity-0 group-hover:opacity-100 transition-all duration-300">
+                    <p className="text-xs text-green-800 hover:bg-green-700 font-medium mt-2 opacity-0 group-hover:opacity-100 transition-all duration-300">
                       Shop Now
                     </p>
                   </Link>
