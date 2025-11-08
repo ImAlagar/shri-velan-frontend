@@ -1,4 +1,4 @@
-// config/api.js - UPDATED with proper error handling
+// config/api.js - UPDATED to use localStorage
 import axios from 'axios';
 import { config } from '../config/env';
 
@@ -14,9 +14,11 @@ const apiClient = axios.create({
 // Request interceptor to add auth token
 apiClient.interceptors.request.use(
   (config) => {
-    const token = sessionStorage.getItem('auth_token'); // Use the same key as your login
+    const token = localStorage.getItem('auth_token'); // Changed to localStorage
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
+    } else {
+      console.log('No token found for request'); // Debug
     }
     return config;
   },
@@ -25,7 +27,7 @@ apiClient.interceptors.request.use(
   }
 );
 
-// Response interceptor for error handling - FIXED
+// Response interceptor for error handling
 apiClient.interceptors.response.use(
   (response) => {
     return response;
@@ -41,18 +43,14 @@ apiClient.interceptors.response.use(
     });
 
     if (error.response?.status === 401) {
-      // Don't redirect immediately for API calls
-      // Let the component handle the error
       console.warn('API 401 - Token might be invalid or expired');
       
-      // Only redirect if it's not an API call and we're on a protected page
-      if (!originalRequest._retry && window.location.pathname.startsWith('/admin')) {
-        // You can implement token refresh logic here if you have refresh tokens
-        // For now, just reject the promise and let components handle it
-        sessionStorage.removeItem('auth_token');
-        sessionStorage.removeItem('refresh_token');
-        
-        // Use setTimeout to avoid redirect during React rendering
+      // Clear tokens on 401
+      localStorage.removeItem('auth_token'); // Changed to localStorage
+      localStorage.removeItem('refresh_token'); // Changed to localStorage
+      
+      // Only redirect if we're on a protected page
+      if (window.location.pathname.startsWith('/admin')) {
         setTimeout(() => {
           window.location.href = '/admin/login';
         }, 100);

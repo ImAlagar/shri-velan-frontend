@@ -15,7 +15,7 @@ export const AuthProvider = ({ children }) => {
 
   const checkAuth = async () => {
     try {
-      const token = sessionStorage.getItem('auth_token');
+      const token = localStorage.getItem('auth_token');
       if (token) {
         const response = await apiService.get('/auth/profile');
         if (response.data.success) {
@@ -24,8 +24,8 @@ export const AuthProvider = ({ children }) => {
       }
     } catch (error) {
       console.error('Auth check failed:', error);
-      sessionStorage.removeItem('auth_token');
-      sessionStorage.removeItem('refresh_token');
+      localStorage.removeItem('auth_token');
+      localStorage.removeItem('refresh_token');
     } finally {
       setLoading(false);
     }
@@ -53,7 +53,6 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-  // ADD FORGOT PASSWORD METHOD
   const forgotPassword = async (email) => {
     try {
       setError('');
@@ -76,7 +75,6 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-  // ADD RESET PASSWORD METHOD
   const resetPassword = async (token, userId, password) => {
     try {
       setError('');
@@ -122,9 +120,9 @@ export const AuthProvider = ({ children }) => {
           }
         }
         
-        // Store tokens
-        sessionStorage.setItem('auth_token', accessToken);
-        sessionStorage.setItem('refresh_token', refreshToken);
+        // Store tokens in localStorage
+        localStorage.setItem('auth_token', accessToken);
+        localStorage.setItem('refresh_token', refreshToken);
         
         // Set user state
         setUser(userData);
@@ -144,14 +142,21 @@ export const AuthProvider = ({ children }) => {
   };
 
   const logout = () => {
-    sessionStorage.removeItem('auth_token');
-    sessionStorage.removeItem('refresh_token');
+    localStorage.removeItem('auth_token');
+    localStorage.removeItem('refresh_token');
     setUser(null);
     setError('');
   };
 
   const clearError = () => {
     setError('');
+  };
+
+  const updateUser = (updatedUserData) => {
+    setUser(prevUser => ({
+      ...prevUser,
+      ...updatedUserData
+    }));
   };
 
   const value = {
@@ -161,9 +166,10 @@ export const AuthProvider = ({ children }) => {
     register,
     login,
     logout,
-    forgotPassword, // ADD THIS
-    resetPassword,  // ADD THIS
+    forgotPassword,
+    resetPassword,
     checkAuth,
+    updateUser,
     setError: clearError
   };
 
