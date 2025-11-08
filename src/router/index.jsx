@@ -38,6 +38,8 @@ import OrderDetails from "../pages/dashboard/admin/OrderDetails";
 import AdminCoupons from "../pages/dashboard/admin/AdminCoupons";
 import AdminReviews from "../pages/dashboard/admin/AdminReviews";
 import AdminRatings from "../pages/dashboard/admin/AdminRatings";
+import CancellationAndRefundPolicy from "../pages/general/CancellationAndRefundPolicy";
+import ShippingAndDeliveryPolicy from "../pages/general/ShippingAndDeliveryPolicy";
 
 
 const router = createBrowserRouter([
@@ -109,6 +111,14 @@ const router = createBrowserRouter([
             {
                 path: 'terms',
                 element: <TermsAndConditions />,
+            },
+            {
+                path: 'shipping',
+                element: <ShippingAndDeliveryPolicy />,
+            },
+            {
+                path: 'cancellation',
+                element: <CancellationAndRefundPolicy />,
             },
             {
                 path: 'categories',

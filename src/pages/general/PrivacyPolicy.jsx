@@ -51,20 +51,20 @@ const PrivacyPolicy = () => {
 
   const dataTypes = [
     {
-      type: "Personal Information",
-      examples: "Name, email address, phone number, shipping address"
+      type: "Name",
+      examples: "Personal identification information"
     },
     {
-      type: "Payment Information",
-      examples: "Credit card details, billing address (processed securely by payment processors)"
+      type: "Contact Information",
+      examples: "Email address, phone number"
     },
     {
-      type: "Technical Data",
-      examples: "IP address, browser type, device information, cookies"
+      type: "Demographic Information",
+      examples: "Postcode, preferences and interests (if required)"
     },
     {
-      type: "Usage Data",
-      examples: "Pages visited, products viewed, time spent on site"
+      type: "Other Information",
+      examples: "Customer surveys and/or offers related data"
     }
   ];
 
@@ -95,11 +95,7 @@ const PrivacyPolicy = () => {
             Your privacy is important to us. Learn how we collect, use, and protect your personal information.
           </p>
           <div className="mt-4 text-sm text-gray-500">
-            Last updated: {new Date().toLocaleDateString('en-US', { 
-              year: 'numeric', 
-              month: 'long', 
-              day: 'numeric' 
-            })}
+            Last updated: November 8, 2025
           </div>
         </motion.div>
 
@@ -112,13 +108,13 @@ const PrivacyPolicy = () => {
             Our Commitment to Your Privacy
           </h2>
           <p className="text-gray-700 leading-relaxed mb-4">
-            We are committed to protecting your privacy and ensuring that your personal 
-            information is handled in a safe and responsible manner. This policy outlines 
-            how we collect, use, and protect the information you provide to us.
+            This privacy policy sets out how NADESAN SARANYA uses and protects any information that you give NADESAN SARANYA when you visit their website and/or agree to purchase from them.
           </p>
           <p className="text-gray-700 leading-relaxed">
-            By using our website and services, you agree to the collection and use of 
-            information in accordance with this policy.
+            NADESAN SARANYA is committed to ensuring that your privacy is protected. Should we ask you to provide certain information by which you can be identified when using this website, and then you can be assured that it will only be used in accordance with this privacy statement.
+          </p>
+          <p className="text-gray-700 leading-relaxed mt-4">
+            NADESAN SARANYA may change this policy from time to time by updating this page. You should check this page from time to time to ensure that you adhere to these changes.
           </p>
         </motion.div>
 
@@ -189,39 +185,79 @@ const PrivacyPolicy = () => {
           <div className="space-y-6">
             <div className="border-l-4 border-primary pl-6 py-2">
               <h3 className="text-lg font-semibold text-gray-900 mb-2">
-                Service Provision
+                Internal Record Keeping
               </h3>
               <p className="text-gray-700">
-                To process your orders, manage your account, and provide customer support.
+                We maintain internal records of your information for business operations and compliance purposes.
               </p>
             </div>
 
             <div className="border-l-4 border-primary pl-6 py-2">
               <h3 className="text-lg font-semibold text-gray-900 mb-2">
-                Communication
+                Service Improvement
               </h3>
               <p className="text-gray-700">
-                To send you important updates, order confirmations, and respond to your inquiries.
+                We use the information to improve our products and services based on customer needs and preferences.
               </p>
             </div>
 
             <div className="border-l-4 border-primary pl-6 py-2">
               <h3 className="text-lg font-semibold text-gray-900 mb-2">
-                Personalization
+                Promotional Communication
               </h3>
               <p className="text-gray-700">
-                To personalize your experience and provide content and product recommendations.
+                We may periodically send promotional emails about new products, special offers or other information which we think you may find interesting.
               </p>
             </div>
 
             <div className="border-l-4 border-primary pl-6 py-2">
               <h3 className="text-lg font-semibold text-gray-900 mb-2">
-                Analytics
+                Market Research
               </h3>
               <p className="text-gray-700">
-                To analyze website usage and improve our services, products, and user experience.
+                From time to time, we may use your information to contact you for market research purposes via email, phone, fax or mail.
               </p>
             </div>
+
+            <div className="border-l-4 border-primary pl-6 py-2">
+              <h3 className="text-lg font-semibold text-gray-900 mb-2">
+                Website Customization
+              </h3>
+              <p className="text-gray-700">
+                We use the information to customise the website according to your interests and preferences.
+              </p>
+            </div>
+          </div>
+        </motion.div>
+
+        {/* Cookies Section */}
+        <motion.div
+          className="bg-white rounded-2xl shadow-lg p-8 mb-8"
+          variants={itemVariants}
+        >
+          <h2 className="text-2xl font-semibold text-gray-900 mb-6">
+            How We Use Cookies
+          </h2>
+          
+          <div className="space-y-4">
+            <p className="text-gray-700 leading-relaxed">
+              A cookie is a small file which asks permission to be placed on your computer's hard drive. Once you agree, the file is added and the cookie helps analyze web traffic or lets you know when you visit a particular site.
+            </p>
+            
+            <div className="bg-gray-50 rounded-lg p-6">
+              <h3 className="font-semibold text-gray-900 mb-3">Cookie Usage</h3>
+              <ul className="text-gray-700 space-y-2 text-sm">
+                <li>• We use traffic log cookies to identify which pages are being used</li>
+                <li>• Helps us analyze data about webpage traffic and improve our website</li>
+                <li>• We only use this information for statistical analysis purposes</li>
+                <li>• Cookies help us provide you with a better website experience</li>
+                <li>• A cookie gives us no access to your computer or any information about you</li>
+              </ul>
+            </div>
+
+            <p className="text-gray-700 leading-relaxed">
+              You can choose to accept or decline cookies. Most web browsers automatically accept cookies, but you can usually modify your browser setting to decline cookies if you prefer. This may prevent you from taking full advantage of the website.
+            </p>
           </div>
         </motion.div>
 
@@ -236,10 +272,10 @@ const PrivacyPolicy = () => {
             </div>
             <div>
               <h2 className="text-2xl font-semibold text-gray-900">
-                Data Security
+                Data Security & Your Rights
               </h2>
               <p className="text-gray-600">
-                How we protect your information
+                How we protect your information and your rights
               </p>
             </div>
           </div>
@@ -247,20 +283,23 @@ const PrivacyPolicy = () => {
           <div className="grid md:grid-cols-2 gap-6">
             <div className="bg-gray-50 rounded-lg p-6">
               <h3 className="font-semibold text-gray-900 mb-3">Security Measures</h3>
+              <p className="text-gray-700 mb-3 text-sm">
+                We are committed to ensuring that your information is secure. In order to prevent unauthorised access or disclosure we have put in suitable physical, electronic and managerial procedures to safeguard and secure the information we collect online.
+              </p>
               <ul className="text-gray-700 space-y-2 text-sm">
-                <li>• SSL encryption for data transmission</li>
-                <li>• Secure payment processing</li>
-                <li>• Regular security audits</li>
-                <li>• Access controls and authentication</li>
+                <li>• Suitable physical security measures</li>
+                <li>• Electronic security protocols</li>
+                <li>• Managerial procedures for data protection</li>
+                <li>• Regular security assessments</li>
               </ul>
             </div>
             <div className="bg-gray-50 rounded-lg p-6">
-              <h3 className="font-semibold text-gray-900 mb-3">Your Rights</h3>
+              <h3 className="font-semibold text-gray-900 mb-3">Controlling Your Personal Information</h3>
               <ul className="text-gray-700 space-y-2 text-sm">
-                <li>• Access your personal data</li>
-                <li>• Correct inaccurate information</li>
-                <li>• Request data deletion</li>
-                <li>• Opt-out of marketing communications</li>
+                <li>• Look for opt-out boxes in forms to restrict direct marketing</li>
+                <li>• Change your mind about marketing communications anytime</li>
+                <li>• Request correction of incorrect information</li>
+                <li>• We won't sell, distribute or lease your personal information to third parties without your permission</li>
               </ul>
             </div>
           </div>
@@ -278,14 +317,15 @@ const PrivacyPolicy = () => {
             Privacy Questions?
           </h2>
           <p className="text-primary-100 mb-6 max-w-2xl mx-auto">
-            If you have any questions about our Privacy Policy or how we handle your data, 
-            please don't hesitate to contact our privacy team.
+            If you believe that any information we are holding on you is incorrect or incomplete, 
+            please contact us as soon as possible. We will promptly correct any information found to be incorrect.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <motion.button
               className="bg-white text-primary px-6 py-3 rounded-lg font-semibold hover:bg-gray-100 transition-colors duration-300"
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
+              onClick={() => window.location.href = 'mailto:contact@shrivelanorganicfoods.com'}
             >
               Contact Privacy Team
             </motion.button>
@@ -293,8 +333,9 @@ const PrivacyPolicy = () => {
               className="border-2 border-white text-white px-6 py-3 rounded-lg font-semibold hover:bg-white hover:text-primary transition-colors duration-300"
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
+              onClick={() => window.location.href = 'tel:9345447148'}
             >
-              Download Data
+              Call: 9345447148
             </motion.button>
           </div>
         </motion.div>
@@ -305,9 +346,8 @@ const PrivacyPolicy = () => {
           variants={itemVariants}
         >
           <p className="text-yellow-800 text-sm">
-            <strong>Note:</strong> We may update this Privacy Policy from time to time. 
-            We will notify you of any changes by posting the new Privacy Policy on this page 
-            and updating the "Last updated" date.
+            <strong>Note:</strong> NADESAN SARANYA may change this policy from time to time by updating this page. 
+            You should check this page from time to time to ensure that you are happy with any changes.
           </p>
         </motion.div>
       </motion.div>

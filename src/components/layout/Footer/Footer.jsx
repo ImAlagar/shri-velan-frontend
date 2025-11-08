@@ -224,6 +224,8 @@ const Footer = () => {
                 {[
                   { name: "Privacy Policy", path: "/privacy" },
                   { name: "Terms of Service", path: "/terms" },
+                  { name: "Shipping & Delivery Policy", path: "/shipping" },
+                  { name: "Cancellation & Refund Policy", path: "/cancellation" },
                 ].map((link, index) => (
                   <motion.a
                     key={index}

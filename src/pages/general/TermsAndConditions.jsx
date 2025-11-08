@@ -35,8 +35,8 @@ const TermsAndConditions = () => {
     },
     {
       icon: FiFileText,
-      title: "User Responsibilities",
-      content: "You are responsible for maintaining the confidentiality of your account and password and for restricting access to your computer."
+      title: "Content Changes",
+      content: "The content of the pages of this website is subject to change without notice."
     },
     {
       icon: FiShield,
@@ -74,11 +74,7 @@ const TermsAndConditions = () => {
             Terms & Conditions
           </h1>
           <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-            Last updated: {new Date().toLocaleDateString('en-US', { 
-              year: 'numeric', 
-              month: 'long', 
-              day: 'numeric' 
-            })}
+            Last updated: November 8, 2025
           </p>
         </motion.div>
 
@@ -90,10 +86,11 @@ const TermsAndConditions = () => {
           <h2 className="text-2xl font-semibold text-gray-900 mb-4">
             Welcome to Our Platform
           </h2>
+          <p className="text-gray-700 leading-relaxed mb-4">
+            For the purpose of these Terms and Conditions, The term "we", "us", "our" used anywhere on this page shall mean NADESAN SARANYA, whose registered/operational office is 26a, Kasukadai Street , Thathayengarpet block Tiruchirappalli TAMIL NADU 621210. "you", "your", "user", "visitor" shall mean any natural or legal person who is visiting our website and/or agreed to purchase from us.
+          </p>
           <p className="text-gray-700 leading-relaxed">
-            These Terms and Conditions govern your use of our website and services. 
-            Please read them carefully before using our platform. By accessing or using 
-            our service, you agree to be bound by these terms.
+            Your use of the website and/or purchase from us are governed by following Terms and Conditions:
           </p>
         </motion.div>
 
@@ -136,64 +133,46 @@ const TermsAndConditions = () => {
           <div className="space-y-6">
             <div className="border-l-4 border-primary pl-6 py-2">
               <h3 className="text-lg font-semibold text-gray-900 mb-2">
-                1. Account Registration
+                Content Accuracy
               </h3>
               <p className="text-gray-700">
-                You must be at least 18 years old to create an account. You are responsible 
-                for maintaining the security of your account and for all activities that 
-                occur under your account.
+                Neither we nor any third parties provide any warranty or guarantee as to the accuracy, timeliness, performance, completeness or suitability of the information and materials found or offered on this website for any particular purpose. You acknowledge that such information and materials may contain inaccuracies or errors and we expressly exclude liability for any such inaccuracies or errors to the fullest extent permitted by law.
               </p>
             </div>
 
             <div className="border-l-4 border-primary pl-6 py-2">
               <h3 className="text-lg font-semibold text-gray-900 mb-2">
-                2. Product Information
+                User Responsibility
               </h3>
               <p className="text-gray-700">
-                We strive to provide accurate product information, but we do not warrant 
-                that product descriptions or other content is accurate, complete, reliable, 
-                current, or error-free.
+                Your use of any information or materials on our website and/or product pages is entirely at your own risk, for which we shall not be liable. It shall be your own responsibility to ensure that any products, services or information available through our website and/or product pages meet your specific requirements.
               </p>
             </div>
 
             <div className="border-l-4 border-primary pl-6 py-2">
               <h3 className="text-lg font-semibold text-gray-900 mb-2">
-                3. Pricing and Payments
+                Intellectual Property
               </h3>
               <p className="text-gray-700">
-                All prices are subject to change without notice. We reserve the right to 
-                discontinue any product at any time. Payment must be completed before 
-                order processing.
+                Our website contains material which is owned by or licensed to us. This material includes, but are not limited to, the design, layout, look, appearance and graphics. Reproduction is prohibited other than in accordance with the copyright notice, which forms part of these terms and conditions. All trademarks reproduced in our website which are not the property of, or licensed to, the operator are acknowledged on the website.
               </p>
             </div>
 
             <div className="border-l-4 border-primary pl-6 py-2">
               <h3 className="text-lg font-semibold text-gray-900 mb-2">
-                4. Shipping and Delivery
+                Unauthorized Use & Links
               </h3>
               <p className="text-gray-700">
-                Shipping times are estimates and not guaranteed. Risk of loss and title 
-                for items pass to you upon delivery to the carrier.
+                Unauthorized use of information provided by us shall give rise to a claim for damages and/or be a criminal offense. From time to time our website may also include links to other websites. These links are provided for your convenience to provide further information. You may not create a link to our website from another website or document without NADESAN SARANYA's prior written consent.
               </p>
             </div>
 
             <div className="border-l-4 border-primary pl-6 py-2">
               <h3 className="text-lg font-semibold text-gray-900 mb-2">
-                5. Returns and Refunds
+                Governing Law & Disputes
               </h3>
               <p className="text-gray-700">
-                Please review our return policy for detailed information about returns 
-                and refunds. Some products may have different return policies.
-              </p>
-            </div>
-
-            <div className="border-l-4 border-primary pl-6 py-2">
-              <h3 className="text-lg font-semibold text-gray-900 mb-2">
-                6. Prohibited Uses
-              </h3>
-              <p className="text-gray-700">
-                You may not use our products for any illegal or unauthorized purpose. 
-                You must not transmit any worms, viruses, or any code of a destructive nature.
+                Any dispute arising out of use of our website and/or purchase with us and/or any engagement with us is subject to the laws of India. We, shall be under no liability whatsoever in respect of any loss or damage arising directly or indirectly out of the decline of authorization for any Transaction, on Account of the Cardholder having exceeded the preset limit mutually agreed by us with our acquiring bank from time to time.
               </p>
             </div>
           </div>
@@ -210,23 +189,29 @@ const TermsAndConditions = () => {
           <p className="text-primary-100 mb-6 max-w-2xl mx-auto">
             If you have any questions about these Terms and Conditions, please contact us.
           </p>
-          <Link to={'/contact'}
-            className="bg-white text-primary px-8 py-3 rounded-lg font-semibold hover:bg-gray-100 transition-colors duration-300"
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-          >
-            Contact Support
-          </Link>
+          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+            <Link 
+              to="/contact"
+              className="bg-white text-primary px-8 py-3 rounded-lg font-semibold hover:bg-gray-100 transition-colors duration-300 inline-block"
+            >
+              Contact Support
+            </Link>
+            <button
+              onClick={() => window.location.href = 'mailto:contact@shrivelanorganicfoods.com'}
+              className="border-2 border-white text-white px-8 py-3 rounded-lg font-semibold hover:bg-white hover:text-primary transition-colors duration-300"
+            >
+              Email Us
+            </button>
+          </div>
         </motion.div>
 
         {/* Footer Note */}
         <motion.div
-          className="text-center mt-8"
+          className="text-center mt-8 p-6 bg-blue-50 rounded-xl border border-blue-200"
           variants={itemVariants}
         >
-          <p className="text-gray-500 text-sm">
-            By using our service, you acknowledge that you have read, understood, 
-            and agree to be bound by these Terms and Conditions.
+          <p className="text-blue-800 text-sm">
+            <strong>Registered Office:</strong> 26a, Kasukadai Street, Thathayengarpet block, Tiruchirappalli, TAMIL NADU 621210
           </p>
         </motion.div>
       </motion.div>
