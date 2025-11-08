@@ -10,17 +10,14 @@ import {
   Star, 
   ArrowLeft, 
   Check, 
-  Shield, 
-  Truck, 
-  RotateCcw,
   Minus,
   Plus,
   Leaf,
   Weight,
   Tag,
   Package,
-  Sprout,
-  ArrowRight,
+  ChevronDown, 
+  ChevronUp,
   ChevronRight,
   MessageSquare,
   User,
@@ -54,7 +51,8 @@ const ProductDetails = () => {
   const [isWishlisted, setIsWishlisted] = useState(false);
   const [imageLoaded, setImageLoaded] = useState(false);
   const [activeTab, setActiveTab] = useState('description');
-  
+  const [showAllReviews, setShowAllReviews] = useState(false);
+
   // Review state
   const [review, setReview] = useState({
     rating: 0,
@@ -880,86 +878,109 @@ const ProductDetails = () => {
                       </motion.div>
                     )}
 
-                    {/* Reviews List */}
-                    <div className="space-y-6">
-                      <h3 className="text-lg font-semibold text-gray-900">
-                        Customer Reviews ({ratings.length})
-                      </h3>
-                      
-                      {ratingsLoading ? (
-                        <div className="flex justify-center py-8">
-                          <div className="w-6 h-6 border-2 border-primary border-t-transparent rounded-full animate-spin" />
-                        </div>
-                      ) : ratings.length === 0 ? (
-                        <motion.div 
-                          initial={{ opacity: 0 }}
-                          animate={{ opacity: 1 }}
-                          className="text-center py-12 text-gray-500 bg-gray-50 rounded-lg"
-                        >
-                          <MessageSquare size={48} className="mx-auto mb-4 text-gray-300" />
-                          <p className="text-lg font-medium text-gray-600 mb-2">No reviews yet</p>
-                          <p className="text-sm">Be the first to review this product!</p>
-                        </motion.div>
-                      ) : (
-                        <div className="space-y-4">
-                          {ratings.map((rating, index) => (
-                            <motion.div
-                              key={rating.id}
-                              initial={{ opacity: 0, y: 10 }}
-                              animate={{ opacity: 1, y: 0 }}
-                              transition={{ delay: index * 0.1 }}
-                              className="bg-white border border-gray-200 rounded-lg p-6 hover:shadow-sm transition-shadow duration-300"
-                            >
-                              <div className="flex items-start justify-between mb-3">
-                                <div className="flex-1">
-                                  <div className="flex items-center gap-2 mb-1">
-                                    <User size={16} className="text-gray-400" />
-                                    <span className="font-semibold text-gray-900">
-                                      {rating.userName}
-                                    </span>
-                                  </div>
-                                  <div className="flex items-center gap-4 text-sm text-gray-600">
-                                    <div className="flex items-center gap-1">
-                                      {[1, 2, 3, 4, 5].map((star) => (
-                                        <Star
-                                          key={star}
-                                          size={14}
-                                          className={`${
-                                            star <= rating.rating
-                                              ? 'text-yellow-400 fill-current'
-                                              : 'text-gray-300'
-                                          }`}
-                                        />
-                                      ))}
-                                    </div>
-                                    <div className="flex items-center gap-1">
-                                      <Calendar size={14} />
-                                      <span>
-                                        {new Date(rating.createdAt).toLocaleDateString('en-US', {
-                                          year: 'numeric',
-                                          month: 'long',
-                                          day: 'numeric'
-                                        })}
-                                      </span>
-                                    </div>
-                                  </div>
-                                </div>
-                              </div>
-                              
-                              {rating.title && (
-                                <h4 className="font-semibold text-gray-900 mb-2 text-lg">
-                                  {rating.title}
-                                </h4>
-                              )}
-                              
-                              <p className="text-gray-700 leading-relaxed">
-                                {rating.review}
-                              </p>
-                            </motion.div>
-                          ))}
-                        </div>
-                      )}
-                    </div>
+{/* Reviews List */}
+<div className="space-y-6">
+  <h3 className="text-lg font-semibold text-gray-900">
+    Customer Reviews ({ratings.length})
+  </h3>
+  
+  {ratingsLoading ? (
+    <div className="flex justify-center py-8">
+      <div className="w-6 h-6 border-2 border-primary border-t-transparent rounded-full animate-spin" />
+    </div>
+  ) : ratings.length === 0 ? (
+    <motion.div 
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      className="text-center py-12 text-gray-500 bg-gray-50 rounded-lg"
+    >
+      <MessageSquare size={48} className="mx-auto mb-4 text-gray-300" />
+      <p className="text-lg font-medium text-gray-600 mb-2">No reviews yet</p>
+      <p className="text-sm">Be the first to review this product!</p>
+    </motion.div>
+  ) : (
+    <div className="space-y-4">
+      {/* Show first 3 reviews initially, then all when expanded */}
+      {ratings.slice(0, showAllReviews ? ratings.length : 3).map((rating, index) => (
+        <motion.div
+          key={rating.id}
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: index * 0.1 }}
+          className="bg-white border border-gray-200 rounded-lg p-6 hover:shadow-sm transition-shadow duration-300"
+        >
+          <div className="flex items-start justify-between mb-3">
+            <div className="flex-1">
+              <div className="flex items-center gap-2 mb-1">
+                <User size={16} className="text-gray-400" />
+                <span className="font-semibold text-gray-900">
+                  {rating.userName}
+                </span>
+              </div>
+              <div className="flex items-center gap-4 text-sm text-gray-600">
+                <div className="flex items-center gap-1">
+                  {[1, 2, 3, 4, 5].map((star) => (
+                    <Star
+                      key={star}
+                      size={14}
+                      className={`${
+                        star <= rating.rating
+                          ? 'text-yellow-400 fill-current'
+                          : 'text-gray-300'
+                      }`}
+                    />
+                  ))}
+                </div>
+                <div className="flex items-center gap-1">
+                  <Calendar size={14} />
+                  <span>
+                    {new Date(rating.createdAt).toLocaleDateString('en-US', {
+                      year: 'numeric',
+                      month: 'long',
+                      day: 'numeric'
+                    })}
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          {rating.title && (
+            <h4 className="font-semibold text-gray-900 mb-2 text-lg">
+              {rating.title}
+            </h4>
+          )}
+          
+          <p className="text-gray-700 leading-relaxed">
+            {rating.review}
+          </p>
+        </motion.div>
+      ))}
+      
+      {/* Show More/Less Button - Only show if there are more than 3 reviews */}
+      {ratings.length > 3 && (
+        <div className="flex justify-center pt-4">
+          <button
+            onClick={() => setShowAllReviews(!showAllReviews)}
+            className="flex items-center gap-2 px-6 py-2 text-sm font-medium text-primary border border-primary rounded-lg hover:bg-primary hover:text-white transition-colors duration-200"
+          >
+            {showAllReviews ? (
+              <>
+                <ChevronUp size={16} />
+                Show Less
+              </>
+            ) : (
+              <>
+                <ChevronDown size={16} />
+                Show More ({ratings.length - 3} more reviews)
+              </>
+            )}
+          </button>
+        </div>
+      )}
+    </div>
+  )}
+</div>
                   </motion.div>
                 )}
               </AnimatePresence>

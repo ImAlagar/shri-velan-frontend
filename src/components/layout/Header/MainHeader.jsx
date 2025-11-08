@@ -388,16 +388,7 @@ const MainHeader = () => {
                         Welcome back, <span className="font-semibold text-primary">{getUserDisplayName()}</span>
                       </div>
                     </motion.li>
-                    <motion.li className="w-full" variants={itemVariants}>
-                      <motion.button
-                        onClick={handleProfileClick}
-                        className="flex items-center w-full px-4 py-3 sm:py-4 text-gray-700 hover:bg-gray-50 rounded-xl transition-all duration-200 group cursor-pointer text-sm sm:text-base"
-                        whileHover={{ x: 5 }}
-                      >
-                        <FiUser className="size-4 sm:size-5 mr-3 text-primary group-hover:scale-110 transition-transform" />
-                        My Profile
-                      </motion.button>
-                    </motion.li>
+
                     <motion.li className="w-full" variants={itemVariants}>
                       <motion.button
                         onClick={handleOrdersClick}
