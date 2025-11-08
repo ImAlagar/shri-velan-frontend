@@ -141,28 +141,31 @@ const Contact = () => {
 
           {/* Right Form */}
           <motion.div
-            className="lg:w-1/2"
+            className="w-full lg:w-1/2"
             initial={{ opacity: 0, y: 40 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 1, delay: 0.5 }}
           >
-            {/* Contact Form */}
-            <form onSubmit={handleSubmit} className="flex flex-col gap-6 w-full" aria-label="Contact Form">
+            <form
+              onSubmit={handleSubmit}
+              className="flex flex-col gap-6 w-full"
+              aria-label="Contact Form"
+            >
               {["name", "phone", "email", "message"].map((field, i) => (
                 <motion.div
                   key={field}
-                  className="flex flex-col gap-2 w-full max-w-[500px]"
+                  className="flex flex-col gap-2 w-full"
                   initial={{ opacity: 0, x: -20 }}
                   animate={{ opacity: 1, x: 0 }}
                   transition={{ duration: 0.5, delay: i * 0.2 }}
                 >
-                  <label className="text-xl font-SpaceGrotesk" htmlFor={field}>
+                  <label className="text-lg md:text-xl font-SpaceGrotesk" htmlFor={field}>
                     {field.charAt(0).toUpperCase() + field.slice(1)}
                   </label>
                   {field === "message" ? (
                     <textarea
                       id="message"
-                      className="outline-none border border-gray-500 bg-transparent focus:shadow-gray-500 w-full px-4 py-3 rounded-xl focus:border-gray-700 transition-all ease-in-out duration-300 focus:shadow-xl"
+                      className="outline-none border border-gray-500 bg-transparent w-full px-4 py-3 rounded-xl focus:border-gray-300 transition-all duration-300 focus:shadow-lg"
                       onChange={handleInputChange}
                       value={formData.message}
                       name="message"
@@ -173,7 +176,7 @@ const Contact = () => {
                   ) : (
                     <input
                       id={field}
-                      className="outline-none border border-gray-500 bg-transparent focus:shadow-gray-500 w-full px-4 py-3 rounded-xl focus:border-gray-700 transition-all ease-in-out duration-300 focus:shadow-lg"
+                      className="outline-none border border-gray-500 bg-transparent w-full px-4 py-3 rounded-xl focus:border-gray-300 transition-all duration-300 focus:shadow-lg"
                       onChange={handleInputChange}
                       value={formData[field]}
                       name={field}
@@ -192,7 +195,7 @@ const Contact = () => {
               ))}
 
               <motion.button
-                className="bg-gradient-to-r hover:bg-gradient-to-l transition-all duration-700 ease-in-out from-primary to-gray-600 w-fit px-10 py-3 rounded-full text-white font-semibold flex items-center justify-center"
+                className="bg-gradient-to-r from-primary to-gray-600 hover:from-gray-600 hover:to-primary transition-all duration-700 ease-in-out px-8 py-3 rounded-full text-white font-semibold"
                 disabled={isSubmitting}
                 type="submit"
                 whileHover={{ scale: 1.05 }}
@@ -203,11 +206,12 @@ const Contact = () => {
             </form>
 
             {responseMessage && (
-              <p className="text-white font-SpaceGrotesk text-lg lg:text-xl mt-4">
+              <p className="text-white font-SpaceGrotesk text-base md:text-lg mt-4">
                 {responseMessage}
               </p>
             )}
           </motion.div>
+
         </div>
 
       </div>

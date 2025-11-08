@@ -110,7 +110,7 @@ const Footer = () => {
                   { name: "About Us", path: "/about" },
                   { name: "Products", path: "/products" },
                   { name: "Combo Products", path: "/combo-products" },
-                  { name: "Contact Us", path: "/contact-us" }
+                  { name: "Contact Us", path: "/contact" }
                 ].map((link, index) => (
                   <li key={index}>
                     <motion.a
@@ -205,27 +205,29 @@ const Footer = () => {
         </motion.div>
 
         {/* Bottom Bar */}
-        <motion.div
-          className="border-t border-gray-700 py-6"
+        <motion.footer
+          className="border-t border-gray-700 py-8"
           initial={{ opacity: 0 }}
           whileInView={{ opacity: 1 }}
           transition={{ duration: 0.6 }}
           viewport={{ once: true }}
         >
-          <div className="container mx-auto px-5 lg:px-20">
-            <div className="flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0">
+          <div className="container mx-auto px-4 sm:px-6 lg:px-16">
+            {/* Main Footer Content */}
+            <div className="flex flex-col md:flex-row justify-between items-center text-center md:text-left gap-6">
               {/* Copyright */}
-              <p className="font-SpaceGrotesk tracking-wide text-gray-400 text-center md:text-left">
-                © {currentYear} Shri Velan Organic Foods. All rights reserved.
+              <p className="font-SpaceGrotesk tracking-wide text-gray-400 text-sm sm:text-base">
+                © {new Date().getFullYear()} Shri Velan Organic Foods. All rights reserved.
               </p>
 
               {/* Legal Links */}
-              <div className="flex space-x-6 font-SpaceGrotesk tracking-wide text-sm">
+              <div className="flex flex-wrap justify-center md:justify-end gap-4 sm:gap-6 font-SpaceGrotesk tracking-wide text-xs sm:text-sm">
                 {[
                   { name: "Privacy Policy", path: "/privacy" },
                   { name: "Terms of Service", path: "/terms" },
                   { name: "Shipping & Delivery Policy", path: "/shipping" },
                   { name: "Cancellation & Refund Policy", path: "/cancellation" },
+                  { name: "Contact Us", path: "/contact-us" },
                 ].map((link, index) => (
                   <motion.a
                     key={index}
@@ -241,33 +243,28 @@ const Footer = () => {
 
             {/* Certification Badges */}
             <motion.div
-              className="flex justify-center items-center space-x-6 mt-6 pt-6 border-t border-gray-700"
+              className="flex flex-wrap justify-center items-center gap-6 mt-8 pt-6 border-t border-gray-700"
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, delay: 0.2 }}
               viewport={{ once: true }}
             >
-              <div className="text-center">
-                <div className="bg-primary/20 rounded-full p-3 inline-block">
-                  <span className="text-2xl">🌿</span>
+              {[
+                { icon: "🌿", text: "100% Organic" },
+                { icon: "⚡", text: "Fast Delivery" },
+                { icon: "❤️", text: "Made with Love" },
+              ].map((item, i) => (
+                <div key={i} className="text-center">
+                  <div className="bg-primary/20 rounded-full p-4 inline-flex items-center justify-center">
+                    <span className="text-2xl sm:text-3xl">{item.icon}</span>
+                  </div>
+                  <p className="text-xs sm:text-sm text-gray-400 mt-2 font-SpaceGrotesk">{item.text}</p>
                 </div>
-                <p className="text-xs text-gray-400 mt-2 font-SpaceGrotesk">100% Organic</p>
-              </div>
-              <div className="text-center">
-                <div className="bg-primary/20 rounded-full p-3 inline-block">
-                  <span className="text-2xl">⚡</span>
-                </div>
-                <p className="text-xs text-gray-400 mt-2 font-SpaceGrotesk">Fast Delivery</p>
-              </div>
-              <div className="text-center">
-                <div className="bg-primary/20 rounded-full p-3 inline-block">
-                  <span className="text-2xl">❤️</span>
-                </div>
-                <p className="text-xs text-gray-400 mt-2 font-SpaceGrotesk">Made with Love</p>
-              </div>
+              ))}
             </motion.div>
           </div>
-        </motion.div>
+        </motion.footer>
+
       </footer>
     </>
   );
