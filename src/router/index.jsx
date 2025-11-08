@@ -40,6 +40,7 @@ import AdminReviews from "../pages/dashboard/admin/AdminReviews";
 import AdminRatings from "../pages/dashboard/admin/AdminRatings";
 import CancellationAndRefundPolicy from "../pages/general/CancellationAndRefundPolicy";
 import ShippingAndDeliveryPolicy from "../pages/general/ShippingAndDeliveryPolicy";
+import ContactUsPolicy from "../pages/general/ContactUsPolicy";
 
 
 const router = createBrowserRouter([
@@ -119,6 +120,10 @@ const router = createBrowserRouter([
             {
                 path: 'cancellation',
                 element: <CancellationAndRefundPolicy />,
+            },
+            {
+                path: 'contact-us',
+                element: <ContactUsPolicy />,
             },
             {
                 path: 'categories',
