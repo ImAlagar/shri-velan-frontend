@@ -71,13 +71,13 @@ const Footer = () => {
               "@type": "Organization",
               "name": "Shri Velan Organic Foods",
               "description": "Wholesome Goodness in Every Bite – Fresh, Fast & Flavorful organic foods",
-              "url": "https://shrivelanfoods.com",
-              "logo": "https://shrivelanfoods.com/logo.png",
+              "url": "https://shrivelanorganicfoods.com",
+              "logo": "https://shrivelanorganicfoods.com.com/logo.png",
               "contactPoint": {
                 "@type": "ContactPoint",
                 "telephone": "+91-8122747148",
                 "contactType": "customer service",
-                "email": "contact@shrivelanfoods.com"
+                "email": "contact@shrivelanorganicfoods.comm"
               },
               "sameAs": [
                 "https://www.facebook.com/share/1Cw3cEfV86/",
@@ -216,8 +216,8 @@ const Footer = () => {
                   <FaEnvelope className="text-primary mt-1 flex-shrink-0" />
                   <div>
                     <p className="font-medium">Email</p>
-                    <a href="mailto:info@shrivelanorganic.com" className="hover:text-primary transition">
-                      contact@shrivelanfoods.com
+                    <a href="mailto:contact@shrivelanorganicfoods.com" className="hover:text-primary transition">
+                      contact@shrivelanorganicfoods.com
                     </a>
                   </div>
                 </motion.div>

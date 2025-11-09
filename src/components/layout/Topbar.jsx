@@ -11,7 +11,7 @@ const Topbar = () => {
   // Content for scrolling animation
   const topbarContent = [
     "+91 8122747148",
-    "contact@shrivelanfoods.com", 
+    "contact@shrivelanorganicfoods.com", 
     "Kasukadai street, Mettupalayam,Trichy-621210"
   ];
 
