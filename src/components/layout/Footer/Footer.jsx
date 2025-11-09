@@ -49,9 +49,9 @@ const Footer = () => {
                 "email": "info@shrivelanorganic.com"
               },
               "sameAs": [
-                "https://facebook.com/shrivelanorganic",
-                "https://instagram.com/shrivelanorganic",
-                "https://twitter.com/shrivelanorganic"
+                "https://www.facebook.com/share/1Cw3cEfV86/",
+                "https://www.instagram.com/shrivelanorganicfoods?igsh=cnJhbHp3b2owbXQ3",
+                "https://youtube.com/@shrivelan_healthmix",
               ]
             }
           `}
@@ -83,8 +83,9 @@ const Footer = () => {
               {/* Social Media Links */}
               <div className="flex space-x-4">
                 {[
-                  { icon: <FaFacebook />, url: "#", color: "hover:text-blue-400" },
-                  { icon: <FaInstagram />, url: "#", color: "hover:text-pink-400" },
+                  { icon: <FaFacebook />, url: "https://www.facebook.com/share/1Cw3cEfV86/", color: "hover:text-blue-400" },
+                  { icon: <FaInstagram />, url: "https://www.instagram.com/shrivelanorganicfoods?igsh=cnJhbHp3b2owbXQ3", color: "hover:text-pink-400" },
+                  { icon: <FaYoutube />, url: "https://youtube.com/@shrivelan_healthmix", color: "hover:text-pink-400" },
                 ].map((social, index) => (
                   <motion.a
                     key={index}
