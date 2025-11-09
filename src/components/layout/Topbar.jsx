@@ -10,9 +10,9 @@ import { motion } from "framer-motion";
 const Topbar = () => {
   // Content for scrolling animation
   const topbarContent = [
-    "+91 98765 43210",
-    "info@shrivelanorganic.com", 
-    "123 Organic Street, Health City, TN 600001"
+    "+91 8122747148",
+    "contact@shrivelanfoods.com", 
+    "Kasukadai street, Mettupalayam,Trichy-621210"
   ];
 
   return (

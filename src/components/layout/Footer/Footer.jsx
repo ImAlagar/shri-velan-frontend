@@ -71,13 +71,13 @@ const Footer = () => {
               "@type": "Organization",
               "name": "Shri Velan Organic Foods",
               "description": "Wholesome Goodness in Every Bite – Fresh, Fast & Flavorful organic foods",
-              "url": "https://yourwebsite.com",
-              "logo": "https://yourwebsite.com/logo.png",
+              "url": "https://shrivelanfoods.com",
+              "logo": "https://shrivelanfoods.com/logo.png",
               "contactPoint": {
                 "@type": "ContactPoint",
-                "telephone": "+91-9876543210",
+                "telephone": "+91-8122747148",
                 "contactType": "customer service",
-                "email": "info@shrivelanorganic.com"
+                "email": "contact@shrivelanfoods.com"
               },
               "sameAs": [
                 "https://www.facebook.com/share/1Cw3cEfV86/",
@@ -204,7 +204,7 @@ const Footer = () => {
                   <div>
                     <p className="font-medium">Phone</p>
                     <a href="tel:+919876543210" className="hover:text-primary transition">
-                      +91 98765 43210
+                      +91 8122747148
                     </a>
                   </div>
                 </motion.div>
@@ -217,7 +217,7 @@ const Footer = () => {
                   <div>
                     <p className="font-medium">Email</p>
                     <a href="mailto:info@shrivelanorganic.com" className="hover:text-primary transition">
-                      info@shrivelanorganic.com
+                      contact@shrivelanfoods.com
                     </a>
                   </div>
                 </motion.div>
@@ -229,7 +229,7 @@ const Footer = () => {
                   <FaMapMarkerAlt className="text-primary mt-1 flex-shrink-0" />
                   <div>
                     <p className="font-medium">Address</p>
-                    <p>123 Organic Street,<br />Health City, TN 600001</p>
+                    <p>Kasukadai street,<br />Mettupalayam,Trichy-621210</p>
                   </div>
                 </motion.div>
               </div>
