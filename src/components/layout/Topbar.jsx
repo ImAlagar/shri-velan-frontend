@@ -3,6 +3,7 @@ import React from "react";
 import {
   FaFacebook,
   FaInstagram,
+  FaYoutube,
 } from "react-icons/fa";
 import { motion } from "framer-motion";
 
@@ -58,8 +59,9 @@ const Topbar = () => {
         {/* Social Media Overlay - Right Side */}
         <div className="absolute right-4 top-1/2 transform -translate-y-1/2 hidden md:flex items-center space-x-3 bg-black/20 px-3 py-1 rounded-full backdrop-blur-sm">
           {[
-            { Icon: FaFacebook, link: "#" },
-            { Icon: FaInstagram, link: "#" },
+            { Icon: FaFacebook, link: "https://www.facebook.com/share/1Cw3cEfV86/" },
+            { Icon: FaInstagram, link: "https://www.instagram.com/shrivelanorganicfoods?igsh=cnJhbHp3b2owbXQ3" },
+            { Icon: FaYoutube, link: "https://www.youtube.com/@shrivelan_healthmix" },
           ].map(({ Icon, link }, index) => (
             <motion.a
               key={index}

@@ -2,9 +2,17 @@ import React from "react";
 import { motion } from "framer-motion";
 import { Helmet } from "react-helmet";
 import { FaFacebook, FaInstagram, FaTwitter, FaYoutube, FaPhone, FaEnvelope, FaMapMarkerAlt } from "react-icons/fa";
+import { useProducts } from "../../../hooks/useProducts";
 
 const Footer = () => {
   const currentYear = new Date().getFullYear();
+  
+  // Fetch products from API with debugging
+  const { data: productsData, isLoading, error } = useProducts({
+    limit: 5,
+    page: 1
+  });
+
 
   const footerVariants = {
     hidden: { opacity: 0, y: 50 },
@@ -29,9 +37,32 @@ const Footer = () => {
     }
   };
 
+  // Get products with better error handling
+  const getProducts = () => {
+    if (isLoading) {
+      return null;
+    }
+
+    if (error) {
+      console.error('Products fetch error:', error);
+      return null;
+    }
+
+    // Try different possible response structures
+    const products = 
+      productsData?.products || 
+      productsData?.data?.products || 
+      productsData?.data ||
+      productsData ||
+      [];
+
+    return Array.isArray(products) ? products.slice(0, 5) : [];
+  };
+
+  const products = getProducts();
+
   return (
     <>
-      {/* --- SEO Structured Data --- */}
       <Helmet>
         <script type="application/ld+json">
           {`
@@ -58,9 +89,7 @@ const Footer = () => {
         </script>
       </Helmet>
 
-      {/* --- Footer Section --- */}
       <footer className="bg-gray-900 text-white">
-        {/* Main Footer Content */}
         <motion.div
           className="container mx-auto px-5 lg:px-12 py-12 lg:py-16"
           initial="hidden"
@@ -80,12 +109,11 @@ const Footer = () => {
                 Wholesome goodness in every bite since 2023.
               </p>
               
-              {/* Social Media Links */}
               <div className="flex space-x-4">
                 {[
                   { icon: <FaFacebook />, url: "https://www.facebook.com/share/1Cw3cEfV86/", color: "hover:text-blue-400" },
                   { icon: <FaInstagram />, url: "https://www.instagram.com/shrivelanorganicfoods?igsh=cnJhbHp3b2owbXQ3", color: "hover:text-pink-400" },
-                  { icon: <FaYoutube />, url: "https://youtube.com/@shrivelan_healthmix", color: "hover:text-pink-400" },
+                  { icon: <FaYoutube />, url: "https://youtube.com/@shrivelan_healthmix", color: "hover:text-red-400" },
                 ].map((social, index) => (
                   <motion.a
                     key={index}
@@ -126,30 +154,39 @@ const Footer = () => {
               </ul>
             </motion.div>
 
-            {/* Products */}
+            {/* Products Section */}
             <motion.div variants={itemVariants}>
               <h4 className="font-SpaceGrotesk text-lg font-semibold tracking-wider mb-6 text-primary">
                 Our Products
               </h4>
               <ul className="space-y-3 font-SpaceGrotesk tracking-wide">
-                {[
-                  "Healthy Noodles",
-                  "Rice Porridge Mix",
-                  "Malt Varieties",
-                  "Muesli Bites",
-                  "Organic Snacks",
-                  "Traditional Mixes"
-                ].map((product, index) => (
-                  <li key={index}>
-                    <motion.a
-                      href="/products"
-                      className="text-gray-300 hover:text-primary transition duration-300"
-                      whileHover={{ x: 5 }}
-                    >
-                      {product}
-                    </motion.a>
-                  </li>
-                ))}
+                {isLoading ? (
+                  // Loading state
+                  Array.from({ length: 5 }).map((_, index) => (
+                    <li key={index}>
+                      <div className="h-4 bg-gray-700 rounded animate-pulse"></div>
+                    </li>
+                  ))
+                ) : error ? (
+                  // Error state
+                  <li className="text-yellow-500">Failed to load products</li>
+                ) : products && products.length > 0 ? (
+                  // Success state - show products from API
+                  products.map((product, index) => (
+                    <li key={product._id || product.id || index}>
+                      <motion.a
+                        href={`/products/${product.slug || product._id}`}
+                        className="text-gray-300 hover:text-primary transition duration-300"
+                        whileHover={{ x: 5 }}
+                      >
+                        {product.name || product.title || `Product ${index + 1}`}
+                      </motion.a>
+                    </li>
+                  ))
+                ) : (
+                  // No products available
+                  <li className="text-gray-400">No products available</li>
+                )}
               </ul>
             </motion.div>
 
@@ -159,7 +196,6 @@ const Footer = () => {
                 Contact Us
               </h4>
               <div className="space-y-4 font-SpaceGrotesk tracking-wide">
-                {/* Phone */}
                 <motion.div 
                   className="flex items-start space-x-3 text-gray-300"
                   whileHover={{ scale: 1.02 }}
@@ -173,7 +209,6 @@ const Footer = () => {
                   </div>
                 </motion.div>
 
-                {/* Email */}
                 <motion.div 
                   className="flex items-start space-x-3 text-gray-300"
                   whileHover={{ scale: 1.02 }}
@@ -187,7 +222,6 @@ const Footer = () => {
                   </div>
                 </motion.div>
 
-                {/* Address */}
                 <motion.div 
                   className="flex items-start space-x-3 text-gray-300"
                   whileHover={{ scale: 1.02 }}
@@ -198,8 +232,6 @@ const Footer = () => {
                     <p>123 Organic Street,<br />Health City, TN 600001</p>
                   </div>
                 </motion.div>
-
-
               </div>
             </motion.div>
           </div>
@@ -214,14 +246,11 @@ const Footer = () => {
           viewport={{ once: true }}
         >
           <div className="container mx-auto px-4 sm:px-6 lg:px-16">
-            {/* Main Footer Content */}
             <div className="flex flex-col md:flex-row justify-between items-center text-center md:text-left gap-6">
-              {/* Copyright */}
               <p className="font-SpaceGrotesk tracking-wide text-gray-400 text-sm sm:text-base">
-                © {new Date().getFullYear()} Shri Velan Organic Foods. All rights reserved.
+                © {currentYear} Shri Velan Organic Foods. All rights reserved.
               </p>
 
-              {/* Legal Links */}
               <div className="flex flex-wrap justify-center md:justify-end gap-4 sm:gap-6 font-SpaceGrotesk tracking-wide text-xs sm:text-sm">
                 {[
                   { name: "Privacy Policy", path: "/privacy" },
@@ -242,7 +271,6 @@ const Footer = () => {
               </div>
             </div>
 
-            {/* Certification Badges */}
             <motion.div
               className="flex flex-wrap justify-center items-center gap-6 mt-8 pt-6 border-t border-gray-700"
               initial={{ opacity: 0, y: 20 }}
@@ -265,7 +293,6 @@ const Footer = () => {
             </motion.div>
           </div>
         </motion.footer>
-
       </footer>
     </>
   );
