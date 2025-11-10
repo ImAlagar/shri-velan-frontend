@@ -13,7 +13,6 @@ const Footer = () => {
     page: 1
   });
 
-
   const footerVariants = {
     hidden: { opacity: 0, y: 50 },
     visible: {
@@ -37,7 +36,7 @@ const Footer = () => {
     }
   };
 
-  // Get products with better error handling
+  // Get products with better error handling and debugging
   const getProducts = () => {
     if (isLoading) {
       return null;
@@ -48,7 +47,7 @@ const Footer = () => {
       return null;
     }
 
-    // Try different possible response structures
+    // Try different possible response structures with debugging
     const products = 
       productsData?.products || 
       productsData?.data?.products || 
@@ -56,10 +55,26 @@ const Footer = () => {
       productsData ||
       [];
 
+    console.log('Footer products data:', productsData); // Debug log
+    console.log('Extracted products:', products); // Debug log
+
     return Array.isArray(products) ? products.slice(0, 5) : [];
   };
 
   const products = getProducts();
+
+  // Safe product link generation
+  const getProductLink = (product) => {
+    // Try multiple possible ID fields
+    const productId = product._id || product.id || product.slug;
+    
+    if (!productId) {
+      console.warn('Product missing ID:', product);
+      return "#";
+    }
+    
+    return `/product-details/${productId}`;
+  };
 
   return (
     <>
@@ -157,7 +172,7 @@ const Footer = () => {
             {/* Products Section */}
             <motion.div variants={itemVariants}>
               <h4 className="font-SpaceGrotesk text-lg font-semibold tracking-wider mb-6 text-primary">
-                Our Products
+                Best Selling Products
               </h4>
               <ul className="space-y-3 font-SpaceGrotesk tracking-wide">
                 {isLoading ? (
@@ -172,17 +187,22 @@ const Footer = () => {
                   <li className="text-yellow-500">Failed to load products</li>
                 ) : products && products.length > 0 ? (
                   // Success state - show products from API
-                  products.map((product, index) => (
-                    <li key={product._id || product.id || index}>
-                      <motion.a
-                        href={`/products/${product.slug || product._id}`}
-                        className="text-gray-300 hover:text-primary transition duration-300"
-                        whileHover={{ x: 5 }}
-                      >
-                        {product.name || product.title || `Product ${index + 1}`}
-                      </motion.a>
-                    </li>
-                  ))
+                  products.map((product, index) => {
+                    const productLink = getProductLink(product);
+                    const productName = product.name || product.title || `Product ${index + 1}`;
+                    
+                    return (
+                      <li key={product._id || product.id || index}>
+                        <motion.a
+                          href={productLink}
+                          className="text-gray-300 hover:text-primary transition duration-300"
+                          whileHover={{ x: 5 }}
+                        >
+                          {productName}
+                        </motion.a>
+                      </li>
+                    );
+                  })
                 ) : (
                   // No products available
                   <li className="text-gray-400">No products available</li>
