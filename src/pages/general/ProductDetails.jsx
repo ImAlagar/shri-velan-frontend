@@ -1,4 +1,4 @@
-// src/pages/general/ProductDetails.js - PROFESSIONAL DESIGN WITH LUCIDE ICONS
+// src/pages/general/ProductDetails.js - UPDATED WITH PREPARING METHODS
 import React, { useContext, useState, useEffect } from 'react';
 import { useParams, useLocation, useNavigate } from 'react-router-dom';
 import Lottie from 'lottie-react';
@@ -22,7 +22,8 @@ import {
   MessageSquare,
   User,
   Calendar,
-  ThumbsUp
+  ThumbsUp,
+  ChefHat // ✅ ADD CHEF HAT ICON FOR PREPARING METHODS
 } from 'lucide-react';
 import { toast } from 'react-toastify';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -309,6 +310,9 @@ const ProductDetails = () => {
   // Calculate average rating from product data if stats are not available
   const averageRating = stats.averageRating || product.rating || 0;
   const totalRatings = stats.totalRatings || ratings.length;
+
+  // ✅ Get preparing methods
+  const preparingMethods = product.preparingMethods || [];
 
   return (
     <section className="min-h-screen bg-gray-50 font-SpaceGrotesk">
@@ -624,13 +628,14 @@ const ProductDetails = () => {
             </div>
           </div>
 
-          {/* Tabs Section - UPDATED WITH REVIEWS TAB */}
+          {/* Tabs Section - UPDATED WITH PREPARING METHODS TAB */}
           <motion.div variants={itemVariants} className="border-t border-gray-200">
             <div className="flex border-b border-gray-200 overflow-x-auto">
               {[
                 { id: 'description', label: 'Description', icon: null },
                 { id: 'benefits', label: 'Benefits', icon: <Check size={16} /> },
                 { id: 'ingredients', label: 'Ingredients', icon: <Package size={16} /> },
+                { id: 'preparing', label: 'Method', icon: <ChefHat size={16} /> }, // ✅ ADD PREPARING METHODS TAB
                 { id: 'reviews', label: 'Reviews', icon: <MessageSquare size={16} />, count: totalRatings }
               ].map((tab) => (
                 <button
@@ -714,7 +719,80 @@ const ProductDetails = () => {
                   </motion.ul>
                 )}
 
-                {/* NEW REVIEWS TAB */}
+                {/* ✅ NEW PREPARING METHODS TAB */}
+                {activeTab === 'preparing' && (
+                  <motion.div
+                    key="preparing"
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -10 }}
+                    className="space-y-6"
+                  >
+                    {preparingMethods.length > 0 ? (
+                      <div className="space-y-4">
+                        <div className="flex items-center gap-3 mb-6">
+                          <div className="p-3 bg-orange-100 rounded-full">
+                            <ChefHat className="text-orange-600" size={24} />
+                          </div>
+                          <div>
+                            <h3 className="text-xl font-semibold text-gray-900">Preparation Methods</h3>
+                            <p className="text-gray-600">Follow these steps for best results</p>
+                          </div>
+                        </div>
+
+                        <div className="grid gap-4">
+                          {preparingMethods.map((method, index) => (
+                            <motion.div
+                              key={index}
+                              initial={{ opacity: 0, x: -20 }}
+                              animate={{ opacity: 1, x: 0 }}
+                              transition={{ delay: index * 0.1 }}
+                              className="flex gap-4 p-4 bg-orange-50 rounded-lg border border-orange-200 hover:shadow-sm transition-shadow duration-300"
+                            >
+                              <div className="flex-shrink-0 w-8 h-8 bg-orange-500 text-white rounded-full flex items-center justify-center font-semibold text-sm">
+                                {index + 1}
+                              </div>
+                              <p className="text-gray-700 leading-relaxed flex-1">
+                                {method}
+                              </p>
+                            </motion.div>
+                          ))}
+                        </div>
+
+                        {/* Tips Section */}
+                        <motion.div
+                          initial={{ opacity: 0, y: 10 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          transition={{ delay: 0.5 }}
+                          className="bg-blue-50 border border-blue-200 rounded-lg p-4 mt-6"
+                        >
+                          <div className="flex items-center gap-2 mb-2">
+                            <Check className="text-blue-500" size={18} />
+                            <h4 className="font-semibold text-blue-900">Tips for Best Results</h4>
+                          </div>
+                          <ul className="text-blue-800 text-sm space-y-1">
+                            <li>• Use fresh, clean water for preparation</li>
+                            <li>• Follow the measurements accurately</li>
+                            <li>• Store in airtight containers after opening</li>
+                            <li>• Consume within recommended time</li>
+                          </ul>
+                        </motion.div>
+                      </div>
+                    ) : (
+                      <motion.div
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        className="text-center py-12 text-gray-500 bg-gray-50 rounded-lg"
+                      >
+                        <ChefHat size={48} className="mx-auto mb-4 text-gray-300" />
+                        <p className="text-lg font-medium text-gray-600 mb-2">No preparation methods available</p>
+                        <p className="text-sm">Preparation instructions will be added soon</p>
+                      </motion.div>
+                    )}
+                  </motion.div>
+                )}
+
+                {/* Reviews Tab */}
                 {activeTab === 'reviews' && (
                   <motion.div
                     key="reviews"
@@ -878,109 +956,109 @@ const ProductDetails = () => {
                       </motion.div>
                     )}
 
-{/* Reviews List */}
-<div className="space-y-6">
-  <h3 className="text-lg font-semibold text-gray-900">
-    Customer Reviews ({ratings.length})
-  </h3>
-  
-  {ratingsLoading ? (
-    <div className="flex justify-center py-8">
-      <div className="w-6 h-6 border-2 border-primary border-t-transparent rounded-full animate-spin" />
-    </div>
-  ) : ratings.length === 0 ? (
-    <motion.div 
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      className="text-center py-12 text-gray-500 bg-gray-50 rounded-lg"
-    >
-      <MessageSquare size={48} className="mx-auto mb-4 text-gray-300" />
-      <p className="text-lg font-medium text-gray-600 mb-2">No reviews yet</p>
-      <p className="text-sm">Be the first to review this product!</p>
-    </motion.div>
-  ) : (
-    <div className="space-y-4">
-      {/* Show first 3 reviews initially, then all when expanded */}
-      {ratings.slice(0, showAllReviews ? ratings.length : 3).map((rating, index) => (
-        <motion.div
-          key={rating.id}
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: index * 0.1 }}
-          className="bg-white border border-gray-200 rounded-lg p-6 hover:shadow-sm transition-shadow duration-300"
-        >
-          <div className="flex items-start justify-between mb-3">
-            <div className="flex-1">
-              <div className="flex items-center gap-2 mb-1">
-                <User size={16} className="text-gray-400" />
-                <span className="font-semibold text-gray-900">
-                  {rating.userName}
-                </span>
-              </div>
-              <div className="flex items-center gap-4 text-sm text-gray-600">
-                <div className="flex items-center gap-1">
-                  {[1, 2, 3, 4, 5].map((star) => (
-                    <Star
-                      key={star}
-                      size={14}
-                      className={`${
-                        star <= rating.rating
-                          ? 'text-yellow-400 fill-current'
-                          : 'text-gray-300'
-                      }`}
-                    />
-                  ))}
-                </div>
-                <div className="flex items-center gap-1">
-                  <Calendar size={14} />
-                  <span>
-                    {new Date(rating.createdAt).toLocaleDateString('en-US', {
-                      year: 'numeric',
-                      month: 'long',
-                      day: 'numeric'
-                    })}
-                  </span>
-                </div>
-              </div>
-            </div>
-          </div>
-          
-          {rating.title && (
-            <h4 className="font-semibold text-gray-900 mb-2 text-lg">
-              {rating.title}
-            </h4>
-          )}
-          
-          <p className="text-gray-700 leading-relaxed">
-            {rating.review}
-          </p>
-        </motion.div>
-      ))}
-      
-      {/* Show More/Less Button - Only show if there are more than 3 reviews */}
-      {ratings.length > 3 && (
-        <div className="flex justify-center pt-4">
-          <button
-            onClick={() => setShowAllReviews(!showAllReviews)}
-            className="flex items-center gap-2 px-6 py-2 text-sm font-medium text-primary border border-primary rounded-lg hover:bg-primary hover:text-white transition-colors duration-200"
-          >
-            {showAllReviews ? (
-              <>
-                <ChevronUp size={16} />
-                Show Less
-              </>
-            ) : (
-              <>
-                <ChevronDown size={16} />
-                Show More ({ratings.length - 3} more reviews)
-              </>
-            )}
-          </button>
-        </div>
-      )}
-    </div>
-  )}
-</div>
+                    {/* Reviews List */}
+                    <div className="space-y-6">
+                      <h3 className="text-lg font-semibold text-gray-900">
+                        Customer Reviews ({ratings.length})
+                      </h3>
+                      
+                      {ratingsLoading ? (
+                        <div className="flex justify-center py-8">
+                          <div className="w-6 h-6 border-2 border-primary border-t-transparent rounded-full animate-spin" />
+                        </div>
+                      ) : ratings.length === 0 ? (
+                        <motion.div 
+                          initial={{ opacity: 0 }}
+                          animate={{ opacity: 1 }}
+                          className="text-center py-12 text-gray-500 bg-gray-50 rounded-lg"
+                        >
+                          <MessageSquare size={48} className="mx-auto mb-4 text-gray-300" />
+                          <p className="text-lg font-medium text-gray-600 mb-2">No reviews yet</p>
+                          <p className="text-sm">Be the first to review this product!</p>
+                        </motion.div>
+                      ) : (
+                        <div className="space-y-4">
+                          {/* Show first 3 reviews initially, then all when expanded */}
+                          {ratings.slice(0, showAllReviews ? ratings.length : 3).map((rating, index) => (
+                            <motion.div
+                              key={rating.id}
+                              initial={{ opacity: 0, y: 10 }}
+                              animate={{ opacity: 1, y: 0 }}
+                              transition={{ delay: index * 0.1 }}
+                              className="bg-white border border-gray-200 rounded-lg p-6 hover:shadow-sm transition-shadow duration-300"
+                            >
+                              <div className="flex items-start justify-between mb-3">
+                                <div className="flex-1">
+                                  <div className="flex items-center gap-2 mb-1">
+                                    <User size={16} className="text-gray-400" />
+                                    <span className="font-semibold text-gray-900">
+                                      {rating.userName}
+                                    </span>
+                                  </div>
+                                  <div className="flex items-center gap-4 text-sm text-gray-600">
+                                    <div className="flex items-center gap-1">
+                                      {[1, 2, 3, 4, 5].map((star) => (
+                                        <Star
+                                          key={star}
+                                          size={14}
+                                          className={`${
+                                            star <= rating.rating
+                                              ? 'text-yellow-400 fill-current'
+                                              : 'text-gray-300'
+                                          }`}
+                                        />
+                                      ))}
+                                    </div>
+                                    <div className="flex items-center gap-1">
+                                      <Calendar size={14} />
+                                      <span>
+                                        {new Date(rating.createdAt).toLocaleDateString('en-US', {
+                                          year: 'numeric',
+                                          month: 'long',
+                                          day: 'numeric'
+                                        })}
+                                      </span>
+                                    </div>
+                                  </div>
+                                </div>
+                              </div>
+                              
+                              {rating.title && (
+                                <h4 className="font-semibold text-gray-900 mb-2 text-lg">
+                                  {rating.title}
+                                </h4>
+                              )}
+                              
+                              <p className="text-gray-700 leading-relaxed">
+                                {rating.review}
+                              </p>
+                            </motion.div>
+                          ))}
+                          
+                          {/* Show More/Less Button - Only show if there are more than 3 reviews */}
+                          {ratings.length > 3 && (
+                            <div className="flex justify-center pt-4">
+                              <button
+                                onClick={() => setShowAllReviews(!showAllReviews)}
+                                className="flex items-center gap-2 px-6 py-2 text-sm font-medium text-primary border border-primary rounded-lg hover:bg-primary hover:text-white transition-colors duration-200"
+                              >
+                                {showAllReviews ? (
+                                  <>
+                                    <ChevronUp size={16} />
+                                    Show Less
+                                  </>
+                                ) : (
+                                  <>
+                                    <ChevronDown size={16} />
+                                    Show More ({ratings.length - 3} more reviews)
+                                  </>
+                                )}
+                              </button>
+                            </div>
+                          )}
+                        </div>
+                      )}
+                    </div>
                   </motion.div>
                 )}
               </AnimatePresence>

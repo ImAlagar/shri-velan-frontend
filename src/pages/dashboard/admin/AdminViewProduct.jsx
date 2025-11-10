@@ -7,9 +7,11 @@ import {
   FiTag,
   FiCheck,
   FiX,
+  
 } from 'react-icons/fi';
 import { useNavigate, useParams, Link } from 'react-router-dom';
 import { useProduct } from '../../../hooks/useProducts';
+import { BsFillChatLeftHeartFill } from 'react-icons/bs';
 
 const AdminViewProduct = () => {
   const navigate = useNavigate();
@@ -172,7 +174,6 @@ const AdminViewProduct = () => {
                     </span>
                   </div>
                 </div>
-                {/* Add isFeatured display */}
                 <div>
                   <label className="block text-gray-500 mb-1">Featured Product</label>
                   <div className="flex items-center space-x-2">
@@ -189,6 +190,31 @@ const AdminViewProduct = () => {
               </div>
             </div>
           </div>
+
+          {/* ✅ PREPARING METHODS SECTION */}
+          {product.preparingMethods?.length > 0 && (
+            <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4 sm:p-6">
+              <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
+                <BsFillChatLeftHeartFill className="w-5 h-5 mr-2 text-orange-500" />
+                Preparation Methods
+              </h3>
+              <div className="space-y-3">
+                {product.preparingMethods.map((method, index) => (
+                  <div
+                    key={index}
+                    className="flex gap-3 p-3 bg-orange-50 rounded-lg border border-orange-200"
+                  >
+                    <div className="flex-shrink-0 w-6 h-6 bg-orange-500 text-white rounded-full flex items-center justify-center text-xs font-semibold">
+                      {index + 1}
+                    </div>
+                    <p className="text-gray-700 text-sm sm:text-base leading-relaxed">
+                      {method}
+                    </p>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
 
         {/* Right Column */}
@@ -324,6 +350,11 @@ const AdminViewProduct = () => {
               <div>
                 <label className="block text-gray-500 mb-1">Total Images</label>
                 <p className="text-gray-900">{product.images?.length || 0}</p>
+              </div>
+              {/* ✅ ADD PREPARING METHODS COUNT */}
+              <div>
+                <label className="block text-gray-500 mb-1">Preparation Methods</label>
+                <p className="text-gray-900">{product.preparingMethods?.length || 0}</p>
               </div>
             </div>
           </div>

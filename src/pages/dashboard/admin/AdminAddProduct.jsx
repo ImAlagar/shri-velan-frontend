@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { FiUpload, FiX, FiArrowLeft } from 'react-icons/fi';
+import { FiUpload, FiX, FiArrowLeft, FiPlus, FiMinus } from 'react-icons/fi';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { useCreateProduct } from '../../../hooks/useProducts';
@@ -15,11 +15,12 @@ const AdminAddProduct = () => {
     categoryId: '',
     weight: '',
     isCombo: false,
-    isFeatured: false, // Add this line
+    isFeatured: false,
     normalPrice: '',
     offerPrice: '',
     benefits: [],
     ingredients: [],
+    preparingMethods: [], // ✅ ADD PREPARING METHODS ARRAY
     tags: [],
     stock: 0,
     status: true
@@ -28,6 +29,7 @@ const AdminAddProduct = () => {
   const [images, setImages] = useState([]);
   const [benefitInput, setBenefitInput] = useState('');
   const [ingredientInput, setIngredientInput] = useState('');
+  const [preparingMethodInput, setPreparingMethodInput] = useState(''); // ✅ ADD PREPARING METHOD INPUT
   const [tagInput, setTagInput] = useState('');
 
   // Fetch categories
@@ -112,6 +114,40 @@ const AdminAddProduct = () => {
     }));
   };
 
+  // ✅ PREPARING METHODS MANAGEMENT
+  const addPreparingMethod = () => {
+    if (preparingMethodInput.trim()) {
+      setFormData(prev => ({
+        ...prev,
+        preparingMethods: [...prev.preparingMethods, preparingMethodInput.trim()]
+      }));
+      setPreparingMethodInput('');
+    }
+  };
+
+  const removePreparingMethod = (index) => {
+    setFormData(prev => ({
+      ...prev,
+      preparingMethods: prev.preparingMethods.filter((_, i) => i !== index)
+    }));
+  };
+
+  const updatePreparingMethod = (index, value) => {
+    const updatedMethods = [...formData.preparingMethods];
+    updatedMethods[index] = value;
+    setFormData(prev => ({
+      ...prev,
+      preparingMethods: updatedMethods
+    }));
+  };
+
+  const addEmptyPreparingMethod = () => {
+    setFormData(prev => ({
+      ...prev,
+      preparingMethods: [...prev.preparingMethods, '']
+    }));
+  };
+
   // Tags management
   const addTag = () => {
     if (tagInput.trim() && !formData.tags.includes(tagInput.trim())) {
@@ -176,6 +212,7 @@ const AdminAddProduct = () => {
       }
       
       submitData.append('isCombo', formData.isCombo.toString());
+      submitData.append('isFeatured', formData.isFeatured.toString()); // ✅ ADD ISFEATURED
       submitData.append('status', formData.status.toString());
       
       if (formData.offerPrice && formData.offerPrice > 0) {
@@ -191,6 +228,11 @@ const AdminAddProduct = () => {
         submitData.append('ingredients', ingredient);
       });
       
+      // ✅ APPEND PREPARING METHODS
+      formData.preparingMethods.forEach(method => {
+        submitData.append('preparingMethods', method);
+      });
+      
       formData.tags.forEach(tag => {
         submitData.append('tags', tag);
       });
@@ -200,11 +242,10 @@ const AdminAddProduct = () => {
         submitData.append('images', image.file);
       });
 
-
-
       // Log FormData entries for verification
       for (let [key, value] of submitData.entries()) {
         if (key === 'images') {
+          console.log(`  ${key}:`, 'File object');
         } else {
           console.log(`  ${key}:`, value);
         }
@@ -323,7 +364,6 @@ const AdminAddProduct = () => {
                   </label>
                 </div>
 
-                {/* Add isFeatured checkbox */}
                 <div className="flex items-center space-x-2">
                   <input
                     type="checkbox"
@@ -432,6 +472,88 @@ const AdminAddProduct = () => {
 
           {/* Right Column */}
           <div className="space-y-6">
+            {/* ✅ PREPARING METHODS SECTION */}
+            <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+              <h3 className="text-lg font-semibold text-gray-900 mb-4">Preparation Methods</h3>
+              
+              <div className="space-y-4">
+                {/* Quick Add Method */}
+                <div className="space-y-3">
+                  <div className="flex space-x-2">
+                    <input
+                      type="text"
+                      value={preparingMethodInput}
+                      onChange={(e) => setPreparingMethodInput(e.target.value)}
+                      onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), addPreparingMethod())}
+                      className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      placeholder="Add a preparation method"
+                    />
+                    <button
+                      type="button"
+                      onClick={addPreparingMethod}
+                      className="px-4 py-2 bg-amber-600 text-white rounded-lg hover:bg-amber-700 transition-colors"
+                    >
+                      Add
+                    </button>
+                  </div>
+                </div>
+
+                {/* Methods List */}
+                {formData.preparingMethods.length > 0 && (
+                  <div className="space-y-3">
+                    <div className="flex items-center justify-between">
+                      <p className="text-sm font-medium text-gray-700">
+                        {formData.preparingMethods.length} method(s) added
+                      </p>
+                      <button
+                        type="button"
+                        onClick={addEmptyPreparingMethod}
+                        className="flex items-center space-x-1 px-3 py-1 text-sm bg-amber-100 text-amber-700 rounded-lg hover:bg-amber-200 transition-colors"
+                      >
+                        <FiPlus className="w-4 h-4" />
+                        <span>Add Empty</span>
+                      </button>
+                    </div>
+                    
+                    <div className="space-y-3 max-h-60 overflow-y-auto">
+                      {formData.preparingMethods.map((method, index) => (
+                        <div key={index} className="flex space-x-2 items-start">
+                          <div className="flex-shrink-0 w-6 h-6 bg-amber-500 text-white rounded-full flex items-center justify-center text-xs mt-1">
+                            {index + 1}
+                          </div>
+                          <textarea
+                            value={method}
+                            onChange={(e) => updatePreparingMethod(index, e.target.value)}
+                            rows={3}
+                            className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-transparent text-sm"
+                            placeholder={`Preparation method ${index + 1}...`}
+                          />
+                          <button
+                            type="button"
+                            onClick={() => removePreparingMethod(index)}
+                            className="flex-shrink-0 p-2 text-red-500 hover:bg-red-50 rounded-lg transition-colors mt-1"
+                          >
+                            <FiX className="w-4 h-4" />
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Empty State */}
+                {formData.preparingMethods.length === 0 && (
+                  <div className="text-center py-8 border-2 border-dashed border-gray-300 rounded-lg">
+                    <FiPlus className="w-8 h-8 text-gray-400 mx-auto mb-2" />
+                    <p className="text-sm text-gray-600">No preparation methods added yet</p>
+                    <p className="text-xs text-gray-500 mt-1">
+                      Add methods to help customers prepare your product
+                    </p>
+                  </div>
+                )}
+              </div>
+            </div>
+
             {/* Pricing & Inventory */}
             <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
               <h3 className="text-lg font-semibold text-gray-900 mb-4">Pricing & Inventory</h3>
