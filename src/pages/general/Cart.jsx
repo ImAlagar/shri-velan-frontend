@@ -1,12 +1,13 @@
 // src/pages/Cart.jsx
-import React, { useContext, useState } from 'react';
+import React, { useContext, useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { FaPlus, FaMinus, FaTrash, FaShoppingBag, FaArrowLeft, FaCreditCard, FaTag, FaChevronDown, FaChevronUp } from 'react-icons/fa';
+import { FaPlus, FaMinus, FaTrash, FaShoppingBag, FaArrowLeft, FaCreditCard, FaTag, FaChevronDown, FaChevronUp, FaTruck } from 'react-icons/fa';
 import { Link, useNavigate } from 'react-router-dom';
 import { toast } from 'react-hot-toast';
 import { CartContext } from '../../contexts/CartContext';
 import { AuthContext } from '../../contexts/AuthContext';
 import { useValidateCoupon, useAvailableCoupons } from '../../hooks/useCoupons';
+import { useCalculateOrderShipping } from '../../hooks/useShipping';
 
 const Cart = () => {
   const { 
@@ -25,8 +26,12 @@ const Cart = () => {
   const [appliedCoupon, setAppliedCoupon] = useState(null);
   const [couponLoading, setCouponLoading] = useState(false);
   const [showAvailableCoupons, setShowAvailableCoupons] = useState(false);
+  const [shippingRate, setShippingRate] = useState(0);
+  const [shippingLoading, setShippingLoading] = useState(false);
+  const [totalWeight, setTotalWeight] = useState(0);
   
   const validateCouponMutation = useValidateCoupon();
+  const calculateOrderShippingMutation = useCalculateOrderShipping();
   
   const subtotal = getCartTotal();
 
@@ -46,8 +51,52 @@ const Cart = () => {
     return getCartTotal();
   };
 
-  const shippingFee = 49;
-  
+  // Calculate shipping when cart items change
+  useEffect(() => {
+    calculateShipping();
+  }, [cartItems]);
+
+  // Calculate shipping function
+  const calculateShipping = async () => {
+    if (cartItems.length === 0) {
+      setShippingRate(0);
+      setTotalWeight(0);
+      return;
+    }
+
+    setShippingLoading(true);
+    try {
+      // Prepare order items for shipping calculation
+      const orderItems = cartItems.map(item => ({
+        productId: item.id,
+        quantity: item.quantity
+      }));
+
+      // For cart, we'll use a default state or let user select state
+      const defaultState = user?.state || 'TAMIL NADU';
+      
+      const result = await calculateOrderShippingMutation.mutateAsync({
+        state: defaultState,
+        orderItems: orderItems
+      });
+      
+      if (result.success && result.data) {
+        setShippingRate(result.data.shippingCost || 0);
+        setTotalWeight(result.data.totalWeight || 0);
+      } else {
+        setShippingRate(0);
+        setTotalWeight(0);
+        toast.error('Failed to calculate shipping');
+      }
+    } catch (error) {
+      setShippingRate(0);
+      setTotalWeight(0);
+      console.error('Shipping calculation error:', error);
+    } finally {
+      setShippingLoading(false);
+    }
+  };
+
   // FIXED: Safe discount calculation
   const calculateDiscount = () => {
     if (!appliedCoupon) return 0;
@@ -85,7 +134,7 @@ const Cart = () => {
   };
 
   const discount = calculateDiscount();
-  const total = Number((calculateSubtotal() + shippingFee - discount).toFixed(2));
+  const total = Number((calculateSubtotal() + shippingRate - discount).toFixed(2));
 
   // Separate in-stock and out-of-stock items
   const inStockItems = cartItems.filter(item => item.inStock !== false && item.stock > 0);
@@ -175,18 +224,18 @@ const Cart = () => {
   };
 
   // Calculate discount amount for available coupons
-const calculateCouponDiscount = (coupon) => {
-  const discountType = coupon.discountType || coupon.type;
-  const discountValue = coupon.discountValue || coupon.value;
-  const maxDiscount = coupon.maxDiscount;
+  const calculateCouponDiscount = (coupon) => {
+    const discountType = coupon.discountType || coupon.type;
+    const discountValue = coupon.discountValue || coupon.value;
+    const maxDiscount = coupon.maxDiscount;
 
-  if (discountType === 'PERCENTAGE') {
-    const discountAmount = (subtotal * discountValue) / 100;
-    return maxDiscount ? Math.min(discountAmount, maxDiscount) : discountAmount;
-  } else {
-    return discountValue;
-  }
-};
+    if (discountType === 'PERCENTAGE') {
+      const discountAmount = (subtotal * discountValue) / 100;
+      return maxDiscount ? Math.min(discountAmount, maxDiscount) : discountAmount;
+    } else {
+      return discountValue;
+    }
+  };
 
   if (cartItems.length === 0) {
     return (
@@ -386,29 +435,43 @@ const calculateCouponDiscount = (coupon) => {
                   )}
                 </div>
 
-                  {appliedCoupon && (
-                    <motion.div
-                      initial={{ opacity: 0, y: -10 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      className="mt-3 p-3 bg-green-50 border border-green-200 rounded-lg"
-                    >
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-2">
-                          <FaTag className="w-4 h-4 text-green-600" />
-                          <span className="font-semibold text-green-800">{appliedCoupon.code}</span>
-                          <span className="text-sm text-green-600">
-                            {(appliedCoupon.discountType === 'PERCENTAGE' || appliedCoupon.type === 'percentage') 
-                              ? `${appliedCoupon.discountValue || appliedCoupon.value}% OFF` 
-                              : `₹${appliedCoupon.discountValue || appliedCoupon.value} OFF`
-                            }
-                          </span>
-                        </div>
-                        <span className="font-bold text-green-700">-₹{discount.toFixed(2)}</span>
+                {appliedCoupon && (
+                  <motion.div
+                    initial={{ opacity: 0, y: -10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="mt-3 p-3 bg-green-50 border border-green-200 rounded-lg"
+                  >
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <FaTag className="w-4 h-4 text-green-600" />
+                        <span className="font-semibold text-green-800">{appliedCoupon.code}</span>
+                        <span className="text-sm text-green-600">
+                          {(appliedCoupon.discountType === 'PERCENTAGE' || appliedCoupon.type === 'percentage') 
+                            ? `${appliedCoupon.discountValue || appliedCoupon.value}% OFF` 
+                            : `₹${appliedCoupon.discountValue || appliedCoupon.value} OFF`
+                          }
+                        </span>
                       </div>
-                    </motion.div>
-                  )}
-                  
+                      <span className="font-bold text-green-700">-₹{discount.toFixed(2)}</span>
+                    </div>
+                  </motion.div>
+                )}
               </div>
+
+              {/* Shipping Info */}
+              {!shippingLoading && shippingRate > 0 && (
+                <div className="bg-blue-50 border border-blue-200 rounded-xl p-4">
+                  <div className="flex items-center gap-3">
+                    <FaTruck className="w-5 h-5 text-blue-600" />
+                    <div>
+                      <h3 className="font-semibold text-blue-800">Shipping Calculated</h3>
+                      <p className="text-sm text-blue-600">
+                        Total weight: {totalWeight}kg • Shipping: ₹{shippingRate}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              )}
 
               {/* In Stock Items */}
               {inStockItems.length > 0 && (
@@ -493,30 +556,55 @@ const calculateCouponDiscount = (coupon) => {
                   
                   <div className="flex justify-between text-gray-600">
                     <span>Shipping</span>
-                    <span className="text-sm text-gray-500">
-                      Calculated at checkout
+                    <span>
+                      {shippingLoading ? (
+                        <span className="text-sm text-gray-500">Calculating...</span>
+                      ) : (
+                        `₹${shippingRate.toFixed(2)}`
+                      )}
                     </span>
                   </div>
 
                   <div className="border-t pt-4">
                     <div className="flex justify-between text-lg font-bold text-gray-900">
                       <span>Total</span>
-                      <span>₹{total.toFixed(2)}</span>
+                      <span>
+                        {shippingLoading ? (
+                          <span className="text-sm text-gray-500">Calculating...</span>
+                        ) : (
+                          `₹${total.toFixed(2)}`
+                        )}
+                      </span>
                     </div>
                   </div>
                 </div>
 
+                {/* Shipping Info Note */}
+                {!shippingLoading && shippingRate > 0 && (
+                  <div className="mt-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+                    <div className="flex items-center gap-2 text-blue-800">
+                      <FaTruck className="w-4 h-4" />
+                      <span className="text-sm font-medium">Shipping Calculated</span>
+                    </div>
+                    <p className="text-xs text-blue-600 mt-1">
+                      Based on product weight and your location
+                    </p>
+                  </div>
+                )}
+
                 <button
                   onClick={handleProceedToCheckout}
-                  disabled={inStockItems.length === 0}
+                  disabled={inStockItems.length === 0 || shippingLoading}
                   className={`w-full ${
-                    inStockItems.length === 0 
+                    inStockItems.length === 0 || shippingLoading
                       ? 'bg-gray-400 cursor-not-allowed' 
                       : 'bg-green-600 hover:bg-green-700'
                   } text-white py-4 rounded-lg font-semibold transition-colors duration-200 flex items-center justify-center space-x-2`}
                 >
                   <FaCreditCard className="w-5 h-5" />
-                  <span>Proceed to Checkout</span>
+                  <span>
+                    {shippingLoading ? 'Calculating...' : 'Proceed to Checkout'}
+                  </span>
                 </button>
 
                 {!user && (

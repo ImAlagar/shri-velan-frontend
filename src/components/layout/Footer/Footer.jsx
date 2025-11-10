@@ -55,8 +55,6 @@ const Footer = () => {
       productsData ||
       [];
 
-    console.log('Footer products data:', productsData); // Debug log
-    console.log('Extracted products:', products); // Debug log
 
     return Array.isArray(products) ? products.slice(0, 5) : [];
   };

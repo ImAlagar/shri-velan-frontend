@@ -1,14 +1,14 @@
 // src/pages/Checkout.jsx
 import React, { useContext, useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { FaLock, FaMapMarkerAlt, FaCreditCard, FaMoneyBill, FaWallet, FaArrowLeft, FaTruck, FaTag } from 'react-icons/fa';
+import { FaLock, FaMapMarkerAlt, FaCreditCard, FaMoneyBill, FaWallet, FaArrowLeft, FaTruck, FaTag, FaWeightHanging } from 'react-icons/fa';
 import { Link, useNavigate } from 'react-router-dom';
 import { toast } from 'react-hot-toast';
 import { CartContext } from '../../contexts/CartContext';
 import { AuthContext } from '../../contexts/AuthContext';
 import { useCreateRazorpayOrder, useVerifyPayment } from '../../hooks/useOrders';
 import { useValidateCoupon, useAvailableCoupons } from '../../hooks/useCoupons';
-import { useCalculateShipping } from '../../hooks/useShipping';
+import { useCalculateOrderShipping } from '../../hooks/useShipping';
 import { FolderLock } from 'lucide-react';
 
 const Checkout = () => {
@@ -22,11 +22,12 @@ const Checkout = () => {
   const [couponLoading, setCouponLoading] = useState(false);
   const [shippingRate, setShippingRate] = useState(0);
   const [shippingLoading, setShippingLoading] = useState(false);
+  const [totalWeight, setTotalWeight] = useState(0);
   
   const createRazorpayOrderMutation = useCreateRazorpayOrder();
   const verifyPaymentMutation = useVerifyPayment();
   const validateCouponMutation = useValidateCoupon();
-  const calculateShippingMutation = useCalculateShipping();
+  const calculateOrderShippingMutation = useCalculateOrderShipping();
 
   // Pre-fill form with user data if available
   const [formData, setFormData] = useState({
@@ -72,35 +73,47 @@ const Checkout = () => {
     ? availableCouponsData 
     : availableCouponsData?.data || availableCouponsData?.coupons || [];
 
-  // Calculate shipping when state changes
+  // Calculate shipping when state or items change
   useEffect(() => {
-    if (formData.state && formData.state.trim().length > 0) {
+    if (formData.state && formData.state.trim().length > 0 && inStockItems.length > 0) {
       calculateShippingForState();
     } else {
       setShippingRate(0);
+      setTotalWeight(0);
     }
-  }, [formData.state]);
+  }, [formData.state, inStockItems.length]);
 
   const calculateShippingForState = async () => {
-    if (!formData.state.trim()) {
+    if (!formData.state.trim() || inStockItems.length === 0) {
       setShippingRate(0);
+      setTotalWeight(0);
       return;
     }
 
     setShippingLoading(true);
     try {
-      const result = await calculateShippingMutation.mutateAsync({
-        state: formData.state.toUpperCase()
+      // Prepare order items for shipping calculation
+      const orderItems = inStockItems.map(item => ({
+        productId: item.id,
+        quantity: item.quantity
+      }));
+
+      const result = await calculateOrderShippingMutation.mutateAsync({
+        state: formData.state.toUpperCase(),
+        orderItems: orderItems
       });
       
       if (result.success && result.data) {
-        setShippingRate(result.data.rate || 0);
+        setShippingRate(result.data.shippingCost || 0);
+        setTotalWeight(result.data.totalWeight || 0);
       } else {
         setShippingRate(0);
+        setTotalWeight(0);
         toast.error('Failed to calculate shipping');
       }
     } catch (error) {
       setShippingRate(0);
+      setTotalWeight(0);
       toast.error('Failed to calculate shipping rate');
     } finally {
       setShippingLoading(false);
@@ -118,7 +131,6 @@ const Checkout = () => {
     const discountType = couponData.discountType || couponData.type;
     const discountValue = couponData.discountValue || couponData.value;
     const maxDiscount = couponData.maxDiscount;
-
 
     // Validate required fields
     if (!discountType || discountValue === undefined || discountValue === null) {
@@ -560,11 +572,20 @@ const Checkout = () => {
                   </div>
 
                   {/* Shipping Rate Display */}
-                  {formData.state && (
+                  {formData.state && inStockItems.length > 0 && (
                     <div className="mt-4 p-4 bg-blue-50 border border-blue-200 rounded-lg">
                       <div className="flex items-center justify-between">
                         <div>
-                          <p className="font-medium text-blue-800">Shipping to {formData.state}</p>
+                          <div className="flex items-center gap-2 mb-1">
+                            <FaTruck className="w-4 h-4 text-blue-600" />
+                            <span className="font-medium text-blue-800">Shipping to {formData.state}</span>
+                          </div>
+                          {totalWeight > 0 && (
+                            <div className="flex items-center gap-2 text-sm text-blue-600 mb-1">
+                              <FaWeightHanging className="w-3 h-3" />
+                              <span>Total Weight: {totalWeight}kg</span>
+                            </div>
+                          )}
                           {shippingLoading ? (
                             <p className="text-sm text-blue-600">Calculating shipping...</p>
                           ) : (
@@ -573,7 +594,6 @@ const Checkout = () => {
                             </p>
                           )}
                         </div>
-                        <FaTruck className="w-5 h-5 text-blue-600" />
                       </div>
                     </div>
                   )}
@@ -760,6 +780,19 @@ const Checkout = () => {
                     </div>
                   </div>
                 </div>
+
+                {/* Shipping Info */}
+                {!shippingLoading && shippingRate > 0 && (
+                  <div className="mt-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+                    <div className="flex items-center gap-2 text-blue-800">
+                      <FaTruck className="w-4 h-4" />
+                      <span className="text-sm font-medium">Shipping Calculated</span>
+                    </div>
+                    <p className="text-xs text-blue-600 mt-1">
+                      Based on {totalWeight}kg weight and {formData.state}
+                    </p>
+                  </div>
+                )}
 
                 {/* Place Order Button */}
                 <button

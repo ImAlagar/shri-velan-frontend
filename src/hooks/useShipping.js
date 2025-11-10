@@ -10,12 +10,24 @@ export const shippingKeys = {
   details: () => [...shippingKeys.all, 'detail'],
   detail: (id) => [...shippingKeys.details(), id],
   calculate: () => [...shippingKeys.all, 'calculate'],
+  calculateOrder: () => [...shippingKeys.all, 'calculate-order'],
+
 };
 
 // Calculate shipping (Public)
 export const useCalculateShipping = () => {
   return useMutation({
     mutationFn: (shippingData) => shippingService.calculateShipping(shippingData),
+    onError: (error) => {
+      // Error handling is done in the component
+    },
+  });
+};
+
+// Calculate order shipping (Public) - NEW
+export const useCalculateOrderShipping = () => {
+  return useMutation({
+    mutationFn: (orderData) => shippingService.calculateOrderShipping(orderData),
     onError: (error) => {
       // Error handling is done in the component
     },

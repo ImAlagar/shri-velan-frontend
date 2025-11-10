@@ -2,12 +2,24 @@ import { apiService } from '../config/api';
 
 export const shippingService = {
   // Calculate shipping (Public)
+  // Calculate shipping (Public)
   async calculateShipping(shippingData) {
     try {
       const response = await apiService.post('/shipping/calculate', shippingData);
       return response.data;
     } catch (error) {
       console.error('Calculate shipping error:', error);
+      throw error;
+    }
+  },
+
+  // Calculate order shipping (Public) - NEW
+  async calculateOrderShipping(orderData) {
+    try {
+      const response = await apiService.post('/shipping/calculate-order', orderData);
+      return response.data;
+    } catch (error) {
+      console.error('Calculate order shipping error:', error);
       throw error;
     }
   },
