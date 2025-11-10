@@ -41,6 +41,7 @@ import AdminRatings from "../pages/dashboard/admin/AdminRatings";
 import CancellationAndRefundPolicy from "../pages/general/CancellationAndRefundPolicy";
 import ShippingAndDeliveryPolicy from "../pages/general/ShippingAndDeliveryPolicy";
 import ContactUsPolicy from "../pages/general/ContactUsPolicy";
+import SearchResults from "../pages/general/SearchResults";
 
 
 const router = createBrowserRouter([
@@ -64,6 +65,10 @@ const router = createBrowserRouter([
             {
                 path: 'product-details/:id',
                 element: <ProductDetails />,
+            },
+            {
+            path: 'search',
+            element: <SearchResults />,
             },
             {
                 path: 'combo-products',

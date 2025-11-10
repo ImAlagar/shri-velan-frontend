@@ -262,8 +262,6 @@ const ProductCard = ({ product }) => {
         )}
       </div>
 
-
-
       {/* Stock Status */}
       <p className={`${isOutOfStock ? "text-red-400" : "text-green-400"} font-medium mb-4`}>
         {isOutOfStock ? "Out of Stock" : `In Stock (${product.stock} left)`}

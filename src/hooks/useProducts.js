@@ -245,3 +245,12 @@ export const useToggleProductStatus = () => {
     },
   });
 };
+
+export const useGlobalSearch = (searchParams = {}) => {
+  return useQuery({
+    queryKey: ['globalSearch', searchParams],
+    queryFn: () => productService.globalSearch(searchParams),
+    enabled: !!searchParams.q && searchParams.q.trim() !== '',
+    staleTime: 2 * 60 * 1000, // 2 minutes
+  });
+};

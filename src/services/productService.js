@@ -197,5 +197,16 @@ export const productService = {
       console.error('Update product image order error:', error);
       throw error;
     }
+  },
+
+  async globalSearch(params = {}) {
+  try {
+    const response = await apiService.get('/products/search/global', { params });
+      return response.data;
+    } catch (error) {
+      console.error('Global search error:', error);
+      throw error;
+    }
   }
+  
 };

@@ -13,6 +13,8 @@ import {
   FiHome,
   FiInfo,
   FiMail,
+  FiSearch,
+  FiXCircle,
 } from "react-icons/fi";
 import { useAuth } from "../../../hooks/useAuth";
 import Topbar from "../Topbar";
@@ -24,12 +26,34 @@ const MainHeader = () => {
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+  const [searchOpen, setSearchOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
 
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 10);
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
+
+  // Close search when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (searchOpen && !event.target.closest('.search-container')) {
+        setSearchOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, [searchOpen]);
+
+  const handleSearch = (e) => {
+    e.preventDefault();
+    if (searchQuery.trim()) {
+      navigate(`/search?q=${encodeURIComponent(searchQuery.trim())}`);
+      setSearchOpen(false);
+      setSearchQuery("");
+    }
+  };
 
   const handleLogout = () => {
     logout();
@@ -93,6 +117,11 @@ const MainHeader = () => {
     open: { opacity: 1, height: "auto", transition: { duration: 0.4 } },
   };
 
+  const searchVariants = {
+    hidden: { opacity: 0, scale: 0.8, y: -10 },
+    visible: { opacity: 1, scale: 1, y: 0, transition: { duration: 0.3 } },
+  };
+
   return (
     <motion.nav
       initial={{ y: -100 }}
@@ -144,8 +173,22 @@ const MainHeader = () => {
           ))}
         </motion.ul>
 
-        {/* Desktop Account / Login (visible only lg and above) */}
-        <div className="hidden lg:block relative z-50">
+        {/* Desktop Right Section - Search + Account (visible only lg and above) */}
+        <div className="hidden lg:flex items-center gap-4 relative z-50">
+          {/* Search Button - Large Screens */}
+          <motion.button
+            onClick={() => setSearchOpen(true)}
+            className="flex items-center gap-2 px-4 py-2 rounded-xl border border-gray-300 hover:border-primary hover:bg-gray-50 transition-all duration-300 text-gray-600 hover:text-primary"
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+          >
+            <FiSearch className="size-4" />
+            <span className="text-sm">Search...</span>
+            <kbd className="hidden xl:inline-flex items-center gap-1 px-1.5 py-0.5 text-xs font-mono bg-gray-100 border border-gray-300 rounded">
+              ⌘K
+            </kbd>
+          </motion.button>
+
           {!isAuthenticated ? (
             <motion.button
               onClick={handleLoginClick}
@@ -201,8 +244,19 @@ const MainHeader = () => {
           )}
         </div>
 
-        {/* Hamburger (visible md and below) */}
-        <div className="lg:hidden flex items-center z-50">
+        {/* Mobile Right Section - Search + Hamburger (visible md and below) */}
+        <div className="lg:hidden flex items-center gap-3 z-50">
+          {/* Search Button - Mobile */}
+          <motion.button
+            onClick={() => setSearchOpen(true)}
+            className="text-gray-600 hover:text-primary transition-colors p-2 rounded-lg hover:bg-gray-50"
+            whileHover={{ scale: 1.1 }}
+            whileTap={{ scale: 0.9 }}
+          >
+            <FiSearch className="size-5" />
+          </motion.button>
+
+          {/* Hamburger */}
           <motion.button
             onClick={() => setMenuOpen(!menuOpen)}
             className="text-gray-900 text-2xl w-10 h-10 flex items-center justify-center rounded-lg bg-gray-50 hover:bg-gray-100 transition-colors"
@@ -213,6 +267,90 @@ const MainHeader = () => {
           </motion.button>
         </div>
       </div>
+
+      {/* Global Search Overlay */}
+      <AnimatePresence>
+        {searchOpen && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-start justify-center pt-20 px-4"
+          >
+            <motion.div
+              variants={searchVariants}
+              initial="hidden"
+              animate="visible"
+              exit="hidden"
+              className="search-container bg-white rounded-2xl shadow-2xl w-full max-w-2xl overflow-hidden"
+            >
+              <form onSubmit={handleSearch} className="relative">
+                <div className="flex items-center px-6 py-4 border-b border-gray-100">
+                  <FiSearch className="text-gray-400 size-5 mr-3" />
+                  <input
+                    type="text"
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    placeholder="Search for products, categories..."
+                    className="flex-1 text-lg bg-transparent border-none outline-none placeholder-gray-400"
+                    autoFocus
+                  />
+                  {searchQuery && (
+                    <button
+                      type="button"
+                      onClick={() => setSearchQuery("")}
+                      className="text-gray-400 hover:text-gray-600 transition-colors p-1"
+                    >
+                      <FiXCircle className="size-5" />
+                    </button>
+                  )}
+                </div>
+                
+                <div className="p-4 bg-gray-50 flex justify-between items-center">
+                  <div className="text-sm text-gray-500">
+                    Press Enter to search
+                  </div>
+                  <div className="flex gap-2">
+                    <button
+                      type="button"
+                      onClick={() => setSearchOpen(false)}
+                      className="px-4 py-2 text-gray-600 hover:text-gray-800 transition-colors"
+                    >
+                      Cancel
+                    </button>
+                    <button
+                      type="submit"
+                      disabled={!searchQuery.trim()}
+                      className="bg-primary text-white px-6 py-2 rounded-lg hover:bg-primary/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                      Search
+                    </button>
+                  </div>
+                </div>
+              </form>
+
+              {/* Quick Suggestions (optional) */}
+              <div className="p-4 border-t border-gray-100">
+                <h3 className="text-sm font-medium text-gray-500 mb-2">Popular Searches</h3>
+                <div className="flex flex-wrap gap-2">
+                  {["Organic Rice", "Spices", "Oil", "Flour", "Snacks"].map((term) => (
+                    <button
+                      key={term}
+                      onClick={() => {
+                        setSearchQuery(term);
+                        // Optionally auto-search or just fill the input
+                      }}
+                      className="px-3 py-1.5 bg-gray-100 hover:bg-gray-200 rounded-full text-sm text-gray-700 transition-colors"
+                    >
+                      {term}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* Mobile Menu (visible md and below) */}
       <AnimatePresence>
@@ -246,6 +384,18 @@ const MainHeader = () => {
                   </motion.a>
                 </motion.li>
               ))}
+
+              {/* Mobile Search Button */}
+              <motion.button
+                onClick={() => {
+                  setMenuOpen(false);
+                  setSearchOpen(true);
+                }}
+                className="flex items-center gap-3 w-full px-4 py-3 rounded-lg text-sm hover:bg-gray-50 hover:text-primary transition-all duration-300 border border-gray-200 mt-2"
+              >
+                <FiSearch className="size-4" />
+                Search Products
+              </motion.button>
 
               {/* Auth buttons */}
               <div className="border-t border-gray-200 mt-3 pt-3">
