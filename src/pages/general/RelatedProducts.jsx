@@ -30,10 +30,12 @@ const RelatedProducts = ({ currentProductId, categoryId }) => {
             <div className="p-4">
               <h3 className="font-semibold text-lg mb-2">{product.name}</h3>
               <div className="flex items-center gap-2 mb-2">
-                <span className="text-primary font-bold">₹{product.offerPrice}</span>
-                {product.normalPrice > product.offerPrice && (
+                <span className="text-primary font-bold">
+                  ₹{Math.min(product.offerPrice || Infinity, product.normalPrice || Infinity)}
+                </span>
+                {product.offerPrice && product.normalPrice && product.offerPrice !== product.normalPrice && (
                   <span className="text-gray-400 line-through text-sm">
-                    ₹{product.normalPrice}
+                    ₹{Math.max(product.offerPrice, product.normalPrice)}
                   </span>
                 )}
               </div>

@@ -114,6 +114,51 @@ const ProductCard = ({ product }) => {
   const ratingCount = getRatingCount();
   const hasRatings = averageRating > 0;
 
+  // Price calculation logic
+  const calculatePriceDisplay = () => {
+
+    const hasOfferPrice = product.offerPrice && product.offerPrice > 0;
+    const hasNormalPrice = product.normalPrice && product.normalPrice > 0;
+    
+    let currentPrice, originalPrice, hasDiscount;
+    
+    if (hasOfferPrice && hasNormalPrice) {
+      // Check which price is actually the discounted price
+      if (product.offerPrice < product.normalPrice) {
+        // Normal case: offerPrice is discounted price
+        currentPrice = product.offerPrice;
+        originalPrice = product.normalPrice;
+        hasDiscount = true;
+      } else {
+        // Reverse case: normalPrice is actually the discounted price
+        currentPrice = product.normalPrice;
+        originalPrice = product.offerPrice;
+        hasDiscount = true;
+      }
+    } else if (hasOfferPrice) {
+      // Only offer price exists
+      currentPrice = product.offerPrice;
+      originalPrice = null;
+      hasDiscount = false;
+    } else if (hasNormalPrice) {
+      // Only normal price exists
+      currentPrice = product.normalPrice;
+      originalPrice = null;
+      hasDiscount = false;
+    } else {
+      // Fallback to price field
+      currentPrice = product.price;
+      originalPrice = null;
+      hasDiscount = false;
+    }
+
+    console.log('Final display:', { currentPrice, originalPrice, hasDiscount });
+    
+    return { currentPrice, originalPrice, hasDiscount };
+  };
+
+  const { currentPrice, originalPrice, hasDiscount } = calculatePriceDisplay();
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -170,7 +215,7 @@ const ProductCard = ({ product }) => {
       <h2 className="text-xl font-semibold mb-1 line-clamp-2">{product.name}</h2>
       
       {product.weight && (
-        <span className="text-sm text-gray-600 mb-2">{product.weight}</span>
+        <span className="text-sm text-gray-600 mb-2">{product.weight}g</span>
       )}
 
       {/* Rating Section */}
@@ -200,17 +245,24 @@ const ProductCard = ({ product }) => {
         </div>
       )}
 
-      {/* Price */}
+      {/* Price Display */}
       <div className="mb-3">
         <span className="text-primary font-bold mr-2 text-xl">
-          ₹{product.offerPrice || product.price}
+          ₹{currentPrice}
         </span>
-        {product.normalPrice && product.normalPrice > product.offerPrice && (
-          <span className="text-gray-400 line-through text-lg">
-            ₹{product.normalPrice}
-          </span>
+        {hasDiscount && originalPrice && (
+          <>
+            <span className="text-gray-400 line-through text-lg">
+              ₹{originalPrice}
+            </span>
+            <span className="ml-2 bg-red-500 text-white px-2 py-1 rounded text-sm font-semibold">
+              {Math.round(((originalPrice - currentPrice) / originalPrice) * 100)}% OFF
+            </span>
+          </>
         )}
       </div>
+
+
 
       {/* Stock Status */}
       <p className={`${isOutOfStock ? "text-red-400" : "text-green-400"} font-medium mb-4`}>

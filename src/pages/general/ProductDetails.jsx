@@ -497,19 +497,7 @@ const ProductDetails = () => {
 
                   {/* Action Buttons */}
                   <div className="flex gap-2 ml-4">
-                    <motion.button
-                      onClick={handleWishlist}
-                      className={`p-3 rounded-lg border transition-all duration-300 ${
-                        isWishlisted
-                          ? 'bg-red-50 border-red-200 text-red-500'
-                          : 'bg-gray-50 border-gray-200 text-gray-600 hover:bg-red-50 hover:border-red-200 hover:text-red-500'
-                      }`}
-                      variants={buttonVariants}
-                      whileHover="hover"
-                      whileTap="tap"
-                    >
-                      <Heart size={20} className={isWishlisted ? 'fill-current' : ''} />
-                    </motion.button>
+
                     
                     <motion.button
                       onClick={handleShare}
@@ -524,19 +512,66 @@ const ProductDetails = () => {
                 </div>
               </motion.div>
 
-              {/* Price Section */}
-              <motion.div variants={itemVariants} className="space-y-2 pt-4 border-t">
-                <div className="flex items-center gap-3">
-                  <span className="text-3xl font-bold text-gray-900">
-                    ₹{product.offerPrice || product.normalPrice || 0}
-                  </span>
-                  {product.normalPrice > (product.offerPrice || 0) && (
-                    <span className="text-xl text-gray-400 line-through">
-                      ₹{product.normalPrice}
-                    </span>
-                  )}
-                </div>
-              </motion.div>
+            {/* Price Section */}
+            <motion.div variants={itemVariants} className="space-y-2 pt-4 border-t">
+              <div className="flex items-center gap-3 flex-wrap">
+                {(() => {
+                  // Determine which price is actually the current price and which is original
+                  const hasOfferPrice = product.offerPrice && product.offerPrice > 0;
+                  const hasNormalPrice = product.normalPrice && product.normalPrice > 0;
+                  
+                  let currentPrice, originalPrice, hasDiscount;
+                  
+                  if (hasOfferPrice && hasNormalPrice) {
+                    // Check which price is actually the discounted price
+                    if (product.offerPrice < product.normalPrice) {
+                      // Normal case: offerPrice is discounted price
+                      currentPrice = product.offerPrice;
+                      originalPrice = product.normalPrice;
+                      hasDiscount = true;
+                    } else {
+                      // Reverse case: normalPrice is actually the discounted price
+                      currentPrice = product.normalPrice;
+                      originalPrice = product.offerPrice;
+                      hasDiscount = true;
+                    }
+                  } else if (hasOfferPrice) {
+                    // Only offer price exists
+                    currentPrice = product.offerPrice;
+                    originalPrice = null;
+                    hasDiscount = false;
+                  } else if (hasNormalPrice) {
+                    // Only normal price exists
+                    currentPrice = product.normalPrice;
+                    originalPrice = null;
+                    hasDiscount = false;
+                  } else {
+                    // Fallback to price field
+                    currentPrice = product.price || 0;
+                    originalPrice = null;
+                    hasDiscount = false;
+                  }
+                  
+                  return (
+                    <>
+                      <span className="text-3xl font-bold text-gray-900">
+                        ₹{currentPrice}
+                      </span>
+                      {hasDiscount && originalPrice && (
+                        <>
+                          <span className="text-xl text-gray-400 line-through">
+                            ₹{originalPrice}
+                          </span>
+                          <span className="bg-red-500 text-white px-2 py-1 rounded text-sm font-semibold">
+                            {Math.round(((originalPrice - currentPrice) / originalPrice) * 100)}% OFF
+                          </span>
+                        </>
+                      )}
+                    </>
+                  );
+                })()}
+              </div>
+            </motion.div>
 
               {/* Quantity Selector */}
               {(product.stock || 0) > 0 && (
