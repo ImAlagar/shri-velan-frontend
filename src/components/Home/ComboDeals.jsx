@@ -170,14 +170,6 @@ const ComboDeals = () => {
               <svg className="w-6 h-6 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
               </svg>
-              <span className="font-semibold">Free Shipping</span>
-            </div>
-            
-            <div className="w-px h-6 bg-gray-300"></div>
-            <div className="flex items-center gap-2">
-              <svg className="w-6 h-6 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-              </svg>
               <span className="font-semibold">100% Organic</span>
             </div>
           </div>

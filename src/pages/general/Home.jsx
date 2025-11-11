@@ -216,7 +216,7 @@ const Home = () => {
             {
               icon: "🌱",
               title: "100% Natural",
-              description: "No preservatives, no MSG, no artificial colors ever",
+              description: "No preservatives, no MSG Powder, no artificial colors ever",
               color: "from-green-50 to-green-100/50"
             },
             {
@@ -228,7 +228,7 @@ const Home = () => {
             {
               icon: "⭐",
               title: "Proven Quality",
-              description: "Trusted by 50,000+ families across India",
+              description: "Trusted by 10k+ families across India",
               color: "from-purple-50 to-purple-100/50"
             }
           ].map((feature, index) => (
@@ -264,7 +264,7 @@ const Home = () => {
         >
           <div className="bg-gradient-to-r from-primary/10 to-primary/5 p-8 rounded-2xl inline-block">
             <p className="font-SpaceGrotesk text-gray-700 text-lg mb-4">
-              Join <strong>50,000+</strong> families across India who choose purity and tradition
+              Join <strong>10k+</strong> families across India who choose purity and tradition
             </p>
             <a
               href="/products"

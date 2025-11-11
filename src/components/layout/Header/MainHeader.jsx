@@ -368,6 +368,8 @@ const MainHeader = () => {
               initial="hidden"
               animate="visible"
             >
+
+              {/* Nav links */}
               {navItems.map((item) => (
                 <motion.li key={item.path} variants={itemVariants}>
                   <motion.a
@@ -396,6 +398,24 @@ const MainHeader = () => {
                 <FiSearch className="size-4" />
                 Search Products
               </motion.button>
+
+              {/* 👇 Added: User info at top */}
+              {isAuthenticated && (
+                <motion.li
+                  variants={itemVariants}
+                  className="flex items-center gap-3 px-4 py-3 bg-gray-50 rounded-lg mb-3"
+                >
+                  <div className="flex items-center justify-center w-10 h-10 rounded-full bg-primary text-white font-bold">
+                    {getUserDisplayName().charAt(0).toUpperCase()}
+                  </div>
+                  <div className="flex flex-col">
+                    <span className="font-semibold text-gray-900">
+                      {getUserDisplayName()}
+                    </span>
+                    <span className="text-sm text-gray-500">Welcome back 👋</span>
+                  </div>
+                </motion.li>
+              )}
 
               {/* Auth buttons */}
               <div className="border-t border-gray-200 mt-3 pt-3">
@@ -430,6 +450,8 @@ const MainHeader = () => {
           </motion.div>
         )}
       </AnimatePresence>
+
+
     </motion.nav>
   );
 };

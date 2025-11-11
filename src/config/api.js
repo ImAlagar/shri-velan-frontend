@@ -18,7 +18,7 @@ apiClient.interceptors.request.use(
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     } else {
-      console.error('No token found for request'); // Debug
+      
     }
     return config;
   },

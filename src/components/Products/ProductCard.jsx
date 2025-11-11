@@ -152,7 +152,6 @@ const ProductCard = ({ product }) => {
       hasDiscount = false;
     }
 
-    console.log('Final display:', { currentPrice, originalPrice, hasDiscount });
     
     return { currentPrice, originalPrice, hasDiscount };
   };
@@ -211,39 +210,50 @@ const ProductCard = ({ product }) => {
         )}
       </div>
 
-      {/* Product Info */}
-      <h2 className="text-xl font-semibold mb-1 line-clamp-2">{product.name}</h2>
-      
-      {product.weight && (
-        <span className="text-sm text-gray-600 mb-2">{product.weight}g</span>
-      )}
+      <div className="flex flex-col sm:flex-col md:flex-col lg:flex-col w-full p-2 sm:p-3 md:p-4 lg:p-5">
 
-      {/* Rating Section */}
-      {hasRatings && (
-        <div className="flex items-center gap-2 mb-2">
-          <div className="flex items-center gap-1">
-            {renderStarRating(averageRating)}
-          </div>
-          <span className="text-sm text-gray-600">
-            ({averageRating.toFixed(1)})
-          </span>
-          <span className="text-sm text-gray-500">
-            {ratingCount} {ratingCount === 1 ? 'review' : 'reviews'}
-          </span>
-        </div>
-      )}
+        {/* Product Info */}
+        <h2 className="text-base sm:text-lg md:text-xl lg:text-2xl font-semibold mb-1 line-clamp-2">
+          {product.name}
+        </h2>
 
-      {/* No Ratings Message */}
-      {!hasRatings && (
-        <div className="flex items-center gap-2 mb-2">
-          <div className="flex items-center gap-1">
-            {[1, 2, 3, 4, 5].map((star) => (
-              <FaRegStar key={star} className="text-gray-300" />
-            ))}
+        {product.weight && (
+          <span className="text-xs sm:text-sm md:text-base text-gray-600 mb-2">
+            {product.weight >= 1000 
+              ? `${product.weight % 1000 === 0 ? product.weight / 1000 : (product.weight / 1000).toFixed(1)}kg`
+              : `${product.weight}g`
+            }
+          </span>
+        )}
+
+        {/* Rating Section */}
+        {hasRatings ? (
+          <div className="flex items-center gap-1 sm:gap-2 mb-2">
+            <div className="flex items-center gap-0.5 sm:gap-1">
+              {renderStarRating(averageRating)}
+            </div>
+            <span className="text-xs sm:text-sm md:text-base text-gray-600">
+              ({averageRating.toFixed(1)})
+            </span>
+            <span className="text-xs sm:text-sm md:text-base text-gray-500">
+              {ratingCount} {ratingCount === 1 ? 'review' : 'reviews'}
+            </span>
           </div>
-          <span className="text-sm text-gray-500">No reviews yet</span>
-        </div>
-      )}
+        ) : (
+          /* No Ratings Message */
+          <div className="flex items-center gap-1 sm:gap-2 mb-2">
+            <div className="flex items-center gap-0.5 sm:gap-1">
+              {[1, 2, 3, 4, 5].map((star) => (
+                <FaRegStar key={star} className="text-gray-300" />
+              ))}
+            </div>
+            <span className="text-xs sm:text-sm md:text-base text-gray-500">
+              No reviews yet
+            </span>
+          </div>
+        )}
+
+      </div>
 
       {/* Price Display */}
       <div className="mb-3">

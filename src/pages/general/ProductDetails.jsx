@@ -440,44 +440,43 @@ const ProductDetails = () => {
             </div>
 
             {/* Product Info Section */}
-            <div className="space-y-6">
+            <div className="space-y-6 w-full px-3 sm:px-4 md:px-6 lg:px-8 xl:px-10">
+
               {/* Header Section */}
               <motion.div variants={itemVariants} className="space-y-4">
-                <div className="flex items-start justify-between">
+                <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
+                  
+                  {/* Product Info */}
                   <div className="space-y-3 flex-1">
-                    <h1 className="text-3xl font-bold text-gray-900 leading-tight">
+                    <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 leading-tight break-words">
                       {product.name}
                     </h1>
-                    
+
                     {/* Category and Weight */}
-                    <div className="flex items-center gap-4 text-sm text-gray-600">
+                    <div className="flex flex-wrap items-center gap-2 sm:gap-3 text-xs sm:text-sm text-gray-600">
                       {product.category && (
-                        <span className="flex items-center gap-1 bg-gray-100 px-3 py-1 rounded-full">
+                        <span className="flex items-center gap-1 bg-gray-100 px-2 sm:px-3 py-1 rounded-full">
                           <Tag size={14} />
                           {product.category.name}
                         </span>
                       )}
-                      
-                        {product.weight && (
-                          <span className="flex items-center gap-1 bg-gray-100 px-3 py-1 rounded-full">
-                            <Weight size={14} />
-                            {product.weight < 1000
-                              ? `${product.weight} g`
-                              : `${(product.weight / 1000).toFixed(
-                                  product.weight % 1000 === 0 ? 0 : 1
-                                )} kg`}
-                          </span>
-                        )}
-
+                      {product.weight && (
+                        <span className="flex items-center gap-1 bg-gray-100 px-2 sm:px-3 py-1 rounded-full">
+                          <Weight size={14} />
+                          {product.weight < 1000
+                            ? `${product.weight} g`
+                            : `${(product.weight / 1000).toFixed(product.weight % 1000 === 0 ? 0 : 1)} kg`}
+                        </span>
+                      )}
                     </div>
-                    
+
                     {/* Rating */}
-                    <div className="flex items-center gap-3">
-                      <div className="flex items-center gap-1 bg-yellow-50 px-3 py-1 rounded-full">
+                    <div className="flex items-center gap-2 sm:gap-3 flex-wrap">
+                      <div className="flex items-center gap-0.5 sm:gap-1 bg-yellow-50 px-2 sm:px-3 py-1 rounded-full">
                         {[...Array(5)].map((_, i) => (
                           <Star
                             key={i}
-                            size={16}
+                            size={14}
                             className={`${
                               i < Math.floor(averageRating)
                                 ? 'text-yellow-400 fill-current'
@@ -485,132 +484,122 @@ const ProductDetails = () => {
                             }`}
                           />
                         ))}
-                        <span className="text-sm font-semibold text-gray-700 ml-1">
+                        <span className="text-xs sm:text-sm font-semibold text-gray-700 ml-1">
                           {averageRating.toFixed(1)}
                         </span>
                       </div>
-                      <span className="text-sm text-gray-500">
+                      <span className="text-xs sm:text-sm text-gray-500">
                         ({totalRatings} {totalRatings === 1 ? 'review' : 'reviews'})
                       </span>
                     </div>
                   </div>
 
                   {/* Action Buttons */}
-                  <div className="flex gap-2 ml-4">
-
-                    
+                  <div className="flex gap-2 sm:gap-3 self-start sm:self-center">
                     <motion.button
                       onClick={handleShare}
-                      className="p-3 rounded-lg border border-gray-200 bg-gray-50 text-gray-600 hover:bg-blue-50 hover:border-blue-200 hover:text-blue-500 transition-all duration-300"
+                      className="p-2 sm:p-3 rounded-lg border border-gray-200 bg-gray-50 text-gray-600 hover:bg-blue-50 hover:border-blue-200 hover:text-blue-500 transition-all duration-300"
                       variants={buttonVariants}
                       whileHover="hover"
                       whileTap="tap"
                     >
-                      <Share2 size={20} />
+                      <Share2 size={18} className="sm:size-20 lg:size-4" />
                     </motion.button>
                   </div>
                 </div>
               </motion.div>
 
-            {/* Price Section */}
-            <motion.div variants={itemVariants} className="space-y-2 pt-4 border-t">
-              <div className="flex items-center gap-3 flex-wrap">
-                {(() => {
-                  // Determine which price is actually the current price and which is original
-                  const hasOfferPrice = product.offerPrice && product.offerPrice > 0;
-                  const hasNormalPrice = product.normalPrice && product.normalPrice > 0;
-                  
-                  let currentPrice, originalPrice, hasDiscount;
-                  
-                  if (hasOfferPrice && hasNormalPrice) {
-                    // Check which price is actually the discounted price
-                    if (product.offerPrice < product.normalPrice) {
-                      // Normal case: offerPrice is discounted price
+              {/* Price Section */}
+              <motion.div variants={itemVariants} className="space-y-2 pt-4 border-t">
+                <div className="flex items-center gap-2 sm:gap-3 flex-wrap">
+                  {(() => {
+                    const hasOfferPrice = product.offerPrice && product.offerPrice > 0;
+                    const hasNormalPrice = product.normalPrice && product.normalPrice > 0;
+                    let currentPrice, originalPrice, hasDiscount;
+
+                    if (hasOfferPrice && hasNormalPrice) {
+                      if (product.offerPrice < product.normalPrice) {
+                        currentPrice = product.offerPrice;
+                        originalPrice = product.normalPrice;
+                        hasDiscount = true;
+                      } else {
+                        currentPrice = product.normalPrice;
+                        originalPrice = product.offerPrice;
+                        hasDiscount = true;
+                      }
+                    } else if (hasOfferPrice) {
                       currentPrice = product.offerPrice;
-                      originalPrice = product.normalPrice;
-                      hasDiscount = true;
-                    } else {
-                      // Reverse case: normalPrice is actually the discounted price
+                      originalPrice = null;
+                      hasDiscount = false;
+                    } else if (hasNormalPrice) {
                       currentPrice = product.normalPrice;
-                      originalPrice = product.offerPrice;
-                      hasDiscount = true;
+                      originalPrice = null;
+                      hasDiscount = false;
+                    } else {
+                      currentPrice = product.price || 0;
+                      originalPrice = null;
+                      hasDiscount = false;
                     }
-                  } else if (hasOfferPrice) {
-                    // Only offer price exists
-                    currentPrice = product.offerPrice;
-                    originalPrice = null;
-                    hasDiscount = false;
-                  } else if (hasNormalPrice) {
-                    // Only normal price exists
-                    currentPrice = product.normalPrice;
-                    originalPrice = null;
-                    hasDiscount = false;
-                  } else {
-                    // Fallback to price field
-                    currentPrice = product.price || 0;
-                    originalPrice = null;
-                    hasDiscount = false;
-                  }
-                  
-                  return (
-                    <>
-                      <span className="text-3xl font-bold text-gray-900">
-                        ₹{currentPrice}
-                      </span>
-                      {hasDiscount && originalPrice && (
-                        <>
-                          <span className="text-xl text-gray-400 line-through">
-                            ₹{originalPrice}
-                          </span>
-                          <span className="bg-red-500 text-white px-2 py-1 rounded text-sm font-semibold">
-                            {Math.round(((originalPrice - currentPrice) / originalPrice) * 100)}% OFF
-                          </span>
-                        </>
-                      )}
-                    </>
-                  );
-                })()}
-              </div>
-            </motion.div>
+
+                    return (
+                      <>
+                        <span className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900">
+                          ₹{currentPrice}
+                        </span>
+                        {hasDiscount && originalPrice && (
+                          <>
+                            <span className="text-lg sm:text-xl text-gray-400 line-through">
+                              ₹{originalPrice}
+                            </span>
+                            <span className="bg-red-500 text-white px-2 sm:px-3 py-1 rounded text-xs sm:text-sm font-semibold">
+                              {Math.round(((originalPrice - currentPrice) / originalPrice) * 100)}% OFF
+                            </span>
+                          </>
+                        )}
+                      </>
+                    );
+                  })()}
+                </div>
+              </motion.div>
 
               {/* Quantity Selector */}
               {(product.stock || 0) > 0 && (
                 <motion.div variants={itemVariants} className="space-y-3 pt-4 border-t">
-                  <div className="flex items-center justify-between">
-                    <h3 className="font-semibold text-gray-900">Quantity</h3>
-                    <span className="text-sm text-gray-500">
+                  <div className="flex flex-wrap items-center justify-between gap-2">
+                    <h3 className="font-semibold text-gray-900 text-sm sm:text-base">Quantity</h3>
+                    <span className="text-xs sm:text-sm text-gray-500">
                       {product.stock} available
                     </span>
                   </div>
-                  <div className="flex items-center gap-3">
+                  <div className="flex items-center gap-2 sm:gap-3 flex-wrap">
                     <motion.button
                       onClick={() => handleQuantityChange(quantity - 1)}
                       disabled={quantity <= 1}
-                      className="w-12 h-12 rounded-lg bg-gray-100 flex items-center justify-center disabled:opacity-30 disabled:cursor-not-allowed hover:bg-gray-200 transition-colors text-gray-600"
+                      className="w-10 sm:w-12 h-10 sm:h-12 rounded-lg bg-gray-100 flex items-center justify-center disabled:opacity-30 disabled:cursor-not-allowed hover:bg-gray-200 transition-colors text-gray-600"
                       whileHover={{ scale: quantity > 1 ? 1.05 : 1 }}
                       whileTap={{ scale: 0.95 }}
                     >
-                      <Minus size={16} />
+                      <Minus size={14} />
                     </motion.button>
-                    
+
                     <motion.input
                       type="number"
                       value={quantity}
                       onChange={(e) => handleQuantityChange(parseInt(e.target.value) || 1)}
                       min="1"
                       max={product.stock}
-                      className="w-20 text-center border border-gray-300 rounded-lg py-3 px-3 font-semibold focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
+                      className="w-16 sm:w-20 text-center border border-gray-300 rounded-lg py-2 sm:py-3 px-3 font-semibold focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
                       whileFocus={{ scale: 1.02 }}
                     />
-                    
+
                     <motion.button
                       onClick={() => handleQuantityChange(quantity + 1)}
                       disabled={quantity >= product.stock}
-                      className="w-12 h-12 rounded-lg bg-gray-100 flex items-center justify-center disabled:opacity-30 disabled:cursor-not-allowed hover:bg-gray-200 transition-colors text-gray-600"
+                      className="w-10 sm:w-12 h-10 sm:h-12 rounded-lg bg-gray-100 flex items-center justify-center disabled:opacity-30 disabled:cursor-not-allowed hover:bg-gray-200 transition-colors text-gray-600"
                       whileHover={{ scale: quantity < product.stock ? 1.05 : 1 }}
                       whileTap={{ scale: 0.95 }}
                     >
-                      <Plus size={16} />
+                      <Plus size={14} />
                     </motion.button>
                   </div>
                 </motion.div>
@@ -621,14 +610,14 @@ const ProductDetails = () => {
                 <motion.button
                   onClick={handleAddToCart}
                   disabled={(product.stock || 0) === 0 || isLoading}
-                  className="flex-1 flex items-center justify-center gap-3 bg-primary hover:bg-green-700 disabled:bg-gray-400 disabled:cursor-not-allowed text-white py-3 px-6 rounded-lg font-semibold transition-all duration-300 shadow-sm hover:shadow-md"
+                  className="flex-1 flex items-center justify-center gap-2 sm:gap-3 bg-primary hover:bg-green-700 disabled:bg-gray-400 disabled:cursor-not-allowed text-white py-3 px-4 sm:px-6 rounded-lg font-semibold transition-all duration-300 shadow-sm hover:shadow-md"
                   variants={buttonVariants}
                   whileHover="hover"
                   whileTap="tap"
                 >
-                  <ShoppingCart size={20} />
+                  <ShoppingCart size={18} />
                   {isLoading ? (
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-1 sm:gap-2">
                       <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
                       Adding...
                     </div>
@@ -640,7 +629,7 @@ const ProductDetails = () => {
                 <motion.button
                   onClick={handleBuyNow}
                   disabled={(product.stock || 0) === 0}
-                  className="flex-1 bg-orange-500 hover:bg-orange-600 disabled:bg-gray-400 disabled:cursor-not-allowed text-white py-3 px-6 rounded-lg font-semibold transition-all duration-300 shadow-sm hover:shadow-md"
+                  className="flex-1 bg-orange-500 hover:bg-orange-600 disabled:bg-gray-400 disabled:cursor-not-allowed text-white py-3 px-4 sm:px-6 rounded-lg font-semibold transition-all duration-300 shadow-sm hover:shadow-md"
                   variants={buttonVariants}
                   whileHover="hover"
                   whileTap="tap"
@@ -650,17 +639,16 @@ const ProductDetails = () => {
               </motion.div>
 
               {/* Additional Info */}
-              <motion.div variants={itemVariants} className="border-t pt-6 space-y-3 text-sm">
-
-                
+              <motion.div variants={itemVariants} className="border-t pt-6 space-y-3 text-xs sm:text-sm md:text-base">
                 {product.isCombo && (
-                  <div className="flex justify-between">
+                  <div className="flex justify-between flex-wrap">
                     <span className="text-gray-600">Type:</span>
                     <span className="font-medium text-orange-500">Combo Pack</span>
                   </div>
                 )}
               </motion.div>
             </div>
+
           </div>
 
           {/* Tabs Section - UPDATED WITH PREPARING METHODS TAB */}

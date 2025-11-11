@@ -21,9 +21,7 @@ import { useToggleFeatured } from '../../../hooks/useProducts';
 const AdminProducts = () => {
   const { 
     searchTerm, 
-    setSearchTerm, 
-    filters, 
-    setFilters 
+    filters,
   } = useProductContext();
 
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
@@ -173,10 +171,10 @@ const renderProductCard = (product) => (
         <div className="mt-3 flex items-end justify-between flex-wrap gap-2">
           <div>
             <p className="text-base sm:text-lg font-bold text-gray-900">
-              ${product.normalPrice}
+              &#8377;{product.normalPrice}
               {product.offerPrice && (
                 <span className="text-sm text-red-600 line-through ml-2">
-                  ${product.offerPrice}
+                  &#8377;{product.offerPrice}
                 </span>
               )}
             </p>

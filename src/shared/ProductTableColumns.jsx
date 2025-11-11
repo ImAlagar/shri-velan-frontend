@@ -29,22 +29,26 @@ export const getProductTableColumns = (onView, onEdit, onDelete, onToggleStatus)
       </div>
     )
   },
-  {
-    title: 'Price',
-    dataIndex: 'normalPrice',
-    key: 'price',
-    sortable: true,
-    render: (record) => (
-      <div className="text-sm text-gray-900">
-        <div className="font-semibold">{record.normalPrice}</div>
-        {record.offerPrice && (
-          <div className="text-xs text-red-600 line-through">
-            {record.offerPrice}
-          </div>
-        )}
+{
+  title: 'Price',
+  dataIndex: 'normalPrice',
+  key: 'price',
+  sortable: true,
+  render: (record) => (
+    <div className="text-sm text-gray-900">
+      {/* Current Price */}
+      <div className="font-semibold">
+        ₹{record.offerPrice && record.offerPrice < record.normalPrice ? record.offerPrice : record.normalPrice}
       </div>
-    )
-  },
+      {/* Original Price (strikethrough) if there's an offer */}
+      {record.offerPrice && record.offerPrice < record.normalPrice && (
+        <div className="text-xs text-gray-500 line-through">
+          ₹{record.normalPrice}
+        </div>
+      )}
+    </div>
+  )
+},
   {
     title: 'Stock',
     dataIndex: 'stock',
