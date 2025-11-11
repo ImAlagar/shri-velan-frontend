@@ -380,48 +380,22 @@ const AdminAddProduct = () => {
             </div>
 
             {/* Benefits */}
-            <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-              <h3 className="text-lg font-semibold text-gray-900 mb-4">Benefits</h3>
-              
-              <div className="space-y-3">
-                <div className="flex space-x-2">
-                  <input
-                    type="text"
-                    value={benefitInput}
-                    onChange={(e) => setBenefitInput(e.target.value)}
-                    onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), addBenefit())}
-                    className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    placeholder="Add a benefit"
-                  />
-                  <button
-                    type="button"
-                    onClick={addBenefit}
-                    className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
-                  >
-                    Add
-                  </button>
-                </div>
-                
-                {formData.benefits.length > 0 && (
-                  <div className="flex flex-wrap gap-2">
-                    {formData.benefits.map((benefit, index) => (
-                      <span
-                        key={index}
-                        className="inline-flex items-center px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-sm"
-                      >
-                        {benefit}
-                        <button
-                          type="button"
-                          onClick={() => removeBenefit(index)}
-                          className="ml-2 text-blue-600 hover:text-blue-800"
-                        >
-                          <FiX className="w-3 h-3" />
-                        </button>
-                      </span>
-                    ))}
-                  </div>
-                )}
-              </div>
+            <div className="flex flex-col sm:flex-row sm:space-x-2 space-y-2 sm:space-y-0">
+              <input
+                type="text"
+                value={benefitInput}
+                onChange={(e) => setBenefitInput(e.target.value)}
+                onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), addBenefit())}
+                className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                placeholder="Add a benefit"
+              />
+              <button
+                type="button"
+                onClick={addBenefit}
+                className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+              >
+                Add
+              </button>
             </div>
 
             {/* Ingredients */}
@@ -429,7 +403,7 @@ const AdminAddProduct = () => {
               <h3 className="text-lg font-semibold text-gray-900 mb-4">Ingredients</h3>
               
               <div className="space-y-3">
-                <div className="flex space-x-2">
+                <div className="flex flex-col sm:flex-row sm:space-x-2 space-y-2 sm:space-y-0">
                   <input
                     type="text"
                     value={ingredientInput}
@@ -468,6 +442,73 @@ const AdminAddProduct = () => {
                 )}
               </div>
             </div>
+
+                        {/* Shipping & Tags */}
+            <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+              <h3 className="text-lg font-semibold text-gray-900 mb-4">Additional Information</h3>
+              
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Weight (kg)
+                  </label>
+                  <input
+                    type="text"
+                    name="weight"
+                    value={formData.weight}
+                    onChange={handleInputChange}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    placeholder="0.5kg"
+                  />
+                </div>
+
+                {/* Tags */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Tags
+                  </label>
+                  <div className="space-y-3">
+                    <div className="flex flex-col sm:flex-row sm:space-x-2 space-y-2 sm:space-y-0">
+                      <input
+                        type="text"
+                        value={tagInput}
+                        onChange={(e) => setTagInput(e.target.value)}
+                        onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), addTag())}
+                        className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        placeholder="Add a tag"
+                      />
+                      <button
+                        type="button"
+                        onClick={addTag}
+                        className="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors"
+                      >
+                        Add
+                      </button>
+                    </div>
+                    
+                    {formData.tags.length > 0 && (
+                      <div className="flex flex-wrap gap-2">
+                        {formData.tags.map((tag, index) => (
+                          <span
+                            key={index}
+                            className="inline-flex items-center px-3 py-1 bg-purple-100 text-purple-800 rounded-full text-sm"
+                          >
+                            {tag}
+                            <button
+                              type="button"
+                              onClick={() => removeTag(index)}
+                              className="ml-2 text-purple-600 hover:text-purple-800"
+                            >
+                              <FiX className="w-3 h-3" />
+                            </button>
+                          </span>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
 
           {/* Right Column */}
@@ -479,7 +520,7 @@ const AdminAddProduct = () => {
               <div className="space-y-4">
                 {/* Quick Add Method */}
                 <div className="space-y-3">
-                  <div className="flex space-x-2">
+                  <div className="flex flex-col sm:flex-row sm:space-x-2 space-y-2 sm:space-y-0">
                     <input
                       type="text"
                       value={preparingMethodInput}
@@ -677,77 +718,12 @@ const AdminAddProduct = () => {
               </div>
             </div>
 
-            {/* Shipping & Tags */}
-            <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-              <h3 className="text-lg font-semibold text-gray-900 mb-4">Additional Information</h3>
-              
-              <div className="space-y-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Weight (kg)
-                  </label>
-                  <input
-                    type="text"
-                    name="weight"
-                    value={formData.weight}
-                    onChange={handleInputChange}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    placeholder="0.5kg"
-                  />
-                </div>
 
-                {/* Tags */}
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Tags
-                  </label>
-                  <div className="space-y-3">
-                    <div className="flex space-x-2">
-                      <input
-                        type="text"
-                        value={tagInput}
-                        onChange={(e) => setTagInput(e.target.value)}
-                        onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), addTag())}
-                        className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                        placeholder="Add a tag"
-                      />
-                      <button
-                        type="button"
-                        onClick={addTag}
-                        className="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors"
-                      >
-                        Add
-                      </button>
-                    </div>
-                    
-                    {formData.tags.length > 0 && (
-                      <div className="flex flex-wrap gap-2">
-                        {formData.tags.map((tag, index) => (
-                          <span
-                            key={index}
-                            className="inline-flex items-center px-3 py-1 bg-purple-100 text-purple-800 rounded-full text-sm"
-                          >
-                            {tag}
-                            <button
-                              type="button"
-                              onClick={() => removeTag(index)}
-                              className="ml-2 text-purple-600 hover:text-purple-800"
-                            >
-                              <FiX className="w-3 h-3" />
-                            </button>
-                          </span>
-                        ))}
-                      </div>
-                    )}
-                  </div>
-                </div>
-              </div>
-            </div>
           </div>
         </div>
 
         {/* Form Actions */}
-        <div className="flex justify-end space-x-4 pt-6 border-t border-gray-200">
+        <div className="flex flex-col sm:flex-row sm:space-x-2 space-y-2 sm:space-y-0 justify-end border-gray-200">
           <button
             type="button"
             onClick={handleCancel}
