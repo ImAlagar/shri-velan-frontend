@@ -227,7 +227,7 @@ const AdminViewProduct = () => {
                 <label className="block text-gray-500 mb-1">Normal Price</label>
                 <div className="flex items-center space-x-2">
                   <FiDollarSign className="w-4 h-4 text-gray-500" />
-                  <p className="text-lg font-semibold text-gray-900">${product.normalPrice}</p>
+                  <p className="text-lg font-semibold text-gray-900">&#8377;{product.normalPrice}</p>
                 </div>
               </div>
               {product.offerPrice && (
@@ -235,7 +235,7 @@ const AdminViewProduct = () => {
                   <label className="block text-gray-500 mb-1">Offer Price</label>
                   <div className="flex items-center space-x-2">
                     <FiDollarSign className="w-4 h-4 text-red-500" />
-                    <p className="text-lg font-semibold text-red-600">${product.offerPrice}</p>
+                    <p className="text-lg font-semibold text-red-600">&#8377;{product.offerPrice}</p>
                   </div>
                 </div>
               )}

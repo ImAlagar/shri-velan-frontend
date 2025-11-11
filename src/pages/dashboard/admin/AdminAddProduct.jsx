@@ -379,24 +379,50 @@ const AdminAddProduct = () => {
               </div>
             </div>
 
-            {/* Benefits */}
-            <div className="flex flex-col sm:flex-row sm:space-x-2 space-y-2 sm:space-y-0">
-              <input
-                type="text"
-                value={benefitInput}
-                onChange={(e) => setBenefitInput(e.target.value)}
-                onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), addBenefit())}
-                className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                placeholder="Add a benefit"
-              />
-              <button
-                type="button"
-                onClick={addBenefit}
-                className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
-              >
-                Add
-              </button>
+          {/* Benefits */}
+          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+            <h3 className="text-lg font-semibold text-gray-900 mb-4">Benefits</h3>
+            
+            <div className="space-y-3">
+              <div className="flex flex-col sm:flex-row sm:space-x-2 space-y-2 sm:space-y-0">
+                <input
+                  type="text"
+                  value={benefitInput}
+                  onChange={(e) => setBenefitInput(e.target.value)}
+                  onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), addBenefit())}
+                  className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  placeholder="Add a benefit"
+                />
+                <button
+                  type="button"
+                  onClick={addBenefit}
+                  className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+                >
+                  Add
+                </button>
+              </div>
+              
+              {formData.benefits.length > 0 && (
+                <div className="flex flex-wrap gap-2">
+                  {formData.benefits.map((benefit, index) => (
+                    <span
+                      key={index}
+                      className="inline-flex items-center px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-sm"
+                    >
+                      {benefit}
+                      <button
+                        type="button"
+                        onClick={() => removeBenefit(index)}
+                        className="ml-2 text-blue-600 hover:text-blue-800"
+                      >
+                        <FiX className="w-3 h-3" />
+                      </button>
+                    </span>
+                  ))}
+                </div>
+              )}
             </div>
+          </div>
 
             {/* Ingredients */}
             <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
