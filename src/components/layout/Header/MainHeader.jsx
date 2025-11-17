@@ -149,9 +149,9 @@ const MainHeader = () => {
           />
         </motion.a>
 
-        {/* Desktop Nav (visible only lg and above) */}
+        {/* Desktop Nav (visible from lg screens and above) */}
         <motion.ul
-          className="hidden lg:flex items-center gap-5 xl:gap-6 font-SpaceGrotesk tracking-wide font-medium"
+          className="hidden xl:flex items-center gap-4 xl:gap-6 font-SpaceGrotesk tracking-wide font-medium"
           variants={containerVariants}
           initial="hidden"
           animate="visible"
@@ -173,8 +173,8 @@ const MainHeader = () => {
           ))}
         </motion.ul>
 
-        {/* Desktop Right Section - Search + Account (visible only lg and above) */}
-        <div className="hidden lg:flex items-center gap-4 relative z-50">
+        {/* Desktop Right Section - Search + Account (visible from lg and above) */}
+        <div className="hidden xl:flex items-center gap-4 relative z-50">
           {/* Search Button - Large Screens */}
           <motion.button
             onClick={() => setSearchOpen(true)}
@@ -244,8 +244,8 @@ const MainHeader = () => {
           )}
         </div>
 
-        {/* Mobile Right Section - Search + Hamburger (visible md and below) */}
-        <div className="lg:hidden flex items-center gap-3 z-50">
+        {/* Mobile Right Section - Search + Hamburger (visible below lg screens) */}
+        <div className="xl:hidden flex items-center gap-3 z-50">
           {/* Search Button - Mobile */}
           <motion.button
             onClick={() => setSearchOpen(true)}
@@ -352,7 +352,7 @@ const MainHeader = () => {
         )}
       </AnimatePresence>
 
-      {/* Mobile Menu (visible md and below) */}
+      {/* Mobile Menu (visible below lg screens) */}
       <AnimatePresence>
         {menuOpen && (
           <motion.div
@@ -360,7 +360,7 @@ const MainHeader = () => {
             initial="closed"
             animate="open"
             exit="closed"
-            className="lg:hidden bg-white/95 backdrop-blur-md absolute top-full left-0 w-full shadow-2xl border-t border-gray-200 z-40 overflow-hidden"
+            className="xl:hidden bg-white/95 backdrop-blur-md absolute top-full left-0 w-full shadow-2xl border-t border-gray-200 z-40 overflow-hidden"
           >
             <motion.ul
               className="flex flex-col gap-2 px-4 py-5 font-medium text-gray-900"
@@ -399,7 +399,7 @@ const MainHeader = () => {
                 Search Products
               </motion.button>
 
-              {/* 👇 Added: User info at top */}
+              {/* User info at top */}
               {isAuthenticated && (
                 <motion.li
                   variants={itemVariants}
@@ -450,8 +450,6 @@ const MainHeader = () => {
           </motion.div>
         )}
       </AnimatePresence>
-
-
     </motion.nav>
   );
 };

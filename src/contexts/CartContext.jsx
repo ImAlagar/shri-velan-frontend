@@ -7,7 +7,9 @@ export const CartProvider = ({ children }) => {
   const [cartItems, setCartItems] = useState(() => {
     try {
       const stored = localStorage.getItem("cart");
-      return stored ? JSON.parse(stored) : [];
+      const parsed = stored ? JSON.parse(stored) : [];
+      // Ensure we always return an array
+      return Array.isArray(parsed) ? parsed : [];
     } catch (error) {
       console.error("Error loading cart from localStorage:", error);
       return [];
@@ -24,33 +26,49 @@ export const CartProvider = ({ children }) => {
     }
   }, [cartItems]);
 
-  // Calculate cart totals
+  // Calculate cart totals with safety checks
   const getCartTotal = () => {
+    if (!Array.isArray(cartItems)) return 0;
+    
     return cartItems.reduce((total, item) => {
-      return total + (item.offerPrice * item.quantity);
+      const price = Number(item?.offerPrice) || Number(item?.price) || 0;
+      const quantity = Number(item?.quantity) || 0;
+      return total + (price * quantity);
     }, 0);
   };
 
   const getCartItemsCount = () => {
-    return cartItems.reduce((total, item) => total + item.quantity, 0);
+    // Add safety checks
+    if (!Array.isArray(cartItems)) {
+      console.warn('cartItems is not an array:', cartItems);
+      return 0;
+    }
+    
+    return cartItems.reduce((total, item) => {
+      const quantity = Number(item?.quantity) || 0;
+      return total + quantity;
+    }, 0);
   };
 
   const addToCart = (product) => {
     setCartItems((prev) => {
-      const exists = prev.find((item) => item.id === product.id);
+      // Ensure prev is always an array
+      const previousItems = Array.isArray(prev) ? prev : [];
+      
+      const exists = previousItems.find((item) => item.id === product.id);
       if (exists) {
-        return prev.map((item) =>
+        return previousItems.map((item) =>
           item.id === product.id
             ? { 
                 ...item, 
-                quantity: item.quantity + (product.quantity || 1) 
+                quantity: item.quantity + (Number(product.quantity) || 1) 
               }
             : item
         );
       }
-      return [...prev, { 
+      return [...previousItems, { 
         ...product, 
-        quantity: product.quantity || 1,
+        quantity: Number(product.quantity) || 1,
         // Ensure all required fields are present
         price: product.offerPrice || product.price,
         inStock: product.stock > 0
@@ -59,40 +77,48 @@ export const CartProvider = ({ children }) => {
   };
 
   const updateQuantity = (id, quantity) => {
-    if (quantity < 1) {
+    const numQuantity = Number(quantity);
+    if (numQuantity < 1) {
       removeFromCart(id);
       return;
     }
     
-    setCartItems((prev) =>
-      prev.map((item) =>
-        item.id === id ? { ...item, quantity: Math.max(1, quantity) } : item
-      )
-    );
+    setCartItems((prev) => {
+      const previousItems = Array.isArray(prev) ? prev : [];
+      return previousItems.map((item) =>
+        item.id === id ? { ...item, quantity: numQuantity } : item
+      );
+    });
   };
 
   const removeFromCart = (id) => {
-    setCartItems((prev) => prev.filter((item) => item.id !== id));
+    setCartItems((prev) => {
+      const previousItems = Array.isArray(prev) ? prev : [];
+      return previousItems.filter((item) => item.id !== id);
+    });
   };
 
   const clearCart = () => setCartItems([]);
 
   const isInCart = (id) => {
-    return cartItems.some(item => item.id === id);
+    return Array.isArray(cartItems) && cartItems.some(item => item.id === id);
   };
 
   const getItemQuantity = (id) => {
+    if (!Array.isArray(cartItems)) return 0;
     const item = cartItems.find(item => item.id === id);
-    return item ? item.quantity : 0;
+    return item ? Number(item.quantity) || 0 : 0;
   };
 
   const getSafeItems = (items) => {
+    if (!Array.isArray(items)) return [];
+    
     return items.map(item => ({
       id: item.id || '',
       name: item.name || 'Unknown Product',
       price: item.price || 0,
       offerPrice: item.offerPrice || item.price || 0,
-      quantity: item.quantity || 1,
+      quantity: Number(item.quantity) || 1,
       image: item.image || item.images?.[0] || '/images/placeholder.jpg',
       stock: item.stock || 0,
       inStock: item.inStock !== false,
@@ -104,7 +130,7 @@ export const CartProvider = ({ children }) => {
   return (
     <CartContext.Provider
       value={{
-        cartItems,
+        cartItems: Array.isArray(cartItems) ? cartItems : [],
         addToCart,
         getSafeItems,
         updateQuantity,
