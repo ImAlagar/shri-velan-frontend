@@ -1,7 +1,7 @@
 // src/pages/Checkout.jsx
 import React, { useContext, useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { FaLock, FaMapMarkerAlt, FaCreditCard, FaMoneyBill, FaWallet, FaArrowLeft, FaTruck, FaTag, FaWeightHanging } from 'react-icons/fa';
+import { FaLock, FaMapMarkerAlt, FaCreditCard, FaMoneyBill, FaWallet, FaArrowLeft, FaTruck, FaTag, FaWeightHanging, FaShippingFast } from 'react-icons/fa';
 import { Link, useNavigate } from 'react-router-dom';
 import { toast } from 'react-hot-toast';
 import { CartContext } from '../../contexts/CartContext';
@@ -29,6 +29,15 @@ const Checkout = () => {
   const validateCouponMutation = useValidateCoupon();
   const calculateOrderShippingMutation = useCalculateOrderShipping();
 
+  // Available courier options - FIXED: Removed duplicate label key
+  const courierOptions = [
+    { value: 'professional', label: 'Professional Courier', description: 'Standard delivery (3-5 days)' },
+    { value: 'delhivery', label: 'Delhivery', description: 'Fast delivery (2-4 days)' },
+    { value: 'bluedart', label: 'Blue Dart', description: 'Premium delivery (1-3 days)' },
+    { value: 'dtdc', label: 'DTDC', description: 'Economy delivery (4-7 days)' }, // FIXED: Removed duplicate label
+    { value: 'others', label: 'Others', description: 'We will choose the best available courier' }
+  ];
+
   // Pre-fill form with user data if available
   const [formData, setFormData] = useState({
     firstName: user?.firstName || '',
@@ -39,10 +48,12 @@ const Checkout = () => {
     city: user?.city || '',
     state: user?.state || '',
     pincode: user?.pincode || '',
-    paymentMethod: 'card'
+    paymentMethod: 'card',
+    preferredCourier: '', // New field
+    courierInstructions: '' // New field
   });
 
-  // Safe cart items processing
+  // Safe cart items processing (keep your existing function)
   const getSafeCartItems = () => {
     if (!cartItems || !Array.isArray(cartItems)) {
       return [];
@@ -120,19 +131,15 @@ const Checkout = () => {
     }
   };
 
-  // FIXED: Safe discount calculation
+  // FIXED: Safe discount calculation (keep your existing function)
   const calculateDiscount = () => {
     if (!appliedCoupon) return 0;
     
-    // Extract coupon data - handle nested structure
     const couponData = appliedCoupon.coupon || appliedCoupon;
-    
-    // Handle different coupon response structures safely
     const discountType = couponData.discountType || couponData.type;
     const discountValue = couponData.discountValue || couponData.value;
     const maxDiscount = couponData.maxDiscount;
 
-    // Validate required fields
     if (!discountType || discountValue === undefined || discountValue === null) {
       console.error('Invalid coupon data:', appliedCoupon);
       return 0;
@@ -142,12 +149,10 @@ const Checkout = () => {
 
     if (discountType === 'PERCENTAGE' || discountType === 'percentage') {
       discountAmount = (subtotal * Number(discountValue)) / 100;
-      // Apply max discount limit if exists
       if (maxDiscount && discountAmount > maxDiscount) {
         discountAmount = Number(maxDiscount);
       }
     } else {
-      // Fixed amount discount
       discountAmount = Math.min(Number(discountValue), subtotal);
     }
 
@@ -162,6 +167,15 @@ const Checkout = () => {
     setFormData(prev => ({
       ...prev,
       [name]: value
+    }));
+  };
+
+  // Handle courier selection
+  const handleCourierChange = (e) => {
+    const { value } = e.target;
+    setFormData(prev => ({
+      ...prev,
+      preferredCourier: value
     }));
   };
 
@@ -243,7 +257,9 @@ const Checkout = () => {
               discount: discount,
               total: total,
               couponCode: appliedCoupon ? (appliedCoupon.coupon?.code || appliedCoupon.code) : null,
-              userId: user.id
+              userId: user.id,
+              preferredCourier: formData.preferredCourier, // Include courier preference
+              courierInstructions: formData.courierInstructions // Include instructions
             }
           };
 
@@ -332,7 +348,9 @@ const Checkout = () => {
           shipping: shippingRate,
           subtotal: subtotal,
           discount: discount,
-          total: total
+          total: total,
+          preferredCourier: formData.preferredCourier, // Include courier preference
+          courierInstructions: formData.courierInstructions // Include instructions
         };
 
         const result = await createRazorpayOrderMutation.mutateAsync(orderData);
@@ -358,7 +376,9 @@ const Checkout = () => {
           total: total,
           couponCode: appliedCoupon ? appliedCoupon.code : null,
           userId: user.id,
-          paymentMethod: 'cod'
+          paymentMethod: 'cod',
+          preferredCourier: formData.preferredCourier, // Include courier preference
+          courierInstructions: formData.courierInstructions // Include instructions
         };
 
         await verifyPaymentMutation.mutateAsync({
@@ -571,6 +591,54 @@ const Checkout = () => {
                     </div>
                   </div>
 
+                  {/* Courier Preference Section */}
+                  <div className="mt-6 pt-6 border-t border-gray-200">
+                    <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
+                      <FaShippingFast className="w-5 h-5 text-green-600" />
+                      <span>Courier Preference (Optional)</span>
+                    </h3>
+                    
+                    <div className="space-y-4">
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                          Preferred Courier Service
+                        </label>
+                        <select
+                          name="preferredCourier"
+                          value={formData.preferredCourier}
+                          onChange={handleCourierChange}
+                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                        >
+                          <option value="">Select a courier service (Optional)</option>
+                          {courierOptions.map((courier) => (
+                            <option key={courier.value} value={courier.value}>
+                              {courier.label} - {courier.description}
+                            </option>
+                          ))}
+                        </select>
+                        <p className="text-sm text-gray-500 mt-1">
+                          We'll try to use your preferred courier, but availability may vary by location
+                        </p>
+                      </div>
+
+                      {formData.preferredCourier && (
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-2">
+                            Special Instructions for Courier (Optional)
+                          </label>
+                          <textarea
+                            name="courierInstructions"
+                            value={formData.courierInstructions}
+                            onChange={handleInputChange}
+                            rows={2}
+                            placeholder="e.g., Leave at security, Call before delivery, etc."
+                            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                          />
+                        </div>
+                      )}
+                    </div>
+                  </div>
+
                   {/* Shipping Rate Display */}
                   {formData.state && inStockItems.length > 0 && (
                     <div className="mt-4 p-4 bg-blue-50 border border-blue-200 rounded-lg">
@@ -780,6 +848,19 @@ const Checkout = () => {
                     </div>
                   </div>
                 </div>
+
+                {/* Courier Preference Display in Summary */}
+                {formData.preferredCourier && (
+                  <div className="mt-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+                    <div className="flex items-center gap-2 text-blue-800">
+                      <FaShippingFast className="w-4 h-4" />
+                      <span className="text-sm font-medium">Preferred Courier</span>
+                    </div>
+                    <p className="text-xs text-blue-600 mt-1">
+                      {courierOptions.find(c => c.value === formData.preferredCourier)?.label}
+                    </p>
+                  </div>
+                )}
 
                 {/* Shipping Info */}
                 {!shippingLoading && shippingRate > 0 && (

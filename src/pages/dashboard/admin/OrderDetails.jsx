@@ -11,6 +11,8 @@ import {
   FiMapPin,
   FiCreditCard,
   FiShoppingBag,
+  FiPackage,
+  FiMessageSquare
 } from "react-icons/fi";
 import { toast } from "react-hot-toast";
 import { useOrder, useUpdateOrderStatus } from "../../../hooks/useOrders";
@@ -36,6 +38,15 @@ const OrderDetails = () => {
     if (orderResponse?.data) setOrder(orderResponse.data);
     else if (orderResponse) setOrder(orderResponse);
   }, [orderResponse]);
+
+  // Courier options mapping
+  const courierOptions = {
+    professional: { label: "Professional Courier", description: "Standard delivery (3-5 days)" },
+    delhivery: { label: "Delhivery", description: "Fast delivery (2-4 days)" },
+    bluedart: { label: "Blue Dart", description: "Premium delivery (1-3 days)" },
+    dtdc: { label: "DTDC", description: "Economy delivery (4-7 days)" },
+    others: { label: "Others", description: "We will choose the best available courier" }
+  };
 
   const statusColors = {
     PENDING: "bg-yellow-100 text-yellow-800 border-yellow-200",
@@ -206,6 +217,48 @@ const OrderDetails = () => {
                   </span>
                 </div>
               </div>
+
+              {/* Courier Preference Section */}
+              {(order.preferredCourier || order.courierInstructions) && (
+                <div className="bg-white rounded-xl border border-gray-200 p-4 sm:p-6">
+                  <h2 className="text-base font-semibold text-gray-900 mb-4 flex items-center gap-2">
+                    <FiPackage className="text-blue-500" />
+                    Courier Preference
+                  </h2>
+                  <div className="space-y-3">
+                    {order.preferredCourier && (
+                      <div className="flex flex-col sm:flex-row sm:items-center gap-3 p-3 bg-blue-50 rounded-lg border border-blue-200">
+                        <FiTruck className="w-5 h-5 text-blue-600 flex-shrink-0" />
+                        <div className="flex-1">
+                          <p className="font-medium text-blue-800 text-sm">
+                            Preferred Courier Service
+                          </p>
+                          <p className="text-blue-700">
+                            {courierOptions[order.preferredCourier]?.label || order.preferredCourier}
+                          </p>
+                          {courierOptions[order.preferredCourier]?.description && (
+                            <p className="text-blue-600 text-xs mt-1">
+                              {courierOptions[order.preferredCourier].description}
+                            </p>
+                          )}
+                        </div>
+                      </div>
+                    )}
+                    
+                    {order.courierInstructions && (
+                      <div className="flex gap-3 p-3 bg-green-50 rounded-lg border border-green-200">
+                        <FiMessageSquare className="w-5 h-5 text-green-600 flex-shrink-0 mt-0.5" />
+                        <div className="flex-1">
+                          <p className="font-medium text-green-800 text-sm">
+                            Special Instructions
+                          </p>
+                          <p className="text-green-700 text-sm">{order.courierInstructions}</p>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
 
               {/* Items */}
               <div className="bg-white rounded-xl border border-gray-200 p-4 sm:p-6">

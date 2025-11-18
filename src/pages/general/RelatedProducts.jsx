@@ -151,7 +151,7 @@ const RelatedProducts = ({ currentProductId, categoryId }) => {
             return (
               <div
                 key={product.id}
-                className="flex-none w-64 sm:w-72 bg-white rounded-xl shadow-sm border border-gray-100 hover:shadow-md transition-all duration-300 snap-start cursor-pointer flex flex-col"
+                className="flex-none w-72 h-96 sm:w-72 bg-white rounded-xl shadow-sm border border-gray-100 hover:shadow-md transition-all duration-300 snap-start cursor-pointer flex flex-col"
                 onClick={() => handleViewDetails(product)}
               >
                 {/* Product Image */}
@@ -159,7 +159,7 @@ const RelatedProducts = ({ currentProductId, categoryId }) => {
                   <img
                     src={product.images?.[0] || '/images/placeholder-product.jpg'}
                     alt={product.name}
-                    className="w-full h-48 object-cover transition-transform duration-500 hover:scale-105"
+                    className="w-full h-60 object-cover transition-transform duration-500 hover:scale-105"
                     onError={(e) => {
                       e.target.src = '/images/placeholder-product.jpg';
                     }}
@@ -175,12 +175,12 @@ const RelatedProducts = ({ currentProductId, categoryId }) => {
 
                 {/* Product Info */}
                 <div className="p-4 flex flex-col flex-1">
-                  <h3 className="font-semibold text-gray-900 mb-2 line-clamp-2 leading-tight min-h-[3rem]">
+                  <h3 className="font-semibold text-gray-900 line-clamp-2 leading-tight">
                     {product.name}
                   </h3>
 
                   {/* Price */}
-                  <div className="flex items-center gap-2 mb-3 mt-auto">
+                  <div className="flex items-center gap-2 mt-auto">
                     <span className="text-xl font-bold text-green-700">
                       ₹{currentPrice}
                     </span>
