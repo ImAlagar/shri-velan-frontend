@@ -104,7 +104,7 @@ const Footer = () => {
 
       <footer className="bg-gray-900 text-white">
         <motion.div
-          className="container mx-auto px-5 lg:px-12 py-12 lg:py-16"
+          className=" px-5 lg:px-12 py-12 lg:py-16"
           initial="hidden"
           whileInView="visible"
           variants={footerVariants}
@@ -263,7 +263,7 @@ const Footer = () => {
           transition={{ duration: 0.6 }}
           viewport={{ once: true }}
         >
-          <div className="container mx-auto px-4 sm:px-6 lg:px-16">
+          <div className=" px-4 sm:px-6 lg:px-16">
             <div className="flex flex-col md:flex-row justify-between items-center text-center md:text-left gap-6">
               <p className="font-SpaceGrotesk tracking-wide text-gray-400 text-sm sm:text-base">
                 © {currentYear} Shri Velan Organic Foods. All rights reserved.

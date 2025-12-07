@@ -134,7 +134,7 @@ const MainHeader = () => {
       <Topbar />
 
       {/* Main Container */}
-      <div className="container mx-auto flex justify-between items-center px-4 sm:px-6 md:px-8 lg:px-12 py-4 relative">
+      <div className=" flex justify-between items-center px-4 sm:px-6 md:px-8 lg:px-12 py-4 relative">
         {/* Logo */}
         <motion.a
           href="/"
