@@ -598,7 +598,6 @@ const AdminOrders = () => {
                 <thead>
                   <tr className="border-b border-gray-200">
                     <th className="text-left p-4 font-semibold text-gray-900">Product</th>
-                    <th className="text-left p-4 font-semibold text-gray-900">Order ID</th>
                     <th className="text-left p-4 font-semibold text-gray-900">Customer</th>
                     <th className="text-left p-4 font-semibold text-gray-900">Date</th>
                     <th className="text-left p-4 font-semibold text-gray-900">Amount</th>
@@ -629,11 +628,6 @@ const AdminOrders = () => {
                             <div className="text-sm font-medium text-gray-900 max-w-xs truncate">
                               {productNames}
                             </div>
-                          </div>
-                        </td>
-                        <td className="p-4">
-                          <div className="text-sm font-medium text-gray-900">
-                            {order.orderNumber || 'N/A'}
                           </div>
                         </td>
                         <td className="p-4">
