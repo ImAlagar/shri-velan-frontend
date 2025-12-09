@@ -39,7 +39,7 @@ const ProductStats = ({ stats = {} }) => {
     },
     {
       title: "Inventory Value",
-      value: `$${(overview.totalInventoryValue || 0).toLocaleString()}`,
+      value: `₹${(overview.totalInventoryValue || 0).toLocaleString()}`,
       change: 15, // You might want to calculate this from your data
       icon: DollarSign,
       color: "green",

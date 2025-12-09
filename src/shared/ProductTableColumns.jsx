@@ -37,12 +37,12 @@ export const getProductTableColumns = (onView, onEdit, onDelete, onToggleStatus)
     <div className="text-sm text-gray-900">
       {/* Current Price - normalPrice */}
       <div className="font-semibold">
-        ₹{record.normalPrice}
+        ₹{record.offerPrice}
       </div>
       {/* Original Price (strikethrough) if there's an offerPrice */}
       {record.offerPrice && (
         <div className="text-xs text-gray-500 line-through">
-          ₹{record.offerPrice}
+          ₹{record.normalPrice}
         </div>
       )}
     </div>
