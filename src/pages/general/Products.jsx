@@ -1,6 +1,4 @@
 import React, { useContext, useEffect, useState } from "react";
-import Lottie from "lottie-react";
-import noProducts from "../../assets/Error.json";
 import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
 import Loader from "../../components/Loader/Loader";
@@ -18,7 +16,7 @@ const Products = () => {
   const navigate = useNavigate();
 
   // Use the useProducts hook
-  const { data: productsData, isLoading, error: queryError } = useProducts();
+  const { data: productsData, isLoading, error: queryError } = useProducts({limit:1000});
   
   // Get categories for sidebar
   const { data: categoriesResponse } = useActiveCategories();
