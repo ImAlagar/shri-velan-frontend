@@ -225,7 +225,7 @@ const Checkout = () => {
       document.body.appendChild(script);
     });
   };
-
+  
   const handleRazorpayPayment = async (orderData) => {
     const isScriptLoaded = await loadRazorpayScript();
     if (!isScriptLoaded) {
@@ -242,6 +242,15 @@ const Checkout = () => {
       order_id: orderData.razorpayOrderId,
       handler: async function (response) {
         try {
+
+              if (window.fbq) {
+              window.fbq('track', 'Purchase', {
+                value: Number(total.toFixed(2)), // FINAL amount
+                currency: 'INR'
+              });
+            }
+
+          
           const verificationData = {
             razorpay_order_id: response.razorpay_order_id,
             razorpay_payment_id: response.razorpay_payment_id,
@@ -386,6 +395,13 @@ const Checkout = () => {
           isCOD: true
         });
         
+        if (window.fbq) {
+            window.fbq('track', 'Purchase', {
+              value: Number(total.toFixed(2)),
+              currency: 'INR'
+            });
+          }
+
         clearCart();
         toast.success('Order placed successfully! Cash on Delivery selected.');
         navigate('/order-success');

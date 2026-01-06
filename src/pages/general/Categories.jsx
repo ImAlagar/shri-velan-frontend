@@ -3,125 +3,86 @@ import React from "react";
 import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
 import { useActiveCategories } from "../../hooks/useCategories";
-import { 
-  Baby, 
-  Heart, 
-  Leaf, 
-  Zap, 
-  Sprout,
+import {
+  Baby,
+  Heart,
+  Leaf,
+  Zap,
   Wheat,
-  Carrot,
-  Milk,
-  Apple,
-  Egg,
   Coffee,
-  Fish,
-  Nut,
   ShoppingBasket,
   Utensils,
-  CloudRain,
-  Sun
+  Sun,
+  Soup,
+  Flame
 } from "lucide-react";
-import { GiHoneyJar } from "react-icons/gi";
+
 
 const Categories = () => {
   const { data: categoriesResponse, isLoading, isError } = useActiveCategories();
+
   const categories = categoriesResponse?.data || [];
 
-  // Comprehensive icon mapping based on category names and keywords
-  const categoryIcons = {
-    // Baby & Kids
-    'baby': Baby,
-    'kids': Baby,
-    'child': Baby,
-    'infant': Baby,
-    
-    // Health & Immunity
-    'immunity': Heart,
-    'health': Heart,
-    'wellness': Heart,
-    'vitamin': Heart,
-    
-    // Organic & Natural
-    'organic': Leaf,
-    'natural': Leaf,
-    
-    // Energy & Sweeteners
-    'energy': Zap,
-    'honey': GiHoneyJar,
-    'sweet': GiHoneyJar,
-    'sugar': GiHoneyJar,
-    
-    // Vegetables & Greens
-    'vegetable': Carrot,
-    'vegetables': Carrot,
-    'greens': Sprout,
-    'leafy': Sprout,
-    
-    // Grains & Cereals
-    'grain': Wheat,
-    'grains': Wheat,
-    'cereal': Wheat,
-    'wheat': Wheat,
-    'rice': Wheat,
-    'masaia': Wheat,
-    'pool': Wheat,
-    
-    // Dairy
-    'dairy': Milk,
-    'milk': Milk,
-    'cheese': Milk,
-    'yogurt': Milk,
-    
-    // Fruits
-    'fruit': Apple,
-    'fruits': Apple,
-    'apple': Apple,
-    
-    // Protein
-    'egg': Egg,
-    'eggs': Egg,
-    'protein': Egg,
-    
-    // Beverages
-    'beverage': Coffee,
-    'drink': Coffee,
-    'coffee': Coffee,
-    'tea': Coffee,
-    
-    // Seafood
-    'fish': Fish,
-    'seafood': Fish,
-    
-    // Nuts & Seeds
-    'nut': Nut,
-    'nuts': Nut,
-    'seed': Nut,
-    
-    // Default fallbacks based on name length
-    'default': Leaf,
-    'short': ShoppingBasket,
-    'medium': Utensils,
-    'long': CloudRain
-  };
+  
 
-  const getCategoryIcon = (categoryName) => {
-    const name = categoryName.toLowerCase();
-    
-    // First, try to match by keywords in the category name
-    const keywords = Object.keys(categoryIcons);
-    for (const keyword of keywords) {
-      if (name.includes(keyword) && keyword !== 'default' && keyword !== 'short' && keyword !== 'medium' && keyword !== 'long') {
-        return categoryIcons[keyword];
-      }
+  // Comprehensive icon mapping based on category names and keywords
+const categoryIcons = {
+  // Spices
+  'spice': Flame,
+
+
+  // Noodles / Food
+  'noodle': Utensils,
+  'recipe': Utensils,
+  'breakfast': Utensils,
+
+  // Drinks
+  'drink': Coffee,
+  'health drink': Coffee,
+
+  // Porridge / Kanji
+  'kanji': Soup,
+  'kali': Soup,
+  'porridge': Soup,
+
+  // Millet / Grain
+  'millet': Wheat,
+  'rice': Wheat,
+
+  // Wellness
+  'mom': Heart,
+  'wellness': Heart,
+  'health': Heart,
+
+  // Baby
+  'baby': Baby,
+
+  // Morning
+  'morning': Sun,
+
+  // Organic
+  'organic': Leaf,
+
+  // Sample
+  'sample': ShoppingBasket,
+
+  // fallback
+  'default': Leaf
+};
+
+
+const getCategoryIcon = (categoryName) => {
+  const name = categoryName.toLowerCase();
+
+  for (const key in categoryIcons) {
+    if (name.includes(key)) {
+      return categoryIcons[key];
     }
-    
-    // If no keyword matches, choose icon based on name length
-    const nameLength = categoryName.length;
-    if (nameLength <= 8) return categoryIcons.short || ShoppingBasket;
-    if (nameLength <= 15) return categoryIcons.medium || Utensils;
-    return categoryIcons.long || CloudRain;
-  };
+  }
+
+  return Leaf; // final fallback
+};
+
 
   const getIconSize = (categoryName) => {
     const nameLength = categoryName.length;
@@ -279,7 +240,7 @@ const Categories = () => {
                     </h3>
 
                     {/* View Products Indicator */}
-                    <p className="text-xs text-green-800 hover:bg-green-700 font-medium mt-2 opacity-0 group-hover:opacity-100 transition-all duration-300">
+                    <p className="text-xs p-2 rounded-md text-green-800 hover:bg-green-700 font-medium mt-2 opacity-0 group-hover:opacity-100 transition-all duration-300">
                       Shop Now
                     </p>
                   </Link>

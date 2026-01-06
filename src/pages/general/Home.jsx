@@ -93,7 +93,7 @@ const Home = () => {
           </p>
 
           <a
-            href="#shop"
+            href="products"
             className="font-SpaceGrotesk flex bg-primary w-fit px-6 py-3 text-white tracking-widest rounded-2xl shadow-lg hover:bg-primary/90 transition duration-300"
           >
             Shop Now

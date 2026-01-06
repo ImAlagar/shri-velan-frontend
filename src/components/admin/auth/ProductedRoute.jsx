@@ -17,7 +17,11 @@ const ProtectedRoute = ({ children, requiredRole = null }) => {
   }
 
   if (!isAuthenticated) {
+      if (requiredRole === 'admin') {
     return <Navigate to="/admin/login" state={{ from: location }} replace />;
+  }
+
+    return <Navigate to="/" replace />;
   }
 
   // Check role-based access

@@ -379,10 +379,7 @@ const statusLabels = {
               <FiRefreshCw className="w-4 h-4" />
               <span>Refresh</span>
             </button>
-            <button className="flex items-center justify-center space-x-2 bg-green-600 text-white px-4 py-3 rounded-lg hover:bg-green-700 transition-colors font-medium text-sm sm:text-base whitespace-nowrap">
-              <FiMessageSquare className="w-4 h-4 sm:w-5 sm:h-5" />
-              <span>Export CSV</span>
-            </button>
+
           </div>
         </div>
 
